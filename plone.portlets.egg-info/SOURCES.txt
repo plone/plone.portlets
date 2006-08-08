@@ -1,0 +1,12 @@
+README.txt
+setup.cfg
+setup.py
+plone/__init__.py
+plone.portlets.egg-info/PKG-INFO
+plone.portlets.egg-info/SOURCES.txt
+plone.portlets.egg-info/dependency_links.txt
+plone.portlets.egg-info/entry_points.txt
+plone.portlets.egg-info/namespace_packages.txt
+plone.portlets.egg-info/not-zip-safe
+plone.portlets.egg-info/top_level.txt
+plone/portlets/__init__.py

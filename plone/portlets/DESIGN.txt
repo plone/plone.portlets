@@ -1,0 +1,27 @@
+=============================
+Plone Portlets Implementation
+=============================
+
+This package provides the fundamentals for managing portlets in Plone. Portlets are implemented here as an extension to the zope.viewlet infrastructure based on the following principles:
+
+o Anything can be made into a portlet. For example a Smart Folder (aka Topic, a canned search) can be turned into a portlet to list its contents.
+
+This is done by marking the instance with IPortletDataProvider, a generic marker interface, and providing an adapter to IPortletViewlet that is capable of rendering it as a portlet.
+
+Naturally, more specific implementations can be provided too. Anything that can be adapted to IPortletViewlet is potentially a portlet, and it does not necessarily need to be rooted in a content object. The IPortletDataProvider is an abstraction of the fact that most portlets will need some kind of persistent per-instance configuration.
+
+o Portlets can be assigned to locations (e.g. folders), groups or users.
+
+A local utility providing IPortletStorage stores the mappings of context-to-portlet, be the context a location, a group or a user. It is then capable of composing the list of portlets to be rendered at any given time.
+
+This actually stores instances of IPortletAssignment mapped to viewlet managers and locations, groups and users. IPortletAssignment should be more light-weight than a fully-fledged IPortletData, and thus more efficient to store. It provides an attribute 'data' that will be used to retrieve the appropriate IPortletData on demand.
+
+o Portlets are assigned to and rendered by a special kind of viewlet manager.
+
+The interface IPortletViewletManager describes a viewlet manager that will discover which viewlets to render by adapting the context to IPortletRetrieval.
+
+This in turn will (by default) query the active IPortletStorage for a list of portlets to be rendered relative to the context it is adapted on, and the current user and the user's groups. This yields a list of IPortletAssignments, which in turn yields a list of IPortletData instances. Each of these will be adapted to an IPortletViewlet before being returned to the IPortletViewletManager for rendering.
+
+o A context capable of being assigned portlets (via some UI outside this package) will be adaptable to IPortletManager. This mediates between the context (which may be a location, a user or a group) and the IPortletStorage where IPortletAssignments are stored.
+
+Note - the majority of the interfaces found in interfaces.py refer to things which are application-specific. These are implemented for Plone in the package plone.app.portlets.
