@@ -25,7 +25,9 @@ Let's create a dummy content object to work on
   >>> from zope.component import adapts
   >>> from zope import schema
   
-  >>> class ITestDocument(Interface):
+  >>> class ITestContent(Interface):
+  ...     pass
+  >>> class ITestDocument(ITestContent):
   ...     text = schema.TextLine(title=u"Text to render")
   >>> class TestDocument(object):
   ...     implements(ITestDocument)
@@ -74,7 +76,7 @@ much like this (see below):
   >>> viewlet.render()
   '<p>Some body text</p>'
   
-Assigning viewlets to contexts
+Assigning portlets to contexts
 ------------------------------
 
 In the example a above, TestDocument may have a purpose besides just being a
@@ -94,12 +96,12 @@ dict.
 
   >>> testUIDRegistry = {}
   
-  >>> class ITestReferenceableContent(Interface):
+  >>> class ITestReferenceable(Interface):
   ...     uid = schema.TextLine(title=u'The UID of the item')
   
-  >>> class TestDocumentLocator(object):
-  ...     implements(ITestReferenceableContent)
-  ...     adapts(ITestDocument)
+  >>> class TestContentLocator(object):
+  ...     implements(ITestReferenceable)
+  ...     adapts(ITestContent)
   ...     
   ...     def __init__(self, context):
   ...         self.context = context
@@ -107,18 +109,18 @@ dict.
   ...     @property
   ...     def uid(self):
   ...         return id(self.context)
-  >>> provideAdapter(ITestDocument, ITestReferenceableContent, TestDocumentLocator)
+  >>> provideAdapter(ITestDocument, ITestReferenceable, TestContentLocator)
   
   >>> testUIDRegistry[id(doc)] = doc
   
   >>> from plone.portlets.interfaces import IPortletAssignment
   >>> from persistent import Persistent
   
-  >>> class TestReferenceableContentPortletAssignment(Persistent):
+  >>> class TestReferenceablePortletAssignment(Persistent):
   ...     implements(IPortletAssignment)
   ...
   ...     def __init__(self, content):
-  ...         location = ITestReferenceableContent(content)
+  ...         location = ITestReferenceable(content)
   ...         self.uid = location.uid
   ...
   ...     @property
@@ -133,4 +135,82 @@ It is implied in the contract to IPortletAssignment that the data object it
 locates can be adapted to IPortletViewlet in order to render it. We will
 see how the viewlet manager does this later.
 
+A similarly generic implementation of IPortletManager will also need to be
+provided. The UI will adapt a context to this in order to manage portlet
+assignments. Typically, the portlet manager will delegate actual storage to
+a local utility providing IPortletStorage. A volatile and generic global
+(default) portlet storage utility is provided in this package.
 
+  >>> from zope.component import getUtility
+  >>> from plone.portlets.interfaces import IPortletStorage
+  >>> volatileStorage = getUtility(IPortletStorage)
+  >>> volatileStorage
+  <plone.portlets.storage.VolatilePortletStorage object at ...>
+
+Let's make a context in which the portlet manager can be made to work:
+  
+  >>> class TestFolder(object):
+  ...     implements(ITestContent)
+  >>> folder = TestFolder()
+  >>> testUIDRegistry[id(folder)] = folder
+  
+Portlets can also depend on user and group - we simply reference these from
+global variables for testing purposes.
+
+  >>> testUser = 'TestUser'
+  >>> testUserGroups = ('TestGroup1', 'TestGroup2',)
+  
+Portlets are assigned to a particular viewlet manager (representing e.g. a
+column). We will describe these in detail later, but for now, let's just
+create one:
+
+  >>> from plone.portlets.viewletmanager import PortletViewletManager
+  >>> columnOne = PortletViewletManager()
+  
+We now have enough context to be able to write an IPortletManager.
+  
+  >>> from plone.portlets.interfaces import IPortletManager
+  >>> class TestContentPortletManager(object):
+  ...     implements(IPortletManager)
+  ...     adapts(ITestContent)
+  ...
+  ...     def __init__(self, context):
+  ...         self.context = context
+  ...
+  ...     def getPortletAssignments(self, manager):
+  ...         storage = getUtility(IPortletStorage)
+  ...         return storage.getPortletAssignmentsForContext(manager, self.context)
+  ...
+  ...     def setPortletAssignments(self, manager, portletAssignments):
+  ...         storage = getUtility(IPortletStorage)
+  ...         storage.setPortletAssignmentsForContext(manager, self.context, portletAssignments)
+  >>> provideAdapter(ITestContent, IPortletManager, TestContentPortletManager)
+
+With this, we can assign a portlet based on our test document to the folder.
+
+  >>> portletManager = IPortletManager(folder)
+  >>> docAssignment = TestReferenceablePortletAssignment(doc)
+  >>> portletManager.setPortletAssignments(columnOne, [docAssignment])
+  
+  >>> portletManager.getPortletAssignments(columnOne)
+  [<TestReferenceablePortletAssignment object at ...>]
+  >>> portletManager.getPortletAssignments(columnOne)[0] == docAssignment
+  True
+  
+  >>> volatileStorage.getPortletAssignmentsForContext(columnOne, folder)
+  [<TestReferenceablePortletAssignment object at ...>]
+  >>> volatileStorage.getPortletAssignmentsForContext(columnOne, folder)[0] == docAssignment
+  True
+
+Notice that the IPortletStorage also knows assignments for users and groups.
+These may be managed by IPortletManagers adapting user and group objects. For
+testing purposes, we will simply assign these manually.
+
+Rendering portlets
+------------------
+
+TODO: - Write the viewlet manager w/ tests for rendering
+      - Attempt to generalise IPortletRetriever (portlet composition algorithm)
+      - Can TestContentPortletManager be generalised (fails to look up local utility)
+      - Evaluate whether VolatilePortletStorage can be made optionally persistent
+      - 

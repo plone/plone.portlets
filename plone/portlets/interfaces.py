@@ -76,7 +76,7 @@ class IPortletManager(Interface):
     storage and retrieval of portlet assignments relative to this context.
     """
 
-    def getPortletAssignments(manager, portletAssignments):
+    def getPortletAssignments(manager):
         """Get a list of portlet assignments for the given viewlet manager
         for this specific context.
         """
@@ -91,23 +91,29 @@ class IPortletStorage(Interface):
     
     Typically, this will be registered as a site-local utility.
     """
-    
-    def getPortletAssignmentsInContext(manager, context, userId, groupIds):
-        """Compose a list of portlet assignments to display in the given
-        viewlet manager in the given context, for the given user id (a string) 
-        and the given groupIds (a list of string).
         
-        This may also take into account other factors such as assignments at
-        the parent of the context.
+    def getPortletAssignmentsForContext(manager, context):
+        """Get the list of portlets assigned to the given context for the given
+        manager.
+        """
+    
+    def setPortletAssignmentsForContext(manager, context, portletAssignments):
+        """Set the list of portlets assigned to the given context for the given
+        manager.
         """
         
-    def setPortletsAssignmentForContext(manager, context, portletAssignments):
-        """Set the list of portlets assigned to the given context for the given
+    def getPortletAssignmentsForUser(manager, userId):
+        """Get the list of portlets assigned to the given user id for the given
         manager.
         """
         
     def setPortletAssignmentsForUser(manager, userId, portletAssignments):
         """Set the list of portlets assigned to the given user id for the given
+        manager.
+        """
+        
+    def getPortletAssignmentsForGroup(manager, groupId):
+        """Get the list of portlets assigned to the given context for the given
         manager.
         """
         
