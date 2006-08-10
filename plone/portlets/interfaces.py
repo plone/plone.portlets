@@ -1,11 +1,58 @@
 from zope.interface import Interface, Attribute
+from zope import schema
 
 from zope.contentprovider.interfaces import IContentProvider
 
 from zope.viewlet.interfaces import IViewlet
 from zope.viewlet.interfaces import IViewletManager
 
-# Generic marker interface
+# Context - the application layer must implement this
+
+class IPortletContext(Interface):
+    """A context in which portlets may be rendered.
+    
+    No default implementation exists for this interface - it must be provided
+    by the application in order to tell the portlets infrastructure how to
+    render portlets.
+    """
+    
+    uid = schema.TextLine(title=u'A unique id for this context',
+                          required=True,
+                          readonly=True)
+    
+    parent = schema.Object(title=u'Parent of this context, should be adaptable to an IPortletContext', 
+                           description=u'Should be None if there is no parent',
+                           schema=Interface,
+                           required=False,
+                           readonly=True)
+    
+    userId = schema.TextLine(title=u'The id of the current user',
+                             description=u'Should be None if there is no authenticated user',
+                             required=False,
+                             readonly=True)
+                             
+    groupIds = schema.Tuple(title=u'A list of group ids the current user is in',
+                            description=u'Should be None if there is no authenticated user',
+                            required=False,
+                            readonly=True,
+                            value_type=schema.TextLine())
+
+# Portlet assignment - the application layer should implement a this
+
+class IPortletAssignment(Interface):
+    """Assignment of a portlet to a given viewlet manager relative to a 
+    context, user or group.
+    
+    Implementations of this interface will typically be persistent, stored in
+    an IPortletStorage.
+    
+    The 'data' attribute may be implemented as a property that retrieves the
+    data object on-demand.
+    """
+    
+    data = Attribute(u'Portlet data object')
+
+# Generic marker interface - the application layer may use this if desired
 
 class IPortletDataProvider(Interface):
     """A marker interface for objects providing portlet data.
@@ -22,7 +69,8 @@ class IPortletDataProvider(Interface):
     it can be retrieved on demand.
     """
     
-# Special viewlet manager and viewlet to render portlets
+# Viewlets capable of rendering portlets - the application layer must implement
+# adapters to these 
     
 class IPortletViewlet(IContentProvider):
     """A special implementation of a viewlet (content provider) which is managed
@@ -31,17 +79,19 @@ class IPortletViewlet(IContentProvider):
     Any object providing IPortletDataProvider should be adaptable to 
     IPortletViewlet in order to be renderable as a portlet.
     """
+    
+# Special viewlet manager and viewlet to render portlets
 
 class IPortletViewletManager(IViewletManager):
     """A ViewletManager that looks up its viewlets runtime.
     
-    This will typically adapt its context to IPortletRetrieval and query it for 
+    This will typically adapt its context to IPortletRetriever and query it for 
     a list of IPortletViewlets to render.
     """
 
 # Discovery of portlets
 
-class IPortletRetrieval(Interface):
+class IPortletRetriever(Interface):
     """A component capable of discovering portlets assigned to it.
     
     Typically, a content object will be adapted to IPortletRetriever. The
@@ -54,20 +104,7 @@ class IPortletRetrieval(Interface):
         for the given viewlet manager.
         """
 
-# Assignment of portlets
-
-class IPortletAssignment(Interface):
-    """Assignment of a portlet to a given viewlet manager relative to a 
-    context, user or group.
-    
-    Implementations of this interface will typically be persistent, stored in
-    an IPortletStorage.
-    
-    The 'data' attribute may be implemented as a property that retrieves the
-    data object on-demand.
-    """
-    
-    data = Attribute(u'Portlet data object')
+# Management and storage of portlets
 
 class IPortletManager(Interface):
     """A component capable of managing portlets.
@@ -92,12 +129,12 @@ class IPortletStorage(Interface):
     Typically, this will be registered as a site-local utility.
     """
         
-    def getPortletAssignmentsForContext(manager, context):
+    def getPortletAssignmentsForContext(manager, uid):
         """Get the list of portlets assigned to the given context for the given
         manager.
         """
     
-    def setPortletAssignmentsForContext(manager, context, portletAssignments):
+    def setPortletAssignmentsForContext(manager, uid, portletAssignments):
         """Set the list of portlets assigned to the given context for the given
         manager.
         """

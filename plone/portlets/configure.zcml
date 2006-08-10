@@ -1,6 +1,8 @@
-<configure
-    xmlns="http://namespaces.zope.org/zope"
-    xmlns:five="http://namespaces.zope.org/five">
+<configure xmlns="http://namespaces.zope.org/zope">
+
+
+    <adapter factory=".manager.DefaultPortletManager" />
+    <adapter factory=".retriever.DefaultPortletRetriever" />
 
     <!-- Global, but volatile and application-non-specific portlet storage.
          A local utility will probably override this to provide persistent

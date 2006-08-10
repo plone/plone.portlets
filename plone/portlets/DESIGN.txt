@@ -18,7 +18,7 @@ This actually stores instances of IPortletAssignment mapped to viewlet managers 
 
 o Portlets are assigned to and rendered by a special kind of viewlet manager.
 
-The interface IPortletViewletManager describes a viewlet manager that will discover which viewlets to render by adapting the context to IPortletRetrieval.
+The interface IPortletViewletManager describes a viewlet manager that will discover which viewlets to render by adapting the context to IPortletRetriever.
 
 This in turn will (by default) query the active IPortletStorage for a list of portlets to be rendered relative to the context it is adapted on, and the current user and the user's groups. This yields a list of IPortletAssignments, which in turn yields a list of IPortletData instances. Each of these will be adapted to an IPortletViewlet before being returned to the IPortletViewletManager for rendering.
 

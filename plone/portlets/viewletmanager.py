@@ -1,6 +1,7 @@
 from zope.interface import implements
 
 from interfaces import IPortletViewletManager
+from interfaces import IPortletRetriever
 
 class PortletViewletManager(object):
     """Default implementation of the viewlet manager

@@ -14,31 +14,24 @@ class VolatilePortletStorage(object):
         self.contextPortlets = {}
         self.userPortlets = {}
         self.groupPortlets = {}
-    
-    def getPortletAssignmentsInContext(self, manager, context, userId, groupIds):
-        portlets = self.contextPortlets[manager].get(context, []) + \
-                   self.userPortlets[manager].get(userId, [])
-        for groupId in groupIds:
-            portlets += self.groupPortlets[manager].get(groupId, [])
-        return portlets
+            
+    def getPortletAssignmentsForContext(self, manager, uid):
+        return self.contextPortlets.setdefault(manager, {}).get(uid, [])
         
-    def getPortletAssignmentsForContext(self, manager, context):
-        return self.contextPortlets.setdefault(manager, {}).get(context, [])
-        
-    def setPortletAssignmentsForContext(self, manager, context, portletAssignments):
+    def setPortletAssignmentsForContext(self, manager, uid, portletAssignments):
         d = self.contextPortlets.setdefault(manager, {})
-        d[context] = portletAssignments
+        d[uid] = portletAssignments
         
     def getPortletAssignmentsForUser(self, manager, userId):
         return self.userPortlets.setdefault(manager, {}).get(userId, [])
         
-    def setPortletAssignmentsForUser(manager, userId, portletAssignments):
+    def setPortletAssignmentsForUser(self, manager, userId, portletAssignments):
         d = self.userPortlets.setdefault(manager, {})
         d[userId] = portletAssignments
     
-    def getPortletAssignmentsForGroup(manager, groupId):
+    def getPortletAssignmentsForGroup(self, manager, groupId):
         return self.groupPortlets.setdefault(manager, {}).get(groupId, [])
         
-    def setPortletAssignmentsForGroup(manager, groupId, portletAssignments):
+    def setPortletAssignmentsForGroup(self, manager, groupId, portletAssignments):
         d = self.groupPortlets.setdefault(manager, {})
         d[groupId] = portletAssignments
