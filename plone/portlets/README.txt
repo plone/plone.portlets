@@ -49,31 +49,43 @@ Typically, an IPortletDataProvider (or a sub-interface thereof) and an
 IPortletViewlet adapter will come as a pair.
 
   >>> from plone.portlets.interfaces import IPortletViewlet
+  >>> from plone.portlets.interfaces import IPortletViewletManager
+  >>> from zope.app.publisher.interfaces.browser import IBrowserView
   >>> from zope.publisher.interfaces.browser import IBrowserRequest
-  >>> class TestDocumentViewlet(object):
+  >>> from zope.viewlet.viewlet import ViewletBase
+  
+  >>> class TestDocumentViewlet(ViewletBase):
   ...     implements(IPortletViewlet)
-  ...     adapts(ITestDocument, IBrowserRequest)
+  ...     adapts(Interface, IBrowserRequest, IBrowserView, 
+  ...       IPortletViewletManager, ITestDocument)
   ... 
-  ...     def __init__(self, context, request):
-  ...         self.__parent__ = None
-  ...         self.context = context
-  ...         self.request = request
-  ...
-  ...     def update(self):
-  ...         pass
+  ...     def __init__(self, context, request, view, manager, data):
+  ...         super(TestDocumentViewlet, self).__init__(context, request, view, manager)
+  ...         self.data = data
   ...
   ...     def render(self, *args, **kwargs):
-  ...         return r'<p>%s</p>' % (self.context.text,)
+  ...         return r'<p>%s</p>' % (self.data.text,)
   
   >>> from zope.app.testing.ztapi import provideAdapter
-  >>> provideAdapter((ITestDocument, IBrowserRequest), IPortletViewlet, TestDocumentViewlet)
+  >>> provideAdapter((Interface, IBrowserRequest, IBrowserView, 
+  ...     IPortletViewletManager, ITestDocument), IPortletViewlet, TestDocumentViewlet)
+  
+The adapter registration for a viewlet is a bit hairy. It is necessary, however,
+to give portlets all the context they need to be able to render themselves.
+Specifically, it adapts:
+
+ - The current context content object where it is being rendered
+ - The request
+ - The current view where it si being rendered
+ - The portlet viewlet manager it is being rendered in
+ - The data provider as returned by IPortletAssignment.data
   
 The viewlet manager will update() and render() each viewlet it is assigned,
 much like this (see below for how to use the actual viewlet manager):
   
   >>> from zope.publisher.browser import TestRequest
   >>> request = TestRequest()
-  >>> viewlet = TestDocumentViewlet(doc, request)
+  >>> viewlet = TestDocumentViewlet(None, None, None, None, doc)
   >>> viewlet.update() # IViewlet contract says we should always call this first
   >>> viewlet.render()
   '<p>Some body text</p>'
@@ -165,13 +177,18 @@ will store only the location (UID) of this object.
   >>> class TestReferenceablePortletAssignment(Persistent):
   ...     implements(IPortletAssignment)
   ...
-  ...     def __init__(self, content):
+  ...     def __init__(self, id, content):
   ...         location = ITestReferenceable(content)
-  ...         self.uid = location.uid
+  ...         self._id = id
+  ...         self._uid = location.uid
+  ...
+  ...     @property
+  ...     def id(self):
+  ...         return self._uid
   ...
   ...     @property
   ...     def data(self):
-  ...         return testUIDRegistry[self.uid]
+  ...         return testUIDRegistry[self._uid]
   
 Other assignment implementations may well co-exist with this one. Consider
 a case where a portlet can be assigned to a context without referencing a
@@ -185,13 +202,14 @@ configuration object:
   ...     @property
   ...     def data(self):
   ...         return self
-  >>> class TestLoginPortletViewlet(object):
+  >>> class TestLoginPortletViewlet(ViewletBase):
   ...     implements(IPortletViewlet)
+  ...     adapts(Interface, IBrowserRequest, IBrowserView, 
+  ...             IPortletViewletManager, ILoginPortlet)
   ... 
-  ...     def __init__(self, context, request):
-  ...         self.__parent__ = None
-  ...         self.context = context
-  ...         self.request = request
+  ...     def __init__(self, context, request, view, manager, data):
+  ...         super(TestDocumentViewlet, self).__init__(context, request, view, manager)
+  ...         self.data = data
   ...
   ...     def update(self):
   ...         pass
@@ -199,7 +217,8 @@ configuration object:
   ...     def render(self, *args, **kwargs):
   ...         return r'<form action="/login">...</form>'
   
-  >>> provideAdapter((ILoginPortlet, IBrowserRequest), IPortletViewlet, TestLoginPortletViewlet)
+  >>> provideAdapter((Interface, IBrowserRequest, IBrowserView, \
+  ...   IPortletViewletManager, ILoginPortlet), IPortletViewlet, TestLoginPortletViewlet)
   
 Now, assume we wanted to assign some portlets to a particular folder:
   
@@ -238,11 +257,11 @@ column). We will describe these in detail later, but for now, let's just
 create one so that we can demonstrate the assignment:
 
   >>> from plone.portlets.viewletmanager import PortletViewletManager
-  >>> columnOne = PortletViewletManager()
+  >>> columnOne = PortletViewletManager(folder, request, None)
   
 With this, we can assign a portlet based on our test document to the folder.
 
-  >>> docAssignment = TestReferenceablePortletAssignment(doc)
+  >>> docAssignment = TestReferenceablePortletAssignment('portlet.doc', doc)
   >>> portletManager.setPortletAssignments(columnOne, [docAssignment])
   
   >>> portletManager.getPortletAssignments(columnOne)
@@ -269,7 +288,7 @@ testing purposes, we will simply assign these manually.
   
   >>> groupDoc = TestDocument()
   >>> groupDoc.text = 'Group specific text'
-  >>> groupDocAssignment = TestReferenceablePortletAssignment(groupDoc)
+  >>> groupDocAssignment = TestReferenceablePortletAssignment('portlet.group', groupDoc)
   >>> volatileStorage.setPortletAssignmentsForGroup(columnOne, testUserGroups[0], [groupDocAssignment])
   >>> volatileStorage.getPortletAssignmentsForGroup(columnOne, testUserGroups[0])
   [<TestReferenceablePortletAssignment object at ...>]
@@ -279,7 +298,9 @@ testing purposes, we will simply assign these manually.
 Rendering portlets
 ------------------
 
-TODO: - Finish IPortletRetriever, write test
-      - Implement the viewlet manager w/ tests for rendering
-      - Evaluate whether VolatilePortletStorage can be made optionally persistent
-      
+UNRESOLVED:
+      - Storage can't use manager *instance* as key - needs id/name
+      - Can VolatilePortletStorage be made optionally persistent
+
+TODO: 
+      - Tests for viewlet manager + retriever

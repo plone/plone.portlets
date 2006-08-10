@@ -7,8 +7,7 @@
     <!-- Global, but volatile and application-non-specific portlet storage.
          A local utility will probably override this to provide persistent
          portlet assignment.
-      -->
-      
+      -->      
     <utility factory=".storage.VolatilePortletStorage" />
 
 </configure>

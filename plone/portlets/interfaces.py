@@ -50,6 +50,10 @@ class IPortletAssignment(Interface):
     data object on-demand.
     """
     
+    id = schema.TextLine(title=u'An id for this particular assignment',
+                         description=u'This should be unique in the given viewlet manager and context',
+                         required=True)
+    
     data = Attribute(u'Portlet data object')
 
 # Generic marker interface - the application layer may use this if desired
@@ -94,14 +98,19 @@ class IPortletViewletManager(IViewletManager):
 class IPortletRetriever(Interface):
     """A component capable of discovering portlets assigned to it.
     
-    Typically, a content object will be adapted to IPortletRetriever. The
-    implementation of getPortlets() will most likely query the IPortletStorage
-    utility for the actual portlets to render.
+    Typically, a content object and an IPortletViewletManager will be multi-
+    adapted to IPortletRetriever. The implementation of getPortlets() will most 
+    likely query the IPortletStorage utility for the actual portlets to render.
     """
 
-    def getPortlets(manager):
-        """Return a list of IPortletViewlet's to be rendered in the context 
-        for the given viewlet manager.
+    def getPortlet(id):
+        """Get the IPortletAssignment with the specific id.
+        
+        Raises KeyError if the id cannot be found.
+        """
+
+    def getPortlets():
+        """Return a list of IPortletAssignment's to be rendered
         """
 
 # Management and storage of portlets
