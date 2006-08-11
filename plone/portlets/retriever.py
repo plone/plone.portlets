@@ -46,9 +46,4 @@ class DefaultPortletRetriever(object):
             contextPortlets.extend(storage.getPortletAssignmentsForContext(self.manager, parentContext.uid))
             parent = parent.parent
         
-        # XXX: Port portlet composition-in-context algorithm from
-        # PlonePortlets to here. This must rely on IPortletContext,
-        # which can obtain a uid of a context, the current user id 
-        # and a list of group ids for that user - see interfaces.py
-        
         return contextPortlets + userPortlets + groupPortlets

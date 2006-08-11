@@ -11,13 +11,52 @@ in that it is dynamic. Rather than register viewlets that "plug into" a viewlet
 manager in ZCML, plone.portlets contains the basis for portlets that are 
 assigned - persistently, at run time - to locations, users or groups.
 
+The remainder of this file will explain the API and components in detail, but
+in general, the package is intended to be used as follows:
+
+- The application layer registers a generic adapter to IPortletContext. Any
+context where portlets may be assigned needs to be adaptable to this interface.
+
+- The application layer registers a local utility providing IPortletStorage.
+This is so that portlets can be persistently assigned to contexts, users and
+groups.
+
+- An application will register a <browser:viewletManager> with 
+PortletViewletManager in the list of bases for each column or location where
+portlets should be rendered.
+
+Actual portlets consist of two or three components, depending on the use case.
+
+- A special type viewlet, IPortletViewlet, knows how to render each type of
+portlet. The IPortletViewlet should be a multi-adapter from (context, request, 
+view, viewlet manager, data).
+
+- An IPortletAssignment is a persistent object that can be instantiated and
+is stored by the IPortletStorage, managed by adapting an IPortletContext to
+an IPortletManager. The assignment can return a handle to an 
+IPortletDataProvider.
+
+- The IPortletDataProvider is adapted (along other aspects of the context) to
+a specific IPortletViewlet. For "specific-specific" portlets (see below) the
+IPortletAssignment and IPortletDataProvider may well be part of the same object.
+
+Typically, you will either have a specific IPortletAssignment for a specific
+IPortletDataProvider, or a generic IPortletAssignment for different types of
+IPortletDataProvider. The examples below demonstrate a "specific-specific"
+portlet in the form of a login portlet - here, the same object provides both
+the assignment and the data provider aspect - and a "generic-generic" portlet,
+where a generic IPortletAssignment knows how to reference a content object,
+with different content objects potentially having different types of 
+IPortletViewlets for rendering.
+
 Defining types of portlets
 --------------------------
 
 Portlets are rooted in a data provider. This could, for example, be a Smart 
 Folder (aka "Topic") that canns a query, or an object holding static text to
-render. The use of a data provider isn't strictly necessary, but will be the 
-most common case.
+render. Alternatively, the data provider can be "conceptual", where there is
+no separate configuration data to be held. We will see an example of this
+later, in the form of a login portlet.
 
 Let's create a dummy data provider object to work on
 
@@ -37,8 +76,8 @@ Let's create a dummy data provider object to work on
   >>> doc.text = "Some body text"
   
 Suppose the user turned this into a portlet. This could happen by adding the
-IPortletDataProvider marker interface (a type that was always a portlet data
-provider would of course have this interface applied to its class always).
+IPortletDataProvider marker interface. A type that was always a portlet data
+provider would of course have this interface applied to its class always.
   
   >>> from plone.portlets.interfaces import IPortletDataProvider
   >>> from zope.interface import directlyProvides
@@ -76,12 +115,12 @@ Specifically, it adapts:
 
  - The current context content object where it is being rendered
  - The request
- - The current view where it si being rendered
+ - The current view where it is being rendered
  - The portlet viewlet manager it is being rendered in
  - The data provider as returned by IPortletAssignment.data
   
 The viewlet manager will update() and render() each viewlet it is assigned,
-much like this (see below for how to use the actual viewlet manager):
+a bit like this (see below for how to use the actual viewlet manager):
   
   >>> from zope.publisher.browser import TestRequest
   >>> request = TestRequest()
@@ -167,9 +206,9 @@ Now we can provide an IPortletContext for this environment:
   >>> provideAdapter(ITestContent, IPortletContext, TestPortletContext)
   
 We can also provide a generic IPortletAssignment for any content object
-that is in to this environment. This assignment type will be initialised 
-with a reference to a content object (such as our TestDocument above), but it
-will store only the location (UID) of this object.
+that is in this environment. This assignment type will be initialised with a 
+reference to a content object (such as our TestDocument above), but it will 
+store only the location (UID) of this object.
   
   >>> from plone.portlets.interfaces import IPortletAssignment
   >>> from persistent import Persistent
@@ -300,7 +339,7 @@ Rendering portlets
 
 UNRESOLVED:
       - Storage can't use manager *instance* as key - needs id/name
-      - Can VolatilePortletStorage be made optionally persistent
+      - Can VolatilePortletStorage be made optionally persistent?
 
 TODO: 
       - Tests for viewlet manager + retriever
