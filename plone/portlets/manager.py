@@ -27,9 +27,10 @@ class PortletManagerRenderer(object):
         self.manager = manager
         self.context = context
         self.request = request
+        self.template = None
         self.__updated = False
         
-    def filter(self):
+    def filter(self, portlets):
         return [p for p in portlets if canAccess(p, 'render')]
         
     def update(self):
@@ -39,9 +40,9 @@ class PortletManagerRenderer(object):
         retriever = getMultiAdapter((portletContext, self.manager), IPortletRetriever)
                 
         self.portlets = [self._dataToPortlet(a.data)
-                            for a in self.filter(retriever.getPortlets(self))]
+                            for a in self.filter(retriever.getPortlets())]
     
-        for p in portlets:
+        for p in self.portlets:
             p.update()
             
     def render(self):
@@ -72,6 +73,6 @@ class PortletManager(PortletStorage):
     __name__ = __parent__ = None
 
     def __call__(self, context, request, view):
-        return PortletManagerRenderer(self, context, manager, view)
+        return PortletManagerRenderer(self, context, request, view)
         
                                     

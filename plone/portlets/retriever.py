@@ -16,7 +16,7 @@ class DefaultPortletRetriever(object):
     
     def __init__(self, context, storage):
         self.context = context
-        self.manager = storage
+        self.storage = storage
         
     def getPortlet(self, id):
         portlets = [p for p in self.getPortlets() if p.id == id]
@@ -35,6 +35,7 @@ class DefaultPortletRetriever(object):
             groupPortlets.extend(self.storage.getPortletAssignmentsForGroup(g))
         
         # Get context portlets, including those for parents
+        contextPortlets = []
         location = self.context
         while location is not None:
             parentContext = IPortletContext(location)

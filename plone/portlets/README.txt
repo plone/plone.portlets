@@ -136,7 +136,10 @@ registrations on it.
 
   >>> from zope.app.component.interfaces import ISite
   >>> from zope.component.persistentregistry import PersistentComponents
-  >>> rootFolder.setSiteManager(PersistentComponents())
+  >>> from zope.component.globalregistry import base as siteManagerBase
+  >>> sm = PersistentComponents()
+  >>> sm.__bases__ = (siteManagerBase,)
+  >>> rootFolder.setSiteManager(sm)
   >>> ISite.providedBy(rootFolder)
   True
   >>> from zope.app.component.hooks import setSite, setHooks
@@ -214,13 +217,12 @@ Look up the view and render it. Note that the portlet manager is still empty
   >>> request = TestRequest()
 
   >>> from zope.component import getMultiAdapter
-  >>> view = getMultiAdapter((doc1, request), interface=IBrowserPage, name='main.html')
+  >>> view = getMultiAdapter((doc1, request), name='main.html')
   >>> print view().strip()
   <html>
     <body>
       <h1>My Web Page</h1>
       <div class="left-column">
-        
       </div>
       <div class="main">
         Content here
