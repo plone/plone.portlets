@@ -139,6 +139,9 @@ registrations on it.
   >>> rootFolder.setSiteManager(PersistentComponents())
   >>> ISite.providedBy(rootFolder)
   True
+  >>> from zope.app.component.hooks import setSite, setHooks
+  >>> setSite(rootFolder)
+  >>> setHooks()
   
 Registering portlet managers
 ----------------------------
@@ -159,7 +162,6 @@ using the site manager defined above.
 
   >>> from plone.portlets.interfaces import IPortletManagerRenderer
   >>> from zope.publisher.interfaces.browser import IBrowserRequest
-  >>> from zope.publisher.interfaces.browser import IDefaultBrowserLayer
   >>> from zope.publisher.interfaces.browser import IBrowserView
   >>> sm = rootFolder.getSiteManager()
   >>> sm.registerAdapter(required=(Interface, IBrowserRequest, IBrowserView), 
@@ -193,11 +195,13 @@ borrowed from zope.contentprovider).
   
 We register the template as a view for all objects.
 
-  >>> from zope.app.pagetemplate.simpleviewclass import SimpleViewClass
-  >>> FrontPage = SimpleViewClass(templateFileName, name='main.html')
-
-  >>> provideAdapter(FrontPage, (Interface, IDefaultBrowserLayer,), 
-  ...                   Interface, name='main.html')
+  >>> from zope.publisher.interfaces.browser import IBrowserPage
+  >>> from zope.publisher.browser import BrowserPage
+  >>> from zope.app.pagetemplate import ViewPageTemplateFile
+  >>> class TestPage(BrowserPage):
+  ...     adapts(Interface, IBrowserRequest)
+  ...     __call__ = ViewPageTemplateFile(templateFileName)
+  >>> provideAdapter(TestPage, provides=IBrowserPage, name='main.html')
 
 Create a document that we can view.
 
@@ -210,7 +214,7 @@ Look up the view and render it. Note that the portlet manager is still empty
   >>> request = TestRequest()
 
   >>> from zope.component import getMultiAdapter
-  >>> view = getMultiAdapter((doc1, request), name='main.html')
+  >>> view = getMultiAdapter((doc1, request), interface=IBrowserPage, name='main.html')
   >>> print view().strip()
   <html>
     <body>
