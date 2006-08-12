@@ -1,37 +1,34 @@
 from zope.interface import implements
 
+from persistent import Persistent, PersistentDict
 from interfaces import IPortletStorage
 
-class VolatilePortletStorage(object):
+class DefaultPortletStorage(Persistent):
     """A volatile default portlet storage.
     
-    This will most likely need to be override to become a site-local utility
-    with better knowledge about contexts, users and groups.
+    This will most likely need to be override to become persistent.
     """
     implements(IPortletStorage)
     
     def __init__(self):
-        self.contextPortlets = {}
-        self.userPortlets = {}
-        self.groupPortlets = {}
+        self.contextPortlets = PersistentDict()
+        self.userPortlets = PersistentDict()
+        self.groupPortlets = PersistentDict()
             
-    def getPortletAssignmentsForContext(self, manager, uid):
-        return self.contextPortlets.setdefault(manager, {}).get(uid, [])
+    def getPortletAssignmentsForContext(self, uid):
+        return self.contextPortlets.get(uid, [])
         
-    def setPortletAssignmentsForContext(self, manager, uid, portletAssignments):
-        d = self.contextPortlets.setdefault(manager, {})
-        d[uid] = portletAssignments
+    def setPortletAssignmentsForContext(self, uid, portletAssignments):
+        self.contextPortlets[uid] = portletAssignments
         
-    def getPortletAssignmentsForUser(self, manager, userId):
-        return self.userPortlets.setdefault(manager, {}).get(userId, [])
+    def getPortletAssignmentsForUser(self, userId):
+        return self.userPortlets.get(userId, [])
         
-    def setPortletAssignmentsForUser(self, manager, userId, portletAssignments):
-        d = self.userPortlets.setdefault(manager, {})
-        d[userId] = portletAssignments
+    def setPortletAssignmentsForUser(self, userId, portletAssignments):
+        self.userPortlets[userId] = portletAssignments
     
-    def getPortletAssignmentsForGroup(self, manager, groupId):
-        return self.groupPortlets.setdefault(manager, {}).get(groupId, [])
+    def getPortletAssignmentsForGroup(self, groupId):
+        return self.groupPortlets.get(groupId, [])
         
-    def setPortletAssignmentsForGroup(self, manager, groupId, portletAssignments):
-        d = self.groupPortlets.setdefault(manager, {})
-        d[groupId] = portletAssignments
+    def setPortletAssignmentsForGroup(self, groupId, portletAssignments):
+        self.groupPortlets[groupId] = portletAssignments

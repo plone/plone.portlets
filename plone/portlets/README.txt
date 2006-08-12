@@ -281,9 +281,9 @@ context.
   >>> portletManager
   <plone.portlets.manager.DefaultPortletManager object at ...>
 
-The portlet manager will delegate actual storage to of the assignments to
-a (local) utility providing IPortletStorage. A volatile and generic global
-portlet storage utility is provided in this package.
+The portlet manager will delegate actual storage of the assignments to a (local) 
+utility providing IPortletStorage. A volatile and generic global portlet storage
+utility is provided in this package.
 
   >>> from zope.component import getUtility
   >>> from plone.portlets.interfaces import IPortletStorage

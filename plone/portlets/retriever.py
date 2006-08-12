@@ -1,24 +1,22 @@
 from zope.interface import implements
 from zope.component import adapts
-from zope.component import getUtility
 
 from interfaces import IPortletContext
-from interfaces import IPortletViewletManager
 from interfaces import IPortletStorage
 from interfaces import IPortletRetriever
 
 class DefaultPortletRetriever(object):
-    """Default implementation of the portlet retrieval algorithm.
+    """A volatile default portlet storage.
     
-    This obtains portlets from the default portlet storage.
+    This will most likely need to be override to become persistent.
     """
     
     implements(IPortletRetriever)
-    adapts(IPortletContext, IPortletViewletManager)
+    adapts(IPortletContext, IPortletStorage)
     
-    def __init__(self, context, manager):
+    def __init__(self, context, storage):
         self.context = context
-        self.manager = manager
+        self.manager = storage
         
     def getPortlet(self, id):
         portlets = [p for p in self.getPortlets() if p.id == id]
@@ -28,22 +26,19 @@ class DefaultPortletRetriever(object):
             return portlets[0]
         
     def getPortlets(self):
-        storage = getUtility(IPortletStorage)
-        
         # Get user portlets
-        userPortlets = storage.getPortletAssignmentsForUser(self.manager, self.context.userId)
+        userPortlets = self.storage.getPortletAssignmentsForUser(self.context.userId)
         
         # Get group portlets and combine them into a single list
         groupPortlets = []
         for g in self.context.groupIds:
-            groupPortlets.extend(storage.getPortletAssignmentsForGroup(self.manager, g))
+            groupPortlets.extend(self.storage.getPortletAssignmentsForGroup(g))
         
         # Get context portlets, including those for parents
-        contextPortlets = storage.getPortletAssignmentsForContext(self.manager, self.context.uid)
-        parent = self.context.parent
-        while parent is not None:
-            parentContext = IPortletContext(parent)
-            contextPortlets.extend(storage.getPortletAssignmentsForContext(self.manager, parentContext.uid))
-            parent = parent.parent
+        location = self.context
+        while location is not None:
+            parentContext = IPortletContext(location)
+            contextPortlets.extend(self.storage.getPortletAssignmentsForContext(location.uid))
+            location = location.parent
         
         return contextPortlets + userPortlets + groupPortlets

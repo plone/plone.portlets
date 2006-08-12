@@ -2,9 +2,7 @@ from zope.interface import Interface, Attribute
 from zope import schema
 
 from zope.contentprovider.interfaces import IContentProvider
-
-from zope.viewlet.interfaces import IViewlet
-from zope.viewlet.interfaces import IViewletManager
+from zope.interface.common.mapping import IReadMapping
 
 # Context - the application layer must implement this
 
@@ -37,7 +35,24 @@ class IPortletContext(Interface):
                             readonly=True,
                             value_type=schema.TextLine())
 
-# Portlet assignment - the application layer should implement a this
+# Generic marker interface - a portlet may reference one of these
+
+class IPortletDataProvider(Interface):
+    """A marker interface for objects providing portlet data.
+    
+    This can be used as a marker by implementations requiring a regular content 
+    object to be able to be "switched on" as a portlet. Alternatively, a more
+    specific sub-interface can provide the necessary information to render
+    the portlet.
+    
+    An adapter should exist from the specific type of IPortletDataProvider to 
+    an appropriate IPortletViewlet to render it.
+    
+    The data provider will also be referenced in an IPortletAssignment so that
+    it can be retrieved on demand.
+    """
+
+# Portlet assignment - new types of portlets may need one of these
 
 class IPortletAssignment(Interface):
     """Assignment of a portlet to a given viewlet manager relative to a 
@@ -55,52 +70,27 @@ class IPortletAssignment(Interface):
                          required=True)
     
     data = Attribute(u'Portlet data object')
-
-# Generic marker interface - the application layer may use this if desired
-
-class IPortletDataProvider(Interface):
-    """A marker interface for objects providing portlet data.
     
-    This can be used as a marker by implementations requiring a regular content 
-    object to be able to be "switched on" as a portlet. Alternatively, a more
-    specific sub-interface can provide the necessary information to render
-    the portlet.
+# A content provider capable of rendering portlets - each type of portlet will
+# need one of these
     
-    An adapter should exist from the specific type of IPortletDataProvider to 
-    an appropriate IPortletViewlet to render it.
-    
-    The data provider will also be referenced in an IPortletAssignment so that
-    it can be retrieved on demand.
-    """
-    
-# Viewlets capable of rendering portlets - the application layer must implement
-# adapters to these 
-    
-class IPortletViewlet(IContentProvider):
-    """A special implementation of a viewlet (content provider) which is managed
-    by an IPortletViewletManager.
+class IPortletRenderer(IContentProvider):
+    """A special implementation of a content provider which is managed
+    by an IPortletManager.
     
     Any object providing IPortletDataProvider should be adaptable to 
-    IPortletViewlet in order to be renderable as a portlet.
+    IPortletRenderer in order to be renderable as a portlet. (In fact,
+    the return value of IPortletAssignment.data needs to have such an
+    adapter, regardless of whether it actually implements IPortletDataProvider)
     """
     
-# Special viewlet manager and viewlet to render portlets
-
-class IPortletViewletManager(IViewletManager):
-    """A ViewletManager that looks up its viewlets runtime.
-    
-    This will typically adapt its context to IPortletRetriever and query it for 
-    a list of IPortletViewlets to render.
-    """
-
 # Discovery of portlets
 
 class IPortletRetriever(Interface):
-    """A component capable of discovering portlets assigned to it.
+    """A component capable of discovering portlets assigned to it for rendering.
     
-    Typically, a content object and an IPortletViewletManager will be multi-
-    adapted to IPortletRetriever. The implementation of getPortlets() will most 
-    likely query the IPortletStorage utility for the actual portlets to render.
+    Typically, a content object and an IPortletManager will be multi-
+    adapted to IPortletRetriever.
     """
 
     def getPortlet(id):
@@ -113,9 +103,9 @@ class IPortletRetriever(Interface):
         """Return a list of IPortletAssignment's to be rendered
         """
 
-# Management and storage of portlets
+# Management and storage of portlets relative to a context
 
-class IPortletManager(Interface):
+class IPortletAssignable(Interface):
     """A component capable of managing portlets.
     
     Typically, a content object, user or group would be adapted to allow 
@@ -131,39 +121,62 @@ class IPortletManager(Interface):
         """Set the list of portlet assignments for the given viewlet manager
         for this specific context.
         """
+    
+# A manager for portlets
 
 class IPortletStorage(Interface):
     """A component for storing portlet assignments.
-    
-    Typically, this will be registered as a site-local utility.
     """
         
-    def getPortletAssignmentsForContext(manager, uid):
-        """Get the list of portlets assigned to the given context for the given
-        manager.
+    def getPortletAssignmentsForContext(uid):
+        """Get the list of portlets assigned to the given context
         """
     
-    def setPortletAssignmentsForContext(manager, uid, portletAssignments):
-        """Set the list of portlets assigned to the given context for the given
-        manager.
+    def setPortletAssignmentsForContext(uid, portletAssignments):
+        """Set the list of portlets assigned to the given context
         """
         
-    def getPortletAssignmentsForUser(manager, userId):
-        """Get the list of portlets assigned to the given user id for the given
-        manager.
+    def getPortletAssignmentsForUser(userId):
+        """Get the list of portlets assigned to the given user id
         """
         
-    def setPortletAssignmentsForUser(manager, userId, portletAssignments):
-        """Set the list of portlets assigned to the given user id for the given
-        manager.
+    def setPortletAssignmentsForUser(userId, portletAssignments):
+        """Set the list of portlets assigned to the given user id
         """
         
-    def getPortletAssignmentsForGroup(manager, groupId):
-        """Get the list of portlets assigned to the given context for the given
-        manager.
+    def getPortletAssignmentsForGroup(groupId):
+        """Get the list of portlets assigned to the given group
         """
         
-    def setPortletAssignmentsForGroup(manager, groupId, portletAssignments):
-        """Set the list of portlets assigned to the given context for the given
-        manager.
+    def setPortletAssignmentsForGroup(groupId, portletAssignments):
+        """Set the list of portlets assigned to the given group
+        """
+
+class IPortletManager(IPortletStorage):
+    """A manager for portlets.
+    
+    This will typically adapt its context to IPortletRetriever and query it for 
+    a list of IPortletRenderers to render.
+    """
+    
+    def __call__(context, request, view):
+        """Act as an adapter factory.
+        
+        When called, should return an IPortletManagerRenderer for rendering 
+        this portlet manager and its portlets.
+        
+        The IPortletManager instance will be registered as a site-local
+        adapter factory that the component architecture will use when it
+        looks up adapters in the handler for a TAL provider: expression.
+        
+        See zope.contentprovider for more.
+        """
+
+class IPortletManagerRenderer(IContentProvider):
+    """A content provider for rendering a portlet manager.
+    """
+
+    def filter(self, portlets):
+        """Return a list of IPortletRenderer's to display that is a subset of
+        the list of IPortletRenderer's passed in.
         """
