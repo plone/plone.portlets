@@ -1,6 +1,7 @@
 from zope.interface import Interface, Attribute
 from zope import schema
 
+from zope.app.container.interfaces import IContained
 from zope.contentprovider.interfaces import IContentProvider
 from zope.interface.common.mapping import IReadMapping
 
@@ -152,7 +153,7 @@ class IPortletStorage(Interface):
         """Set the list of portlets assigned to the given group
         """
 
-class IPortletManager(IPortletStorage):
+class IPortletManager(IPortletStorage, IContained):
     """A manager for portlets.
     
     This will typically adapt its context to IPortletRetriever and query it for 

@@ -9,9 +9,9 @@ from interfaces import IPortletManager
 from interfaces import IPortletManagerRenderer
 from interfaces import IPortletRenderer
 
-from storage import DefaultPortletStorage
+from storage import PortletStorage
 
-class DefaultPortletManagerRenderer(object):
+class PortletManagerRenderer(object):
     """Default renderer for portlet managers.
     
     When the zope.contentprovider handler for the provider: expression looks up
@@ -35,8 +35,8 @@ class DefaultPortletManagerRenderer(object):
     def update(self):
         self.__updated = True
 
-        portletContext = (IPortletContext(self.context)
-        retriever = getMultiAdapter(portletContext, self.manager), IPortletRetriever)
+        portletContext = IPortletContext(self.context)
+        retriever = getMultiAdapter((portletContext, self.manager), IPortletRetriever)
                 
         self.portlets = [self._dataToPortlet(a.data)
                             for a in self.filter(retriever.getPortlets(self))]
@@ -60,7 +60,7 @@ class DefaultPortletManagerRenderer(object):
                                     self.manager, assignment.data,), IPortletRenderer)
         
     
-class DefaultPortletManager(DefaultPortletStorage):
+class PortletManager(PortletStorage):
     """Default implementation of the portlet manager.
     
     Provides the functionality that allows the portlet manager to act as an
@@ -69,6 +69,9 @@ class DefaultPortletManager(DefaultPortletStorage):
     
     implements(IPortletManager)
 
+    __name__ = __parent__ = None
+
     def __call__(self, context, request, view):
-        return DefaultPortletManagerRenderer(self, context, manager, view)
+        return PortletManagerRenderer(self, context, manager, view)
+        
                                     

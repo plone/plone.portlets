@@ -3,13 +3,13 @@ Plone Portlets Engine
 =====================
 
 This package contains the basic interfaces and generalisable code for managing
-dynamic portlets. Portlets are viewlets (see zope.viewlet) which are assigned to
-columns or other areas (represented by a particular viewlet manager). 
+dynamic portlets. Portlets are content provider (see zope.contentprovider) 
+which are assigned to columns or other areas (represented by a portlet manager). 
 
-The portlets infrastructure differs from zope.contentprovider and zope.viewlet
-in that it is dynamic. Rather than register viewlets that "plug into" a viewlet
-manager in ZCML, plone.portlets contains the basis for portlets that are 
-assigned - persistently, at run time - to locations, users or groups.
+The portlets infrastructure is similar to zope.viewlet, but differs in that
+it is dynamic. Rather than register viewlets that "plug into" a viewlet manager
+in ZCML, plone.portlets contains the basis for portlets that are assigned - 
+persistently, at run time - to locations, users or groups.
 
 The remainder of this file will explain the API and components in detail, but
 in general, the package is intended to be used as follows:
@@ -17,184 +17,84 @@ in general, the package is intended to be used as follows:
 - The application layer registers a generic adapter to IPortletContext. Any
 context where portlets may be assigned needs to be adaptable to this interface.
 
-- The application layer registers a local utility providing IPortletStorage.
-This is so that portlets can be persistently assigned to contexts, users and
-groups.
+- Any number of PortletManager's are stored persistently. A PortletManager is
+a storage for portlet assignments, keyed by context, user or group. 
 
-- An application will register a <browser:viewletManager> with 
-PortletViewletManager in the list of bases for each column or location where
-portlets should be rendered.
+- At a local site, an adapter registration is made for each instance of 
+PortletManager with a particular name (e.g. "plone.leftcolumn"), adapting
+(context, request, view) to IContentProvider. The PortletManager instance 
+will act as the adapter factory by virtue of its __call__() method to return
+a PortletManagerRenderer, which provides IContentProvider.
 
-Actual portlets consist of two or three components, depending on the use case.
+- Once this registration is made, any template in that site would be able to
+write e.g. tal:replace="structure provider:plone.leftcolumn" to see the 
+context-dependent rendering of that particular viewlet manager.
 
-- A special type viewlet, IPortletViewlet, knows how to render each type of
-portlet. The IPortletViewlet should be a multi-adapter from (context, request, 
-view, viewlet manager, data).
+Actual portlets are described by three interfaces, which may be kept separate or
+implemented in the same component, depending on the use case.
+
+- IPortletDataProvider is a marker interface for objects that provide 
+configuration information for how a portlet should be rendered. This may be
+an existing content object, or something specific to a portlet.
+
+- A special type content provider, IPortletRenderer, knows how to render each 
+type of portlet. The IPortletRenderer should be a multi-adapter from 
+(context, request, view, portlet manager, data provider).
 
 - An IPortletAssignment is a persistent object that can be instantiated and
-is stored by the IPortletStorage, managed by adapting an IPortletContext to
-an IPortletManager. The assignment can return a handle to an 
+is stored by an IPortletManager. The assignment will return a handle to an 
 IPortletDataProvider.
-
-- The IPortletDataProvider is adapted (along other aspects of the context) to
-a specific IPortletViewlet. For "specific-specific" portlets (see below) the
-IPortletAssignment and IPortletDataProvider may well be part of the same object.
 
 Typically, you will either have a specific IPortletAssignment for a specific
 IPortletDataProvider, or a generic IPortletAssignment for different types of
-IPortletDataProvider. The examples below demonstrate a "specific-specific"
-portlet in the form of a login portlet - here, the same object provides both
-the assignment and the data provider aspect - and a "generic-generic" portlet,
-where a generic IPortletAssignment knows how to reference a content object,
-with different content objects potentially having different types of 
-IPortletViewlets for rendering.
+IPortletDataProvider. You will also typically have a generalisable 
+IPortletRenderer for each type of IPortletDataProvider.
 
-Defining types of portlets
---------------------------
+The examples below demonstrate a "specific-specific" portlet in the form of a 
+login portlet - here, the same object provides both the assignment and the data 
+provider aspect - and a "generic-generic" portlet, where a generic 
+IPortletAssignment knows how to reference a content object, with different 
+content objects potentially having different types of IPortletRenderers for 
+rendering.
 
-Portlets are rooted in a data provider. This could, for example, be a Smart 
-Folder (aka "Topic") that canns a query, or an object holding static text to
-render. Alternatively, the data provider can be "conceptual", where there is
-no separate configuration data to be held. We will see an example of this
-later, in the form of a login portlet.
+The portlet context
+-------------------
 
-Let's create a dummy data provider object to work on
+We will create a test environment first, consisting of content objects (folders
+and documents) that have a unique id managed by a global UID registry. For
+the purposes of testing, we simply use the python id() for this, though this
+is obviously not a realistic implementation (since it is non-persistent and
+instance-specific). The environment also knows the id of the current user and 
+that user's groups.
 
   >>> from zope.interface import implements, Interface
-  >>> from zope.component import adapts
+  >>> from zope.component import adapts, provideAdapter
   >>> from zope import schema
   
-  >>> class ITestContent(Interface):
-  ...     pass
-  >>> class ITestDocument(ITestContent):
-  ...     text = schema.TextLine(title=u"Text to render")
-  >>> class TestDocument(object):
-  ...     implements(ITestDocument)
-  ...     text = ''
+  >>> from zope.app.container.interfaces import IContained
+  >>> from zope.app.folder import rootFolder, Folder
   
-  >>> doc = TestDocument()
-  >>> doc.text = "Some body text"
-  
-Suppose the user turned this into a portlet. This could happen by adding the
-IPortletDataProvider marker interface. A type that was always a portlet data
-provider would of course have this interface applied to its class always.
-  
-  >>> from plone.portlets.interfaces import IPortletDataProvider
-  >>> from zope.interface import directlyProvides
-  >>> directlyProvides(doc, IPortletDataProvider)
-
-In order to be able to render this portlet, a viewlet adapter must exist for it.
-Typically, an IPortletDataProvider (or a sub-interface thereof) and an
-IPortletViewlet adapter will come as a pair.
-
-  >>> from plone.portlets.interfaces import IPortletViewlet
-  >>> from plone.portlets.interfaces import IPortletViewletManager
-  >>> from zope.app.publisher.interfaces.browser import IBrowserView
-  >>> from zope.publisher.interfaces.browser import IBrowserRequest
-  >>> from zope.viewlet.viewlet import ViewletBase
-  
-  >>> class TestDocumentViewlet(ViewletBase):
-  ...     implements(IPortletViewlet)
-  ...     adapts(Interface, IBrowserRequest, IBrowserView, 
-  ...       IPortletViewletManager, ITestDocument)
-  ... 
-  ...     def __init__(self, context, request, view, manager, data):
-  ...         super(TestDocumentViewlet, self).__init__(context, request, view, manager)
-  ...         self.data = data
-  ...
-  ...     def render(self, *args, **kwargs):
-  ...         return r'<p>%s</p>' % (self.data.text,)
-  
-  >>> from zope.app.testing.ztapi import provideAdapter
-  >>> provideAdapter((Interface, IBrowserRequest, IBrowserView, 
-  ...     IPortletViewletManager, ITestDocument), IPortletViewlet, TestDocumentViewlet)
-  
-The adapter registration for a viewlet is a bit hairy. It is necessary, however,
-to give portlets all the context they need to be able to render themselves.
-Specifically, it adapts:
-
- - The current context content object where it is being rendered
- - The request
- - The current view where it is being rendered
- - The portlet viewlet manager it is being rendered in
- - The data provider as returned by IPortletAssignment.data
-  
-The viewlet manager will update() and render() each viewlet it is assigned,
-a bit like this (see below for how to use the actual viewlet manager):
-  
-  >>> from zope.publisher.browser import TestRequest
-  >>> request = TestRequest()
-  >>> viewlet = TestDocumentViewlet(None, None, None, None, doc)
-  >>> viewlet.update() # IViewlet contract says we should always call this first
-  >>> viewlet.render()
-  '<p>Some body text</p>'
-  
-  
-Assigning portlets to contexts
-------------------------------
-
-In the example a above, TestDocument may have a purpose besides just being a
-portlet. Other types of portlet may be more specific, but in general we cannot
-rely on the actual portlet data being managed exclusively by the portlets
-infrastructure. 
-
-To determine which portlets are assigned where, an object providing
-IPortletAssignment is needed. This will typically be persistent, and may be
-generic for a given type of portlet. For example, if portlet data is to be
-provided by content objects with a UID, a generic assignment type could be
-provided for all such portlets. 
-
-Before we can write this, however, we need to provide some more information
-about the context where the portlet will be assigned. The context is
-described in an IPortletContext, and typically a content object will be
-adaptable to this interface.
-
-Let's assume such content objects have a UID to identify them. In the real 
-world, the UID may be looked up in a catalog or UID registry in order to 
-obtain a real object. In this case, we will fake this with a global dict.
-
   >>> testUIDRegistry = {}
+  >>> testUser = 'TestUser'
+  >>> testUserGroups = ('TestGroup1', 'TestGroup2',)
   
-  >>> class ITestReferenceable(Interface):
-  ...     uid = schema.TextLine(title=u'The UID of the item')
-  
-  >>> class TestContentLocator(object):
-  ...     implements(ITestReferenceable)
-  ...     adapts(ITestContent)
-  ...     
+Now we can provide an IPortletContext for this environment.
+
+  >>> from plone.portlets.interfaces import IPortletContext
+  >>> class TestPortletContext(object):
+  ...     implements(IPortletContext)
+  ...     adapts(Interface)
+  ...
   ...     def __init__(self, context):
   ...         self.context = context
   ...
   ...     @property
   ...     def uid(self):
   ...         return id(self.context)
-  >>> provideAdapter(ITestContent, ITestReferenceable, TestContentLocator)
-  
-  >>> testUIDRegistry[id(doc)] = doc
-  
-Portlets can also be assigned to users and groups - we simply reference these 
-from global variables for testing purposes.
-
-  >>> testUser = 'TestUser'
-  >>> testUserGroups = ('TestGroup1', 'TestGroup2',)
-
-Now we can provide an IPortletContext for this environment:
-
-  >>> from plone.portlets.interfaces import IPortletContext
-  >>> class TestPortletContext(object):
-  ...     implements(IPortletContext)
-  ...     adapts(ITestContent)
-  ...
-  ...     def __init__(self, context):
-  ...         self.context = context
-  ...
-  ...     @property
-  ...     def uid(self):
-  ...         return ITestReferenceable(self.context).uid
   ...
   ...     @property
   ...     def parent(self):
-  ...         return None # Dont' implement parentage yet
+  ...         return self.context.__parent__
   ...
   ...     @property
   ...     def userId(self):
@@ -203,143 +103,123 @@ Now we can provide an IPortletContext for this environment:
   ...     @property
   ...     def groupIds(self):
   ...         return testUserGroups
-  >>> provideAdapter(ITestContent, IPortletContext, TestPortletContext)
+  >>> provideAdapter(TestPortletContext)
   
-We can also provide a generic IPortletAssignment for any content object
-that is in this environment. This assignment type will be initialised with a 
-reference to a content object (such as our TestDocument above), but it will 
-store only the location (UID) of this object.
+We create a sample content heirarchy as well, to be used later. We register the
+objects with our contrived UID registry, so that the generic portlet context
+will work for all of them.
   
-  >>> from plone.portlets.interfaces import IPortletAssignment
-  >>> from persistent import Persistent
-  
-  >>> class TestReferenceablePortletAssignment(Persistent):
-  ...     implements(IPortletAssignment)
+  >>> class ITestDocument(IContained):
+  ...     text = schema.TextLine(title=u"Text to render")
+  >>> class TestDocument(object):
+  ...     implements(ITestDocument)
   ...
-  ...     def __init__(self, id, content):
-  ...         location = ITestReferenceable(content)
-  ...         self._id = id
-  ...         self._uid = location.uid
-  ...
-  ...     @property
-  ...     def id(self):
-  ...         return self._uid
-  ...
-  ...     @property
-  ...     def data(self):
-  ...         return testUIDRegistry[self._uid]
+  ...     def __init__(self, text=u''):
+  ...         self.__name__ = None
+  ...         self.__parent__ = None
+  ...         self.text = text
   
-Other assignment implementations may well co-exist with this one. Consider
-a case where a portlet can be assigned to a context without referencing a
-configuration object:
+  >>> rootFolder =  rootFolder()
+  >>> testUIDRegistry[id(rootFolder)] = rootFolder
 
-  >>> class ILoginPortlet(IPortletDataProvider):
-  ...   pass
-  >>> class TestLoginPortletAssignment(Persistent):
-  ...     implements(IPortletAssignment, ILoginPortlet)
-  ...     
-  ...     @property
-  ...     def data(self):
-  ...         return self
-  >>> class TestLoginPortletViewlet(ViewletBase):
-  ...     implements(IPortletViewlet)
-  ...     adapts(Interface, IBrowserRequest, IBrowserView, 
-  ...             IPortletViewletManager, ILoginPortlet)
-  ... 
-  ...     def __init__(self, context, request, view, manager, data):
-  ...         super(TestDocumentViewlet, self).__init__(context, request, view, manager)
-  ...         self.data = data
-  ...
-  ...     def update(self):
-  ...         pass
-  ...
-  ...     def render(self, *args, **kwargs):
-  ...         return r'<form action="/login">...</form>'
+  >>> rootFolder['child1'] = Folder()
+  >>> testUIDRegistry[id(rootFolder['child1'])] = rootFolder['child1']
   
-  >>> provideAdapter((Interface, IBrowserRequest, IBrowserView, \
-  ...   IPortletViewletManager, ILoginPortlet), IPortletViewlet, TestLoginPortletViewlet)
+  >>> rootFolder['child2'] = Folder()
+  >>> testUIDRegistry[id(rootFolder['child2'])] = rootFolder['child2']
   
-Now, assume we wanted to assign some portlets to a particular folder:
+  >>> rootFolder['doc1'] = TestDocument(u'Doc one')
+  >>> testUIDRegistry[rootFolder['doc1']] = rootFolder['doc1']
   
-  >>> class TestFolder(object):
-  ...     implements(ITestContent)
-  >>> folder = TestFolder()
-  >>> testUIDRegistry[id(folder)] = folder
+We also turn our root folder into a site, so that we can make local 
+registrations on it.
 
-We can adapt this to an IPortletContext:
-
-  >>> folderPortletContext = IPortletContext(folder)
-  >>> folderPortletContext
-  <TestPortletContext object at ...>
-  
-The UI will now be able to adapt this context to an IPortletManager, which 
-provides methods for adding and removing portlet assignments relative to this
-context.
-
-  >>> from plone.portlets.interfaces import IPortletManager
-  >>> portletManager = IPortletManager(folderPortletContext)
-  >>> portletManager
-  <plone.portlets.manager.DefaultPortletManager object at ...>
-
-The portlet manager will delegate actual storage of the assignments to a (local) 
-utility providing IPortletStorage. A volatile and generic global portlet storage
-utility is provided in this package.
-
-  >>> from zope.component import getUtility
-  >>> from plone.portlets.interfaces import IPortletStorage
-  >>> volatileStorage = getUtility(IPortletStorage)
-  >>> volatileStorage
-  <plone.portlets.storage.VolatilePortletStorage object at ...>
-  
-Portlets are assigned to a particular viewlet manager (representing e.g. a
-column). We will describe these in detail later, but for now, let's just
-create one so that we can demonstrate the assignment:
-
-  >>> from plone.portlets.viewletmanager import PortletViewletManager
-  >>> columnOne = PortletViewletManager(folder, request, None)
-  
-With this, we can assign a portlet based on our test document to the folder.
-
-  >>> docAssignment = TestReferenceablePortletAssignment('portlet.doc', doc)
-  >>> portletManager.setPortletAssignments(columnOne, [docAssignment])
-  
-  >>> portletManager.getPortletAssignments(columnOne)
-  [<TestReferenceablePortletAssignment object at ...>]
-  >>> portletManager.getPortletAssignments(columnOne)[0] == docAssignment
+  >>> from zope.app.component.interfaces import ISite
+  >>> from zope.component.persistentregistry import PersistentComponents
+  >>> rootFolder.setSiteManager(PersistentComponents())
+  >>> ISite.providedBy(rootFolder)
   True
   
-  >>> folderUID = ITestReferenceable(folder).uid
-  >>> volatileStorage.getPortletAssignmentsForContext(columnOne, folderUID)
-  [<TestReferenceablePortletAssignment object at ...>]
-  >>> volatileStorage.getPortletAssignmentsForContext(columnOne, folderUID)[0] == docAssignment
-  True
+Registering portlet managers
+----------------------------
 
-Notice that the IPortletStorage also knows assignments for users and groups.
-These may be managed by IPortletManagers adapting user and group objects. For
-testing purposes, we will simply assign these manually.
+Portlet managers are persistent objects that contain portlet assignments. They
+are registered as adapter factories which allows them to be looked up in a
+'provider:' TALES expression. We place two portlet managers inside our site,
+although they are not registered as part of the portlet context (i.e. they
+do not use the testing UID registry).
 
-  >>> loginPortlet = TestLoginPortletAssignment()
-  >>> volatileStorage.setPortletAssignmentsForUser(columnOne, testUser, [loginPortlet])
-  >>> volatileStorage.getPortletAssignmentsForUser(columnOne, testUser)
-  [<TestLoginPortletAssignment object at ...>]
-  >>> volatileStorage.getPortletAssignmentsForUser(columnOne, testUser)[0] == loginPortlet
-  True
+  >>> from plone.portlets.manager import PortletManager
+  >>> rootFolder['columns'] = Folder()
+  >>> rootFolder['columns']['left'] = PortletManager()
+  >>> rootFolder['columns']['right'] = PortletManager()
   
-  >>> groupDoc = TestDocument()
-  >>> groupDoc.text = 'Group specific text'
-  >>> groupDocAssignment = TestReferenceablePortletAssignment('portlet.group', groupDoc)
-  >>> volatileStorage.setPortletAssignmentsForGroup(columnOne, testUserGroups[0], [groupDocAssignment])
-  >>> volatileStorage.getPortletAssignmentsForGroup(columnOne, testUserGroups[0])
-  [<TestReferenceablePortletAssignment object at ...>]
-  >>> volatileStorage.getPortletAssignmentsForGroup(columnOne, testUserGroups[0])[0] == groupDocAssignment
-  True
+Then we register the managers as adapter factories for their content providers,
+using the site manager defined above.
 
-Rendering portlets
-------------------
+  >>> from plone.portlets.interfaces import IPortletManagerRenderer
+  >>> from zope.publisher.interfaces.browser import IBrowserRequest
+  >>> from zope.publisher.interfaces.browser import IDefaultBrowserLayer
+  >>> from zope.publisher.interfaces.browser import IBrowserView
+  >>> sm = rootFolder.getSiteManager()
+  >>> sm.registerAdapter(required=(Interface, IBrowserRequest, IBrowserView), 
+  ...                    provided=IPortletManagerRenderer, 
+  ...                    name='columns.left', 
+  ...                    factory=rootFolder['columns']['left'])
+  >>> sm.registerAdapter(required=(Interface, IBrowserRequest, IBrowserView), 
+  ...                    provided=IPortletManagerRenderer, 
+  ...                    name='columns.right', 
+  ...                    factory=rootFolder['columns']['right'])
+  
+We should now be able to get this via a provider: expression (these lines
+borrowed from zope.contentprovider).
 
-UNRESOLVED:
-      - Storage can't use manager *instance* as key - needs id/name
-      - Can VolatilePortletStorage be made optionally persistent?
+  >>> import os, tempfile
+  >>> tempDir = tempfile.mkdtemp()
+  >>> templateFileName = os.path.join(tempDir, 'template.pt')
+  >>> open(templateFileName, 'w').write("""
+  ... <html>
+  ...   <body>
+  ...     <h1>My Web Page</h1>
+  ...     <div class="left-column">
+  ...       <tal:block replace="structure provider:columns.left" />
+  ...     </div>
+  ...     <div class="main">
+  ...       Content here
+  ...     </div>
+  ...   </body>
+  ... </html>
+  ... """)
+  
+We register the template as a view for all objects.
 
-TODO: 
-      - Tests for viewlet manager + retriever
+  >>> from zope.app.pagetemplate.simpleviewclass import SimpleViewClass
+  >>> FrontPage = SimpleViewClass(templateFileName, name='main.html')
+
+  >>> provideAdapter(FrontPage, (Interface, IDefaultBrowserLayer,), 
+  ...                   Interface, name='main.html')
+
+Create a document that we can view.
+
+  >>> doc1 = TestDocument()
+
+Look up the view and render it. Note that the portlet manager is still empty
+(no portlets have been assigned), so nothing will be displayed yet.
+
+  >>> from zope.publisher.browser import TestRequest
+  >>> request = TestRequest()
+
+  >>> from zope.component import getMultiAdapter
+  >>> view = getMultiAdapter((doc1, request), name='main.html')
+  >>> print view().strip()
+  <html>
+    <body>
+      <h1>My Web Page</h1>
+      <div class="left-column">
+        
+      </div>
+      <div class="main">
+        Content here
+      </div>
+    </body>
+  </html>

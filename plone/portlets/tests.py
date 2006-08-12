@@ -1,11 +1,12 @@
 import unittest
 
-import zope.app
 import zope.app.component
+import zope.app.pagetemplate
+import zope.contentprovider
 import plone.portlets
 
 from zope.testing import doctest
-from zope.app.testing.placelesssetup import setUp, tearDown
+from zope.component.testing import setUp, tearDown
 from zope.configuration.xmlconfig import XMLConfig
 
 optionflags = doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS
@@ -13,7 +14,10 @@ optionflags = doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS
 def configurationSetUp(test):
     setUp()
     XMLConfig('meta.zcml', zope.app.component)()
+    XMLConfig('meta.zcml', zope.app.pagetemplate)()
+    XMLConfig('configure.zcml', zope.contentprovider)()
     XMLConfig('configure.zcml', plone.portlets)()
+    
 
 def configurationTearDown(test):
     tearDown()

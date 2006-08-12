@@ -1,9 +1,10 @@
 from zope.interface import implements
 
-from persistent import Persistent, PersistentDict
+from persistent import Persistent
+from persistent.dict import PersistentDict
 from interfaces import IPortletStorage
 
-class DefaultPortletStorage(Persistent):
+class PortletStorage(Persistent):
     """A volatile default portlet storage.
     
     This will most likely need to be override to become persistent.
