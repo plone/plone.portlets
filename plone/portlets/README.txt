@@ -105,9 +105,9 @@ Now we can provide an IPortletContext for this environment.
   ...         return testUserGroups
   >>> provideAdapter(TestPortletContext)
   
-We create a sample content heirarchy as well, to be used later. We register the
-objects with our contrived UID registry, so that the generic portlet context
-will work for all of them.
+We create the root of a sample content hierarchy as well, to be used later. We 
+register new objects with our contrived UID registry, so that the generic 
+portlet context will work for all of them.
   
   >>> class ITestDocument(IContained):
   ...     text = schema.TextLine(title=u"Text to render")
@@ -121,15 +121,6 @@ will work for all of them.
   
   >>> rootFolder =  rootFolder()
   >>> testUIDRegistry[id(rootFolder)] = rootFolder
-
-  >>> rootFolder['child1'] = Folder()
-  >>> testUIDRegistry[id(rootFolder['child1'])] = rootFolder['child1']
-  
-  >>> rootFolder['child2'] = Folder()
-  >>> testUIDRegistry[id(rootFolder['child2'])] = rootFolder['child2']
-  
-  >>> rootFolder['doc1'] = TestDocument(u'Doc one')
-  >>> testUIDRegistry[rootFolder['doc1']] = rootFolder['doc1']
   
 We also turn our root folder into a site, so that we can make local 
 registrations on it.
@@ -192,6 +183,9 @@ borrowed from zope.contentprovider).
   ...     <div class="main">
   ...       Content here
   ...     </div>
+  ...     <div class="right-column">
+  ...       <tal:block replace="structure provider:columns.right" />
+  ...     </div>
   ...   </body>
   ... </html>
   ... """)
@@ -226,6 +220,130 @@ Look up the view and render it. Note that the portlet manager is still empty
       </div>
       <div class="main">
         Content here
+      </div>
+      <div class="right-column">
+      </div>
+    </body>
+  </html>
+  
+Creating portlets
+-----------------
+
+Portlets consist of a data provider (if necessary), a persistent assignment
+object (that "instantiates" the portlet in a given portlet manager), and a
+renderer. 
+
+Recall from the beginning of this document that the relationship
+between data providers and assignments are typically "specific-specific" or
+"general-general". We will create a login box portlet as an example of a 
+"specific-specific" portlet (where the assignment type is specific to the
+portlet) and a portlet for showing the text of a TestDocument as defined above 
+as an example of a "generic-generic" portlet (where the assignment type is 
+generic for any content object in this test environment). Renderers are always
+specific, of course - the way in which you render a document will be different
+from the way you render an image.
+
+Let's begin with the login portlet. Here, we keep the data provider and 
+assignment aspects in the same object, since there is no need to reference an
+external object.
+
+  >>> from plone.portlets.interfaces import IPortletDataProvider
+  >>> from plone.portlets.interfaces import IPortletAssignment
+  >>> from plone.portlets.interfaces import IPortletRenderer
+  >>> from plone.portlets.interfaces import IPortletManager
+  >>> from persistent import Persistent
+  
+  >>> class ILoginPortlet(IPortletDataProvider):
+  ...   pass
+  
+  >>> class LoginPortletAssignment(Persistent):
+  ...     implements(IPortletAssignment, ILoginPortlet)
+  ...     
+  ...     @property
+  ...     def data(self):
+  ...         return self
+  
+  >>> class LoginPortletRenderer(object):
+  ...     implements(IPortletRenderer)
+  ...     adapts(Interface, IBrowserRequest, IBrowserView, 
+  ...             IPortletManager, ILoginPortlet)
+  ... 
+  ...     def __init__(self, context, request, view, manager, data):
+  ...         self.data = data
+  ...
+  ...     def update(self):
+  ...         pass
+  ...
+  ...     def render(self, *args, **kwargs):
+  ...         return r'<form action="/login">(test)</form>'
+  >>> provideAdapter(LoginPortletRenderer)
+  
+For the document-text portlet, we separate the data provider from the 
+assignment object. We don't even use IPortletDataProvider in this case,
+as the ITestContent interface is already available.
+
+Notice that the assignment type is generic here, relying on the contrived UID
+that the portlet context also relies upon.
+
+  >>> class UIDPortletAssignment(Persistent):
+  ...     implements(IPortletAssignment)
+  ...     
+  ...     def __init__(self, obj):
+  ...         self.uid = id(obj)
+  ...
+  ...     @property
+  ...     def data(self):
+  ...          return testUIDRegistry[self.uid]
+  
+  >>> class DocumentPortletRenderer(object):
+  ...     implements(IPortletRenderer)
+  ...     adapts(Interface, IBrowserRequest, IBrowserView, 
+  ...             IPortletManager, ITestDocument)
+  ... 
+  ...     def __init__(self, context, request, view, manager, data):
+  ...         self.data = data
+  ...
+  ...     def update(self):
+  ...         pass
+  ...
+  ...     def render(self, *args, **kwargs):
+  ...         return r'<div>%s</div>' % (self.data.text,)
+  >>> provideAdapter(DocumentPortletRenderer)
+
+Assigning portlets to portlet managers
+--------------------------------------
+
+We can now assign portlets to different portlet managers, and they will
+be rendered in the view that references them, as defined above. Portlets can
+be assigned by context, user, or group. 
+
+Let's assign some portlets in the context of the root folder.
+
+  >>> left = rootFolder['columns']['left']
+  >>> right = rootFolder['columns']['right']
+  
+  >>> pa = LoginPortletAssignment()
+  >>> left.setPortletAssignmentsForContext(id(rootFolder), [pa])
+
+  >>> doc1 = TestDocument(u'Test document one')
+  >>> testUIDRegistry[id(doc1)] = doc1
+  >>> rootFolder['doc1'] = doc1 
+  >>> pa = UIDPortletAssignment(doc1)
+  >>> right.setPortletAssignmentsForContext(id(rootFolder), [pa])
+
+  >>> view = getMultiAdapter((rootFolder, request), name='main.html')
+  >>> print view().strip()
+  <html>
+    <body>
+      <h1>My Web Page</h1>
+      <div class="left-column">
+        <form action="/login">(test)</form>
+      </div>
+      <div class="main">
+        Content here
+      </div>
+      <div class="right-column">
+        <div>Test document one</div>
       </div>
     </body>
   </html>

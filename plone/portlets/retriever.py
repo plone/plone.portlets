@@ -1,9 +1,9 @@
 from zope.interface import implements
 from zope.component import adapts
 
-from interfaces import IPortletContext
-from interfaces import IPortletStorage
-from interfaces import IPortletRetriever
+from plone.portlets.interfaces import IPortletContext
+from plone.portlets.interfaces import IPortletStorage
+from plone.portlets.interfaces import IPortletRetriever
 
 class DefaultPortletRetriever(object):
     """A volatile default portlet storage.

@@ -1,8 +1,8 @@
 from zope.interface import implements
 from zope.component import adapts
 
-from interfaces import IPortletAssignable
-from interfaces import IPortletContext
+from plone.portlets.interfaces import IPortletAssignable
+from plone.portlets.interfaces import IPortletContext
 
 class DefaultPortletAssignable(object):
     """Default implementation of a portlet assignable that delegates to a 

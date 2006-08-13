@@ -1,0 +1,24 @@
+====================
+plone.portlets to-do
+====================
+
+  o Design
+  
+    - security around which portlet renderers may actually be accessed
+      (c.f. zope.viewlet.manager's implementation of filter())
+    
+    - blacklisting of portlets in subfolders to stop acquisistion of portlets
+    
+    - ability for IPortletManager.filter() to not consider invisible portlets
+        (e.g. portlets with conditions)
+    
+    - assignment of portlets to anonymous
+    
+  o Tests
+  
+    - assignment to user
+    - assignment to group
+    - assignment to sub-context
+    
+    - registration of different IPortletRetriever 
+      (dashboard use case, only get from user)

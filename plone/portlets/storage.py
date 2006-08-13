@@ -2,7 +2,8 @@ from zope.interface import implements
 
 from persistent import Persistent
 from persistent.dict import PersistentDict
-from interfaces import IPortletStorage
+
+from plone.portlets.interfaces import IPortletStorage
 
 class PortletStorage(Persistent):
     """A volatile default portlet storage.

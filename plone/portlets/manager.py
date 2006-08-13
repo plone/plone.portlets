@@ -3,13 +3,13 @@ from zope.component import getMultiAdapter
 from zope.contentprovider.interfaces import UpdateNotCalled
 from zope.security import canAccess
 
-from interfaces import IPortletContext
-from interfaces import IPortletRetriever
-from interfaces import IPortletManager
-from interfaces import IPortletManagerRenderer
-from interfaces import IPortletRenderer
+from plone.portlets.interfaces import IPortletContext
+from plone.portlets.interfaces import IPortletRetriever
+from plone.portlets.interfaces import IPortletManager
+from plone.portlets.interfaces import IPortletManagerRenderer
+from plone.portlets.interfaces import IPortletRenderer
 
-from storage import PortletStorage
+from plone.portlets.storage import PortletStorage
 
 class PortletManagerRenderer(object):
     """Default renderer for portlet managers.
@@ -31,7 +31,7 @@ class PortletManagerRenderer(object):
         self.__updated = False
         
     def filter(self, portlets):
-        return [p for p in portlets if canAccess(p, 'render')]
+        return portlets
         
     def update(self):
         self.__updated = True
@@ -57,8 +57,8 @@ class PortletManagerRenderer(object):
         """Helper method to get the correct IPortletRenderer for the given
         data object.
         """
-        return getMultiAdapter((self.context, self.request, self.view, 
-                                    self.manager, assignment.data,), IPortletRenderer)
+        return getMultiAdapter((self.context, self.request, self.__parent__, 
+                                    self.manager, data,), IPortletRenderer)
         
     
 class PortletManager(PortletStorage):
