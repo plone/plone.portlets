@@ -176,12 +176,8 @@ borrowed from zope.contentprovider).
   >>> open(templateFileName, 'w').write("""
   ... <html>
   ...   <body>
-  ...     <h1>My Web Page</h1>
   ...     <div class="left-column">
   ...       <tal:block replace="structure provider:columns.left" />
-  ...     </div>
-  ...     <div class="main">
-  ...       Content here
   ...     </div>
   ...     <div class="right-column">
   ...       <tal:block replace="structure provider:columns.right" />
@@ -215,11 +211,7 @@ Look up the view and render it. Note that the portlet manager is still empty
   >>> print view().strip()
   <html>
     <body>
-      <h1>My Web Page</h1>
       <div class="left-column">
-      </div>
-      <div class="main">
-        Content here
       </div>
       <div class="right-column">
       </div>
@@ -322,28 +314,63 @@ Let's assign some portlets in the context of the root folder.
   >>> left = rootFolder['columns']['left']
   >>> right = rootFolder['columns']['right']
   
-  >>> pa = LoginPortletAssignment()
-  >>> left.setPortletAssignmentsForContext(id(rootFolder), [pa])
+  >>> lpa = LoginPortletAssignment()
+  >>> left.setPortletAssignmentsForContext(id(rootFolder), [lpa])
 
   >>> doc1 = TestDocument(u'Test document one')
   >>> testUIDRegistry[id(doc1)] = doc1
   >>> rootFolder['doc1'] = doc1 
-  >>> pa = UIDPortletAssignment(doc1)
-  >>> right.setPortletAssignmentsForContext(id(rootFolder), [pa])
+  >>> dpa1 = UIDPortletAssignment(doc1)
+  
+  >>> doc2 = TestDocument(u'Test document two')
+  >>> testUIDRegistry[id(doc2)] = doc2
+  >>> rootFolder['doc2'] = doc2
+  >>> dpa2 = UIDPortletAssignment(doc2)
+  
+  >>> right.setPortletAssignmentsForContext(id(rootFolder), [dpa1, dpa2])
 
   >>> view = getMultiAdapter((rootFolder, request), name='main.html')
   >>> print view().strip()
   <html>
     <body>
-      <h1>My Web Page</h1>
       <div class="left-column">
         <form action="/login">(test)</form>
       </div>
-      <div class="main">
-        Content here
-      </div>
       <div class="right-column">
         <div>Test document one</div>
+        <div>Test document two</div>
       </div>
     </body>
   </html>
+  
+For the remainder of these tests, we will use a dummy portlet to make test
+writing a bit easier:
+
+  >>> class IDummyPortlet(IPortletDataProvider):
+  ...   text = schema.TextLine(title=u'Text to render')
+  
+  >>> class DummyPortlet(Persistent):
+  ...     implements(IPortletAssignment, IDummyPortlet)
+  ...     
+  ...     def __init__(self, text):
+  ...         self.text = text
+  ...
+  ...     @property
+  ...     def data(self):
+  ...         return self
+  
+  >>> class DummyPortletRenderer(object):
+  ...     implements(IPortletRenderer)
+  ...     adapts(Interface, IBrowserRequest, IBrowserView, 
+  ...             IPortletManager, IDummyPortlet)
+  ... 
+  ...     def __init__(self, context, request, view, manager, data):
+  ...         self.data = data
+  ...
+  ...     def update(self):
+  ...         pass
+  ...
+  ...     def render(self, *args, **kwargs):
+  ...         return r'<div>%s</div>' % (self.data.text,)
+  >>> provideAdapter(DummyPortletRenderer)
+  
