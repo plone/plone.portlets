@@ -17,7 +17,7 @@ in general, the package is intended to be used as follows:
 - The application layer registers a generic adapter to IPortletContext. Any
 context where portlets may be assigned needs to be adaptable to this interface.
 
-- Any number of PortletManager's are stored persistently. A PortletManager is
+- Any number of PortletManagers are stored persistently. A PortletManager is
 a storage for portlet assignments, keyed by context, user or group. 
 
 - At a local site, an adapter registration is made for each instance of 
