@@ -17,7 +17,7 @@ def configurationSetUp(test):
     XMLConfig('meta.zcml', zope.app.pagetemplate)()
     XMLConfig('configure.zcml', zope.contentprovider)()
     XMLConfig('configure.zcml', plone.portlets)()
-    
+
 
 def configurationTearDown(test):
     tearDown()
@@ -25,8 +25,8 @@ def configurationTearDown(test):
 def test_suite():
     return unittest.TestSuite((
         doctest.DocFileSuite(
-            'README.txt', 
-            setUp=configurationSetUp, 
+            'README.txt',
+            setUp=configurationSetUp,
             tearDown=configurationTearDown,
             optionflags=optionflags),
         ))
