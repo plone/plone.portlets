@@ -8,7 +8,7 @@ class DefaultPortletAssignable(object):
     """Default implementation of a portlet assignable that delegates to a 
     specific portlet manager.
     """
-    
+
     implements(IPortletAssignable)
     adapts(IPortletContext)
 
