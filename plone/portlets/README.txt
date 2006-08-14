@@ -88,13 +88,16 @@ that user's groups.
   >>> class ITestUser(Interface):
   ...     id = schema.TextLine(title=u'User id')
   ...     groups = schema.Iterable(title=u'Groups of this user')
+  
   >>> class ITestGroup(Interface):
   ...     id = schema.TextLine(title=u'Group id')
+  
   >>> class TestUser(object):
   ...     implements(ITestUser)
   ...     def __init__(self, id, groups):
   ...         self.id = id
   ...         self.groups = groups
+  
   >>> class TestGroup(object):
   ...     implements(ITestGroup)
   ...     def __init__(self, id):
@@ -148,7 +151,7 @@ portlet context will work for all of them.
   >>> rootFolder =  rootFolder()
   >>> __uids__[id(rootFolder)] = rootFolder
   
-We also turn our root folder into a site, so that we can make local 
+We then turn our root folder into a site, so that we can make local 
 registrations on it.
 
   >>> from zope.app.component.interfaces import ISite
@@ -159,6 +162,7 @@ registrations on it.
   >>> rootFolder.setSiteManager(sm)
   >>> ISite.providedBy(rootFolder)
   True
+  
   >>> from zope.app.component.hooks import setSite, setHooks
   >>> setSite(rootFolder)
   >>> setHooks()
@@ -168,7 +172,7 @@ Registering portlet managers
 
 Portlet managers are persistent objects that contain portlet assignments. They
 are registered as adapter factories which allows them to be looked up in a
-'provider:' TALES expression. We place two portlet managers inside our site,
+``provider:`` TALES expression. We place two portlet managers inside our site,
 although they are not registered as part of the portlet context (i.e. they
 do not use the testing UID registry).
 
@@ -193,8 +197,7 @@ using the site manager defined above.
   ...                    name='columns.right', 
   ...                    factory=rootFolder['columns']['right'])
   
-We should now be able to get this via a provider: expression (these lines
-borrowed from ``zope.contentprovider``).
+We should now be able to get this via a provider: expression:
 
   >>> import os, tempfile
   >>> tempDir = tempfile.mkdtemp()
@@ -222,11 +225,11 @@ We register the template as a view for all objects.
   ...     __call__ = ViewPageTemplateFile(templateFileName)
   >>> provideAdapter(TestPage, provides=IBrowserPage, name='main.html')
 
-Create a document that we can view.
+Then, we create a document that we can view.
 
   >>> doc1 = TestDocument()
 
-Look up the view and render it. Note that the portlet manager is still empty
+We look up the view and render it. Note that the portlet manager is still empty
 (no portlets have been assigned), so nothing will be displayed yet.
 
   >>> from zope.publisher.browser import TestRequest
