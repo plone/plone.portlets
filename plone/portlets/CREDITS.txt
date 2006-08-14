@@ -3,8 +3,7 @@ plone.portlets credits
 ======================
 
 plone.portlets is a Zope 3 reimplementation of PlonePortlets by Plone Solutions 
-A/S (http://plonesolutions.com), originally sponsored by the Norwegian Consumer
-Council (http://forbrukerradet.no).
+A/S (http://plonesolutions.com). The original implementation was sponsored IBAS data recovery ASA 
 
  - Martin Aspeli <optilude@gmx.net>
     plone.portlets implementation
@@ -13,4 +12,4 @@ Council (http://forbrukerradet.no).
     zope 3 life line and design guru
     
  - Geir Baekholt
-    use case support and sanity checking
+    original design, use case support and sanity checking
