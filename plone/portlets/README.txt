@@ -3,7 +3,7 @@ Plone Portlets Engine
 =====================
 
 This package contains the basic interfaces and generalisable code for managing
-dynamic portlets. Portlets are content provider (see ``zope.contentprovider``) 
+dynamic portlets. Portlets are content providersf (see ``zope.contentprovider``) 
 which are assigned to columns or other areas (represented by portlet managers). 
 
 The portlets infrastructure is similar to ``zope.viewlet``, but differs in that
@@ -16,14 +16,6 @@ in general, the package is intended to be used as follows:
 
 - The application layer registers a generic adapter to IPortletContext. Any
 context where portlets may be assigned needs to be adaptable to this interface.
-
-- If desired, the application layer provides adapters to IPortletAssignable
-from a user and an IPortletManager, and from a group and an IPortletManager.
-This provides an API to assign portlets relative to that particular context.
-A location-based implementation that adapts (IPortletContext, IPortletManager)
-already exists in ``plone.portlets.assignable.ContextPortletAssignable``. See
-``UserPortletAssignable`` and ``GroupPortletAssignable`` in this document for
-examples of user- and group-assignment versions
 
 - Any number of PortletManagers are stored persistently. A PortletManager is
 a storage for portlet assignments, keyed by context, user or group. For example,
@@ -39,6 +31,13 @@ a PortletManagerRenderer, which provides IContentProvider.
 - Once this registration is made, any template in that site would be able to
 write e.g. tal:replace="structure provider:plone.leftcolumn" to see the 
 context-dependent rendering of that particular portlet manager.
+
+- If desired, the application layer provides implementations of 
+IPortletAssignable that can be used (by the UI) to manage portlet assignments to
+groups and users. A location-based implementation that adapts (IPortletContext, 
+IPortletManager) already exists (in ``ContextPortletAssignable``). See
+``UserPortletAssignable`` and ``GroupPortletAssignable`` in this test for
+examples of user- and group-assignment versions
 
 Actual portlets are described by three interfaces, which may be kept separate or
 implemented in the same component, depending on the use case.
@@ -57,8 +56,8 @@ IPortletDataProvider.
 
 Typically, you will either have a specific IPortletAssignment for a specific
 IPortletDataProvider, or a generic IPortletAssignment for different types of
-IPortletDataProvider. You will also typically have a generalisable 
-IPortletRenderer for each type of IPortletDataProvider.
+data providers. You will also typically have a generalisable IPortletRenderer 
+for each type of data provider.
 
 The examples below demonstrate a "specific-specific" portlet in the form of a 
 login portlet - here, the same object provides both the assignment and the data 
