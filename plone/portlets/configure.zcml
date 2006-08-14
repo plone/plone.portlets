@@ -1,7 +1,23 @@
 <configure xmlns="http://namespaces.zope.org/zope">
 
 
-    <adapter factory=".assignable.DefaultPortletAssignable" />
-    <adapter factory=".retriever.DefaultPortletRetriever" />
+    <adapter factory=".assignable.ContextPortletAssignable" />
+    <adapter factory=".retriever.PortletRetriever" />
+    <adapter factory=".retriever.PlacelessPortletRetriever" />
+
+    <class class=".manager.PortletManager">
+      <require permission="zope.Public"
+               attributes="__call__" />
+    </class>
+    
+    <class class=".retriever.PortletRetriever">
+      <require permission="zope.Public"
+               interface=".interfaces.IPortletRetriever" />
+    </class>
+
+    <class class=".assignable.ContextPortletAssignable">
+      <require permission="zope.ManageContent"
+               interface=".interfaces.IPortletAssignable" />
+    </class>
 
 </configure>

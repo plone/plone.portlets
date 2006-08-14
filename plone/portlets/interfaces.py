@@ -56,7 +56,7 @@ class IPortletDataProvider(Interface):
 # Portlet assignment - new types of portlets may need one of these
 
 class IPortletAssignment(Interface):
-    """Assignment of a portlet to a given viewlet manager relative to a 
+    """Assignment of a portlet to a given portlet manager relative to a 
     context, user or group.
     
     Implementations of this interface will typically be persistent, stored in
@@ -65,10 +65,11 @@ class IPortletAssignment(Interface):
     The 'data' attribute may be implemented as a property that retrieves the
     data object on-demand.
     """
-    
-    id = schema.TextLine(title=u'An id for this particular assignment',
-                         description=u'This should be unique in the given viewlet manager and context',
-                         required=True)
+        
+    available = schema.Bool(title=u'Available',
+                            description=u'Whether or not this portlet shuld be rendered',
+                            required=True,
+                            readonly=True)
     
     data = Attribute(u'Portlet data object')
     
@@ -94,12 +95,6 @@ class IPortletRetriever(Interface):
     adapted to IPortletRetriever.
     """
 
-    def getPortlet(id):
-        """Get the IPortletAssignment with the specific id.
-        
-        Raises KeyError if the id cannot be found.
-        """
-
     def getPortlets():
         """Return a list of IPortletAssignment's to be rendered
         """
@@ -109,18 +104,19 @@ class IPortletRetriever(Interface):
 class IPortletAssignable(Interface):
     """A component capable of managing portlets.
     
-    Typically, a content object, user or group would be adapted to allow 
-    storage and retrieval of portlet assignments relative to this context.
+    Typically, a content object, user or group would be multi-adapted alongside
+    an IPortletManager to this interface, to allow storage and retrieval of 
+    portlet assignments relative to this context.
     """
 
-    def getPortletAssignments(manager):
-        """Get a list of portlet assignments for the given viewlet manager
-        for this specific context.
+    def getPortletAssignments():
+        """Get a list of portlet assignments for the adapted portlet manager
+        for the adapted context.
         """
 
-    def setPortletAssignments(manager, portletAssignments):
-        """Set the list of portlet assignments for the given viewlet manager
-        for this specific context.
+    def setPortletAssignments(portletAssignments):
+        """Set the list of portlet assignments for the adapted portlet manager
+        for the adapted context.
         """
     
 # A manager for portlets
@@ -156,8 +152,8 @@ class IPortletStorage(Interface):
 class IPortletManager(IPortletStorage, IContained):
     """A manager for portlets.
     
-    This will typically adapt its context to IPortletRetriever and query it for 
-    a list of IPortletRenderers to render.
+    Typically, objects providing this interface will be persisted and used
+    to manage portlet assignments. 
     """
     
     def __call__(context, request, view):
@@ -172,6 +168,14 @@ class IPortletManager(IPortletStorage, IContained):
         
         See zope.contentprovider for more.
         """
+
+class IPlacelessPortletManager(IPortletManager):
+    """A manager for placeless portlets.
+    
+    A placeless portlet manager is one which does not examine the context
+    or the context's parent. This is achieved by way of a different adapter
+    to IPortletRetriever.
+    """
 
 class IPortletManagerRenderer(IContentProvider):
     """A content provider for rendering a portlet manager.

@@ -6,6 +6,7 @@ from zope.security import canAccess
 from plone.portlets.interfaces import IPortletContext
 from plone.portlets.interfaces import IPortletRetriever
 from plone.portlets.interfaces import IPortletManager
+from plone.portlets.interfaces import IPlacelessPortletManager
 from plone.portlets.interfaces import IPortletManagerRenderer
 from plone.portlets.interfaces import IPortletRenderer
 
@@ -31,7 +32,7 @@ class PortletManagerRenderer(object):
         self.__updated = False
 
     def filter(self, portlets):
-        return portlets
+        return [p for p in portlets if p.available]
 
     def update(self):
         self.__updated = True
@@ -74,5 +75,12 @@ class PortletManager(PortletStorage):
 
     def __call__(self, context, request, view):
         return PortletManagerRenderer(self, context, request, view)
-
-
+        
+class PlacelessPortletManager(PortletManager):
+    """Default implementation of a placeless portlet manager.
+    
+    This exists mainly to allow a different adapter for IPortletRetriever
+    to be found.
+    """
+    
+    implements(IPlacelessPortletManager)

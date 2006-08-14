@@ -3,12 +3,12 @@ Plone Portlets Engine
 =====================
 
 This package contains the basic interfaces and generalisable code for managing
-dynamic portlets. Portlets are content provider (see zope.contentprovider) 
-which are assigned to columns or other areas (represented by a portlet manager). 
+dynamic portlets. Portlets are content provider (see ``zope.contentprovider``) 
+which are assigned to columns or other areas (represented by portlet managers). 
 
-The portlets infrastructure is similar to zope.viewlet, but differs in that
+The portlets infrastructure is similar to ``zope.viewlet``, but differs in that
 it is dynamic. Rather than register viewlets that "plug into" a viewlet manager
-in ZCML, plone.portlets contains the basis for portlets that are assigned - 
+in ZCML, ``plone.portlets`` contains the basis for portlets that are assigned - 
 persistently, at run time - to locations, users or groups.
 
 The remainder of this file will explain the API and components in detail, but
@@ -17,8 +17,18 @@ in general, the package is intended to be used as follows:
 - The application layer registers a generic adapter to IPortletContext. Any
 context where portlets may be assigned needs to be adaptable to this interface.
 
+- If desired, the application layer provides adapters to IPortletAssignable
+from a user and an IPortletManager, and from a group and an IPortletManager.
+This provides an API to assign portlets relative to that particular context.
+A location-based implementation that adapts (IPortletContext, IPortletManager)
+already exists in ``plone.portlets.assignable.ContextPortletAssignable``. See
+``UserPortletAssignable`` and ``GroupPortletAssignable`` in this document for
+examples of user- and group-assignment versions
+
 - Any number of PortletManagers are stored persistently. A PortletManager is
-a storage for portlet assignments, keyed by context, user or group. 
+a storage for portlet assignments, keyed by context, user or group. For example,
+there may be on portlet manager for the "left column" and on portlet manager for
+the "right column".
 
 - At a local site, an adapter registration is made for each instance of 
 PortletManager with a particular name (e.g. "plone.leftcolumn"), adapting
@@ -28,7 +38,7 @@ a PortletManagerRenderer, which provides IContentProvider.
 
 - Once this registration is made, any template in that site would be able to
 write e.g. tal:replace="structure provider:plone.leftcolumn" to see the 
-context-dependent rendering of that particular viewlet manager.
+context-dependent rendering of that particular portlet manager.
 
 Actual portlets are described by three interfaces, which may be kept separate or
 implemented in the same component, depending on the use case.
@@ -64,7 +74,7 @@ We will create a test environment first, consisting of content objects (folders
 and documents) that have a unique id managed by a global UID registry. For
 the purposes of testing, we simply use the python id() for this, though this
 is obviously not a realistic implementation (since it is non-persistent and
-instance-specific). The environment also knows the id of the current user and 
+instance-specific). The environment also represents the current user and 
 that user's groups.
 
   >>> from zope.interface import implements, Interface
@@ -74,9 +84,26 @@ that user's groups.
   >>> from zope.app.container.interfaces import IContained
   >>> from zope.app.folder import rootFolder, Folder
   
-  >>> testUIDRegistry = {}
-  >>> testUser = 'TestUser'
-  >>> testUserGroups = ('TestGroup1', 'TestGroup2',)
+  >>> __uids__ = {}
+  
+  >>> class ITestUser(Interface):
+  ...     id = schema.TextLine(title=u'User id')
+  ...     groups = schema.Iterable(title=u'Groups of this user')
+  >>> class ITestGroup(Interface):
+  ...     id = schema.TextLine(title=u'Group id')
+  >>> class TestUser(object):
+  ...     implements(ITestUser)
+  ...     def __init__(self, id, groups):
+  ...         self.id = id
+  ...         self.groups = groups
+  >>> class TestGroup(object):
+  ...     implements(ITestGroup)
+  ...     def __init__(self, id):
+  ...         self.id = id
+  
+  >>> Anonymous = TestUser('(Anonymous)', ())
+  >>> user1 = TestUser('user1', (TestGroup('group1'), TestGroup('group2'),))
+  >>> __current_user__ = user1
   
 Now we can provide an IPortletContext for this environment.
 
@@ -98,11 +125,11 @@ Now we can provide an IPortletContext for this environment.
   ...
   ...     @property
   ...     def userId(self):
-  ...         return testUser
+  ...         return __current_user__.id
   ...
   ...     @property
   ...     def groupIds(self):
-  ...         return testUserGroups
+  ...         return [g.id for g in __current_user__.groups]
   >>> provideAdapter(TestPortletContext)
   
 We create the root of a sample content hierarchy as well, to be used later. We 
@@ -120,7 +147,7 @@ portlet context will work for all of them.
   ...         self.text = text
   
   >>> rootFolder =  rootFolder()
-  >>> testUIDRegistry[id(rootFolder)] = rootFolder
+  >>> __uids__[id(rootFolder)] = rootFolder
   
 We also turn our root folder into a site, so that we can make local 
 registrations on it.
@@ -168,7 +195,7 @@ using the site manager defined above.
   ...                    factory=rootFolder['columns']['right'])
   
 We should now be able to get this via a provider: expression (these lines
-borrowed from zope.contentprovider).
+borrowed from ``zope.contentprovider``).
 
   >>> import os, tempfile
   >>> tempDir = tempfile.mkdtemp()
@@ -252,6 +279,10 @@ external object.
   ...     implements(IPortletAssignment, ILoginPortlet)
   ...     
   ...     @property
+  ...     def available(self):
+  ...         return __current_user__ is Anonymous
+  ...
+  ...     @property
   ...     def data(self):
   ...         return self
   
@@ -270,6 +301,9 @@ external object.
   ...         return r'<form action="/login">(test)</form>'
   >>> provideAdapter(LoginPortletRenderer)
   
+Note that in a real-world application, it may be necessary to add security
+assertions to the LoginPortletAssignment class.
+  
 For the document-text portlet, we separate the data provider from the 
 assignment object. We don't even use IPortletDataProvider in this case,
 as the ITestContent interface is already available.
@@ -284,8 +318,12 @@ that the portlet context also relies upon.
   ...         self.uid = id(obj)
   ...
   ...     @property
+  ...     def available(self):
+  ...         return True
+  ...
+  ...     @property
   ...     def data(self):
-  ...          return testUIDRegistry[self.uid]
+  ...          return __uids__[self.uid]
   
   >>> class DocumentPortletRenderer(object):
   ...     implements(IPortletRenderer)
@@ -309,27 +347,51 @@ We can now assign portlets to different portlet managers, and they will
 be rendered in the view that references them, as defined above. Portlets can
 be assigned by context, user, or group. 
 
-Let's assign some portlets in the context of the root folder.
+Let's assign some portlets in the context of the root folder. Assignment is
+done via an IPortletAssignable interface, which negotiates the interface 
+between a context and a portlet manager. This is a multi-adapter from 
+IPortletContext and IPortletManager, to distinguish the context and the
+column.
 
   >>> left = rootFolder['columns']['left']
   >>> right = rootFolder['columns']['right']
   
+  >>> from plone.portlets.interfaces import IPortletAssignable
   >>> lpa = LoginPortletAssignment()
-  >>> left.setPortletAssignmentsForContext(id(rootFolder), [lpa])
-
+  >>> leftAtRoot = getMultiAdapter((IPortletContext(rootFolder), left), IPortletAssignable)
+  >>> leftAtRoot.setPortletAssignments([lpa])
+  
   >>> doc1 = TestDocument(u'Test document one')
-  >>> testUIDRegistry[id(doc1)] = doc1
+  >>> __uids__[id(doc1)] = doc1
   >>> rootFolder['doc1'] = doc1 
   >>> dpa1 = UIDPortletAssignment(doc1)
   
   >>> doc2 = TestDocument(u'Test document two')
-  >>> testUIDRegistry[id(doc2)] = doc2
+  >>> __uids__[id(doc2)] = doc2
   >>> rootFolder['doc2'] = doc2
   >>> dpa2 = UIDPortletAssignment(doc2)
   
-  >>> right.setPortletAssignmentsForContext(id(rootFolder), [dpa1, dpa2])
+  >>> rightAtRoot = getMultiAdapter((IPortletContext(rootFolder), right), IPortletAssignable)
+  >>> rightAtRoot.setPortletAssignments([dpa1, dpa2])
 
   >>> view = getMultiAdapter((rootFolder, request), name='main.html')
+  >>> print view().strip()
+  <html>
+    <body>
+      <div class="left-column">
+      </div>
+      <div class="right-column">
+        <div>Test document one</div>
+        <div>Test document two</div>
+      </div>
+    </body>
+  </html>
+  
+Notice that the login portlet did not get rendered, since its 'available'
+property was false (the current user is not the anonymous user). Let's
+"log out" and verify that it show up.
+
+  >>> __current_user__ = Anonymous
   >>> print view().strip()
   <html>
     <body>
@@ -352,12 +414,10 @@ writing a bit easier:
   >>> class DummyPortlet(Persistent):
   ...     implements(IPortletAssignment, IDummyPortlet)
   ...     
-  ...     def __init__(self, text):
+  ...     def __init__(self, text, available=True):
   ...         self.text = text
-  ...
-  ...     @property
-  ...     def data(self):
-  ...         return self
+  ...         self.available = available
+  ...     data = property(lambda self: self)
   
   >>> class DummyPortletRenderer(object):
   ...     implements(IPortletRenderer)
@@ -374,3 +434,222 @@ writing a bit easier:
   ...         return r'<div>%s</div>' % (self.data.text,)
   >>> provideAdapter(DummyPortletRenderer)
   
+We will also be assigning portlets to users and groups. This requires that
+we can obtain an IPortletAssignable for each of those. We must provide
+such adapters in the application layer:
+
+  >>> class UserPortletAssignable(object):
+  ...     implements(IPortletAssignable)
+  ...     adapts(ITestUser, IPortletManager)
+  ...
+  ...     def __init__(self, user, manager):
+  ...         self.user = user
+  ...         self.manager = manager
+  ...
+  ...     def getPortletAssignments(self):
+  ...         return self.manager.getPortletAssignmentsForUser(self.user.id)
+  ...
+  ...     def setPortletAssignments(self, portletAssignments):
+  ...         self.manager.setPortletAssignmentsForUser(self.user.id, portletAssignments)
+  >>> provideAdapter(UserPortletAssignable)
+  
+  >>> class GroupPortletAssignable(object):
+  ...     implements(IPortletAssignable)
+  ...     adapts(ITestGroup, IPortletManager)
+  ...
+  ...     def __init__(self, group, manager):
+  ...         self.group = group
+  ...         self.manager = manager
+  ...
+  ...     def getPortletAssignments(self):
+  ...         return self.manager.getPortletAssignmentsForGroup(self.group.id)
+  ...
+  ...     def setPortletAssignments(self, portletAssignments):
+  ...         self.manager.setPortletAssignmentsForGroup(self.group.id, portletAssignments)
+  >>> provideAdapter(GroupPortletAssignable)
+  
+Let's assign a portlet in a sub-folder of the root folder.
+
+  >>> child1 = Folder()
+  >>> rootFolder['child1'] = child1
+  >>> __uids__[id(child1)] = child1
+  
+  >>> childPortlet = DummyPortlet('Dummy at child1')
+  >>> leftAtChild1 = getMultiAdapter((IPortletContext(child1), left), IPortletAssignable)
+  >>> leftAtChild1.setPortletAssignments([childPortlet])
+  
+This assignment does not affect rendering at the root folder:
+
+  >>> print view().strip()
+  <html>
+    <body>
+      <div class="left-column">
+        <form action="/login">(test)</form>
+      </div>
+      <div class="right-column">
+        <div>Test document one</div>
+        <div>Test document two</div>
+      </div>
+    </body>
+  </html>
+  
+It does, however, affect rendering at 'child1' (and any of its children).
+Notice also that by default, child portlets come before parent portlets.
+
+  >>> view = getMultiAdapter((child1, request), name='main.html')
+  >>> print view().strip()
+  <html>
+    <body>
+      <div class="left-column">
+        <div>Dummy at child1</div>
+        <form action="/login">(test)</form>
+      </div>
+      <div class="right-column">
+        <div>Test document one</div>
+        <div>Test document two</div>
+      </div>
+    </body>
+  </html>
+  
+We can now assign a portlet to a user. Notice how one user's portlets
+don't interfere with those of another user, and that by default, user portlets
+are listed after contextual portlets.
+
+  >>> anonPortlet = DummyPortlet('Dummy for anonymous')
+  >>> leftForAnon = getMultiAdapter((Anonymous, left), IPortletAssignable)
+  >>> leftForAnon.setPortletAssignments([anonPortlet])
+  
+  >>> userPortlet = DummyPortlet('Dummy for user1')
+  >>> leftForUser1 = getMultiAdapter((user1, left), IPortletAssignable)
+  >>> leftForUser1.setPortletAssignments([userPortlet])
+  
+  >>> print view().strip()
+  <html>
+    <body>
+      <div class="left-column">
+        <div>Dummy at child1</div>
+        <form action="/login">(test)</form>
+        <div>Dummy for anonymous</div>
+      </div>
+      <div class="right-column">
+        <div>Test document one</div>
+        <div>Test document two</div>
+      </div>
+    </body>
+  </html>
+  
+  >>> __current_user__ = user1
+  >>> print view().strip()
+  <html>
+    <body>
+      <div class="left-column">
+        <div>Dummy at child1</div>
+        <div>Dummy for user1</div>
+      </div>
+      <div class="right-column">
+        <div>Test document one</div>
+        <div>Test document two</div>
+      </div>
+    </body>
+  </html>
+  
+We can also assign portlets to groups. Group portlets appear after user
+portlets, and are aggregated in the order they are listed for users.
+  
+  >>> group2 = user1.groups[1]
+  >>> groupPortlet2 = DummyPortlet('Dummy for group2')
+  >>> leftForGroup2 = getMultiAdapter((group2, left), IPortletAssignable)
+  >>> leftForGroup2.setPortletAssignments([groupPortlet2])
+  
+  >>> group1 = user1.groups[0]
+  >>> groupPortlet1 = DummyPortlet('Dummy for group1')
+  >>> leftForGroup1 = getMultiAdapter((group1, left), IPortletAssignable)
+  >>> leftForGroup1.setPortletAssignments([groupPortlet1])
+  
+  >>> print view().strip()
+  <html>
+    <body>
+      <div class="left-column">
+        <div>Dummy at child1</div>
+        <div>Dummy for user1</div>
+        <div>Dummy for group1</div>
+        <div>Dummy for group2</div>
+      </div>
+      <div class="right-column">
+        <div>Test document one</div>
+        <div>Test document two</div>
+      </div>
+    </body>
+  </html>
+  
+Using a different retrieval algorithm
+-------------------------------------
+
+The examples above show the default portlet retrival algorithm, which finds
+portlets for children before those for parents before those for users
+before those for groups. It is relatively easy to plug in different composition
+algorithm, however.
+
+Consider the case of a "dashboard" where a user can assign personal portlets.
+This may be a special page that is not context-dependent, considering only
+user and group portlets.
+
+The portlet manager will adapt its context and itself to an IPortletRetreiver
+in order to get a list of portlets to display. plone.portlets ships with
+an alternative version of the default IPortletRetriever that ignores contextual
+portlets. This is registered as an adapter from (IPortletContext, 
+IPlacelessPortletManager). IPlacelessPortletManager in
+turn, is implemented by the PlacelessPortletManager class, meaning that you
+can instantiate one of these to get the placeless behaviour.
+
+  >>> from plone.portlets.manager import PlacelessPortletManager
+  >>> dashboard = PlacelessPortletManager()
+  >>> rootFolder['columns']['dashboard'] = dashboard
+  >>> sm.registerAdapter(required=(Interface, IBrowserRequest, IBrowserView), 
+  ...                    provided=IPortletManagerRenderer, 
+  ...                    name='columns.dashboard', 
+  ...                    factory=dashboard)
+  
+  >>> dashboardFileName = os.path.join(tempDir, 'dashboard.pt')
+  >>> open(dashboardFileName, 'w').write("""
+  ... <html>
+  ...   <body>
+  ...     <div class="dashboard">
+  ...       <tal:block replace="structure provider:columns.dashboard" />
+  ...     </div>
+  ...   </body>
+  ... </html>
+  ... """)
+  
+  >>> class DashboardPage(BrowserPage):
+  ...     adapts(Interface, IBrowserRequest)
+  ...     __call__ = ViewPageTemplateFile(dashboardFileName)
+  >>> provideAdapter(DashboardPage, provides=IBrowserPage, name='dashboard.html')
+  >>> view = getMultiAdapter((child1, request), name='dashboard.html')
+  >>> print view().strip()
+  <html>
+    <body>
+      <div class="dashboard">
+      </div>
+    </body>
+  </html>
+  
+Let's register some portlets for the dashboard.
+
+  >>> dashboardForUser1 = getMultiAdapter((user1, dashboard), IPortletAssignable)
+  >>> dashboardForUser1.setPortletAssignments([userPortlet])
+  >>> dashboardForGroup1 = getMultiAdapter((group1, dashboard), IPortletAssignable)
+  >>> dashboardForGroup1.setPortletAssignments([groupPortlet1])
+  >>> dashboardForGroup2 = getMultiAdapter((group2, dashboard), IPortletAssignable)
+  >>> dashboardForGroup2.setPortletAssignments([groupPortlet2])
+  
+  >>> print view().strip()
+  <html>
+    <body>
+      <div class="dashboard">
+        <div>Dummy for user1</div>
+        <div>Dummy for group1</div>
+        <div>Dummy for group2</div>
+      </div>
+    </body>
+  </html>

@@ -2,28 +2,23 @@ from zope.interface import implements
 from zope.component import adapts
 
 from plone.portlets.interfaces import IPortletContext
-from plone.portlets.interfaces import IPortletStorage
+from plone.portlets.interfaces import IPortletManager
+from plone.portlets.interfaces import IPlacelessPortletManager
 from plone.portlets.interfaces import IPortletRetriever
 
-class DefaultPortletRetriever(object):
-    """A volatile default portlet storage.
+class PortletRetriever(object):
+    """The default portlet retriever.
 
-    This will most likely need to be override to become persistent.
+    This will aggregate contextual portlets, acquired up until the root 
+    IPortletContext, then user portlets, then group portlets.
     """
 
     implements(IPortletRetriever)
-    adapts(IPortletContext, IPortletStorage)
+    adapts(IPortletContext, IPortletManager)
 
     def __init__(self, context, storage):
         self.context = context
         self.storage = storage
-
-    def getPortlet(self, id):
-        portlets = [p for p in self.getPortlets() if p.id == id]
-        if len(portlets) == 0:
-            raise KeyError
-        else:
-            return portlets[0]
 
     def getPortlets(self):
         # Get user portlets
@@ -39,7 +34,31 @@ class DefaultPortletRetriever(object):
         location = self.context
         while location is not None:
             parentContext = IPortletContext(location)
-            contextPortlets.extend(self.storage.getPortletAssignmentsForContext(location.uid))
-            location = location.parent
+            contextPortlets.extend(self.storage.getPortletAssignmentsForContext(parentContext.uid))
+            location = parentContext.parent
 
         return contextPortlets + userPortlets + groupPortlets
+        
+class PlacelessPortletRetriever(PortletRetriever):
+    """A placeless portlet retriever.
+    
+    This will aggregate user portlets, then group portlets.
+    """
+    
+    implements(IPortletRetriever)
+    adapts(IPortletContext, IPlacelessPortletManager)
+    
+    def __init__(self, context, storage):
+        self.context = context
+        self.storage = storage
+        
+    def getPortlets(self):
+        # Get user portlets
+        userPortlets = self.storage.getPortletAssignmentsForUser(self.context.userId)
+        
+        # Get group portlets and combine them into a single list
+        groupPortlets = []
+        for g in self.context.groupIds:
+            groupPortlets.extend(self.storage.getPortletAssignmentsForGroup(g))
+        
+        return userPortlets + groupPortlets

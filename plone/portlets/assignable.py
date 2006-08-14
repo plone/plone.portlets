@@ -3,20 +3,22 @@ from zope.component import adapts
 
 from plone.portlets.interfaces import IPortletAssignable
 from plone.portlets.interfaces import IPortletContext
+from plone.portlets.interfaces import IPortletManager
 
-class DefaultPortletAssignable(object):
-    """Default implementation of a portlet assignable that delegates to a 
-    specific portlet manager.
+class ContextPortletAssignable(object):
+    """Default implementation of a portlet assignable for contexts (content 
+    objects).
     """
 
     implements(IPortletAssignable)
-    adapts(IPortletContext)
+    adapts(IPortletContext, IPortletManager)
 
-    def __init__(self, context):
+    def __init__(self, context, manager):
         self.context = context
+        self.manager = manager
 
-    def getPortletAssignments(self, manager):
-        return manager.getPortletAssignmentsForContext(self.context.uid)
+    def getPortletAssignments(self):
+        return self.manager.getPortletAssignmentsForContext(self.context.uid)
 
-    def setPortletAssignments(self, manager, portletAssignments):
-        manager.setPortletAssignmentsForContext(self.context.uid, portletAssignments)
+    def setPortletAssignments(self, portletAssignments):
+        self.manager.setPortletAssignmentsForContext(self.context.uid, portletAssignments)
