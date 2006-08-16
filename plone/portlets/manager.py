@@ -1,7 +1,6 @@
 from zope.interface import implements
 from zope.component import getMultiAdapter
 from zope.contentprovider.interfaces import UpdateNotCalled
-from zope.security import canAccess
 
 from plone.portlets.interfaces import IPortletContext
 from plone.portlets.interfaces import IPortletRetriever
