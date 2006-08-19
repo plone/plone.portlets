@@ -1,6 +1,5 @@
 <configure xmlns="http://namespaces.zope.org/zope">
 
-
     <adapter factory=".assignable.ContextPortletAssignable" />
     <adapter factory=".retriever.PortletRetriever" />
     <adapter factory=".retriever.PlacelessPortletRetriever" />
