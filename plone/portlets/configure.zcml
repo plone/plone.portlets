@@ -1,5 +1,13 @@
 <configure xmlns="http://namespaces.zope.org/zope">
 
+    <include package="zope.security" file="meta.zcml" />
+    <include package="zope.app.security" file="meta.zcml" />
+    <include package="zope.app.component" file="meta.zcml" />
+    <include package="zope.app.pagetemplate" file="meta.zcml" />
+
+    <include package="zope.app.security" />
+    <include package="zope.contentprovider" />
+
     <adapter factory=".assignable.ContextPortletAssignable" />
     <adapter factory=".retriever.PortletRetriever" />
     <adapter factory=".retriever.PlacelessPortletRetriever" />
