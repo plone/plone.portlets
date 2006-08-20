@@ -7,8 +7,12 @@ plone.portlets to-do
     - blacklisting of portlets in subfolders to stop acquisistion of portlets
 
       -> make a folder non-acquiring
-        - this requires a marker (interface? attribute?) that stops
-           the default IPortletRetreiver from going up to the parent.
+      
+        - non-acquire user (untick to get it back)
+ 
+        - non-acquire group (untick to get it back)
+        
+        - non-acquire portlet (untick to get it back)
 
       -> blacklist specific ids (?)
         - this requires assignments to have ids that are unique among all
