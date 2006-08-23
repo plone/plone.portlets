@@ -24,7 +24,7 @@ class PortletManagerRenderer(object):
 
     def __init__(self, manager, context, request, view):
         self.__parent__ = view
-        self.manager = manager
+        self.manager = manager # part of interface
         self.context = context
         self.request = request
         self.template = None
@@ -36,7 +36,13 @@ class PortletManagerRenderer(object):
     def update(self):
         self.__updated = True
 
-        portletContext = IPortletContext(self.context)
+        portletContext = IPortletContext(self.context, None)
+        
+        # Abort if we don't have a portlet context
+        if portletContext is None:
+            self.portlets = ()
+            return
+        
         retriever = getMultiAdapter((portletContext, self.manager), IPortletRetriever)
 
         self.portlets = [self._dataToPortlet(a.data)
