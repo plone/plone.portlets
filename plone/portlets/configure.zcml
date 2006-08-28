@@ -5,26 +5,20 @@
     <include package="zope.app.component" file="meta.zcml" />
     <include package="zope.app.pagetemplate" file="meta.zcml" />
 
+    <include package="zope.annotation" />
     <include package="zope.app.security" />
+    <include package="zope.app.event" />
     <include package="zope.contentprovider" />
+    
+    <adapter factory=".assignable.LocalPortletAssignmentManager" 
+             provides=".interfaces.ILocalPortletAssignmentManager"/>
 
-    <adapter factory=".assignable.ContextPortletAssignable" />
     <adapter factory=".retriever.PortletRetriever" />
     <adapter factory=".retriever.PlacelessPortletRetriever" />
+    <adapter factory=".manager.PortletManagerRenderer" />
 
-    <class class=".manager.PortletManager">
-      <require permission="zope.Public"
-               attributes="__call__" />
-    </class>
-    
-    <class class=".retriever.PortletRetriever">
-      <require permission="zope.Public"
-               interface=".interfaces.IPortletRetriever" />
-    </class>
-
-    <class class=".assignable.ContextPortletAssignable">
-      <require permission="zope.ManageContent"
-               interface=".interfaces.IPortletAssignable" />
-    </class>
+    <subscriber handler=".events.dispatchToComponent" />
+    <subscriber handler=".events.registerPortletManagerRenderer" />
+    <subscriber handler=".events.unregisterPortletManagerRenderer" />
 
 </configure>

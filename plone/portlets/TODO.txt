@@ -2,22 +2,12 @@
 plone.portlets to-do
 ====================
 
-  o Performance
+  o Security
   
-    - use OOBTrees instead of PersistentMapping's
+    - Determine what security declarations need to go in configure.zcml
 
   o Design
-
-    - assignment of portlets to specific content types
-  
-    - blacklisting of portlets in subfolders to stop acquisistion of portlets
-
-      -> make a folder non-acquiring
-      
-        - non-acquire user (untick to get it back)
-        - non-acquire group (untick to get it back)
-        - non-acquire portlet (untick to get it back)
-
-      -> blacklist specific ids (?)
+    
+      -> blacklist specific portlets?
         - this requires assignments to have ids that are unique among all
            acquired portlets
