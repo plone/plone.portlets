@@ -42,7 +42,7 @@ class PortletAssignmentMapping(Persistent):
         return range(len(self._assignments))
 
     def __iter__(self):
-        return iter(self._assignments)
+        return iter(self.keys())
 
     def __getitem__(self, key):
         return self._assignments[self._key(key)]
@@ -68,7 +68,10 @@ class PortletAssignmentMapping(Persistent):
         return items
 
     def __contains__(self, key):
-        key = self._key(key)
+        try:
+            key = self._key(key)
+        except KeyError:
+            return False
         return bool(key >= 0 and key < len(self._assignments))
 
     has_key = __contains__
@@ -85,11 +88,10 @@ class PortletAssignmentMapping(Persistent):
         
     def saveAssignment(self, assignment):
         key = getattr(assignment, '__name__', None)
-        if key:
-            try:
-                key = self._key(key)
-            except KeyError:
-                key = None
+        try:
+            key = self._key(key)
+        except KeyError:
+            key = None
         if key is not None:
             self._assignments[key] = assignment
         else:
@@ -124,7 +126,7 @@ class PortletAssignmentMapping(Persistent):
         """
         try:
             key = int(key)
-        except ValueError:
+        except (ValueError, TypeError,):
             raise KeyError, key
         if key < 0 or key >= len(self._assignments):
             raise KeyError, key
