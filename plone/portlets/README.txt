@@ -302,13 +302,14 @@ external object.
   >>> from plone.portlets.interfaces import IPortletRenderer
   >>> from plone.portlets.interfaces import IPortletManager
   >>> from persistent import Persistent
+  >>> from zope.app.container.contained import Contained
   
   >>> class ILoginPortlet(IPortletDataProvider):
   ...   pass
-  
-  >>> class LoginPortletAssignment(Persistent):
+
+  >>> class LoginPortletAssignment(Persistent, Contained):
   ...     implements(IPortletAssignment, ILoginPortlet)
-  ...     
+  ...
   ...     @property
   ...     def available(self):
   ...         return __current_user__ is Anonymous
@@ -342,7 +343,7 @@ as the ITestContent interface is already available.
 Notice that the assignment type is generic here, relying on the contrived UID
 that the portlet context also relies upon.
 
-  >>> class UIDPortletAssignment(Persistent):
+  >>> class UIDPortletAssignment(Persistent, Contained):
   ...     implements(IPortletAssignment)
   ...     
   ...     def __init__(self, obj):
@@ -381,10 +382,10 @@ content-type, user, or group. We will see examples of those types of assignments
 later.
 
 Let's assign some portlets in the context of the root folder. Assignment is
-done via an ILocalPortletAssignmentManager. This is a multi-adapter from 
-ILocalPortletAssignable and IPortletManager, to distinguish the context and the
-column. ILocalPortletAssignable in turn is a marker interface that informs
-us that we can annotate the content object with the portlet assignments.
+done by adapting an ILocalPortletAssignable and the IPortletManager representing
+a column to IPortletAssignmentMapping. ILocalPortletAssignable in turn is a 
+marker interface that informs us that we can annotate the content object with 
+the portlet assignments.
 
 First, we get the portlet managers for the left and right columns.
 
@@ -400,32 +401,26 @@ assignments.
   >>> classImplements(TestDocument, ILocalPortletAssignable)
   >>> classImplements(Folder, ILocalPortletAssignable)
   
-  >>> from plone.portlets.interfaces import ILocalPortletAssignmentManager
+  >>> from plone.portlets.interfaces import IPortletAssignmentMapping
   >>> lpa = LoginPortletAssignment()
-  >>> leftAtRoot = getMultiAdapter((rootFolder, left), ILocalPortletAssignmentManager)
-  >>> leftAtRoot.saveAssignment(lpa)
+  >>> leftAtRoot = getMultiAdapter((rootFolder, left), IPortletAssignmentMapping)
   
-The assignment manager now acts as a read mapping. They keys are integers which
-represent the ordering of portlets, but passing them as strings also works.
+The IPortletAssignmentMapping is a container. In fact, we probably don't have
+a meaningful name for a portlet assignment instance (and we don't much care,
+so long as it is unique), so it provides the IContainerNamesContainer marker.
+This will inform the adding view that it should use an INameChooser to pick
+an appropriate name. We will simulate that here with the following function,
+for convenience.
 
-  >>> leftAtRoot[0] is lpa
-  True
-  >>> leftAtRoot['0'] is lpa
-  True
-  >>> leftAtRoot.get('foo', None) is None
-  True
-  >>> list(leftAtRoot.keys())
-  [0]
-  >>> list(leftAtRoot.values())
-  [<LoginPortletAssignment object at ...>]
+  >>> from zope.app.container.interfaces import INameChooser
+  >>> def saveAssignment(mapping, assignment):
+  ...     chooser = INameChooser(mapping)
+  ...     mapping[chooser.chooseName(None, assignment)] = assignment
   
-Note that saveAssignment() only appends if the assignment didn't already
-exist:
+  >>> saveAssignment(leftAtRoot, lpa)
+  >>> lpa.__name__ in leftAtRoot
+  True
 
-  >>> leftAtRoot.saveAssignment(lpa)
-  >>> len(leftAtRoot)
-  1
-  
 Let's assign some more portlets. This time we will use a UID assignment to
 reference two documents that will be rendered with an appropriate document
 portlet renderer.
@@ -440,23 +435,19 @@ portlet renderer.
   >>> rootFolder['doc2'] = doc2
   >>> dpa2 = UIDPortletAssignment(doc2)
   
-  >>> rightAtRoot = getMultiAdapter((rootFolder, right), ILocalPortletAssignmentManager)
-  >>> rightAtRoot.saveAssignment(dpa2)
-  >>> rightAtRoot.saveAssignment(dpa1)
+  >>> rightAtRoot = getMultiAdapter((rootFolder, right), IPortletAssignmentMapping)
+  >>> saveAssignment(rightAtRoot, dpa2)
+  >>> saveAssignment(rightAtRoot, dpa1)
   
 We can also re-order assignments:
 
-  >>> rightAtRoot[1].__name__
-  '1'
-  >>> rightAtRoot.moveAssignment('1', 0)
-  >>> rightAtRoot[0] is dpa1
+  >>> rightKeys = list(rightAtRoot.keys())
+  >>> rightKeys = [rightKeys[1]] + [rightKeys[0]] + rightKeys[2:]
+  >>> rightAtRoot.updateOrder(rightKeys)
+  >>> rightAtRoot.values()[0] is dpa1
   True
-  >>> rightAtRoot[0].__name__
-  '0'
-  >>> rightAtRoot[1] is dpa2
+  >>> rightAtRoot.values()[1] is dpa2
   True
-  >>> rightAtRoot[1].__name__
-  '1'
 
 If we now render the view, we should see our newly assigned portlets.
 
@@ -497,7 +488,7 @@ writing a bit easier:
   >>> class IDummyPortlet(IPortletDataProvider):
   ...   text = schema.TextLine(title=u'Text to render')
   
-  >>> class DummyPortlet(Persistent):
+  >>> class DummyPortlet(Persistent, Contained):
   ...     implements(IPortletAssignment, IDummyPortlet)
   ...     
   ...     def __init__(self, text, available=True):
@@ -527,8 +518,8 @@ Let's assign a portlet in a sub-folder of the root folder.
   >>> __uids__[id(child1)] = child1
   
   >>> childPortlet = DummyPortlet('Dummy at child1')
-  >>> leftAtChild1 = getMultiAdapter((child1, left), ILocalPortletAssignmentManager)
-  >>> leftAtChild1.saveAssignment(childPortlet)
+  >>> leftAtChild1 = getMultiAdapter((child1, left), IPortletAssignmentMapping)
+  >>> saveAssignment(leftAtChild1, childPortlet)
   
 This assignment does not affect rendering at the root folder:
 
@@ -593,8 +584,8 @@ above.
   >>> anonPortlet = DummyPortlet('Dummy for anonymous')
   >>> userPortlet = DummyPortlet('Dummy for user1')
   
-  >>> left[USER_CATEGORY][Anonymous.id].saveAssignment(anonPortlet)
-  >>> left[USER_CATEGORY][user1.id].saveAssignment(userPortlet)
+  >>> saveAssignment(left[USER_CATEGORY][Anonymous.id], anonPortlet)
+  >>> saveAssignment(left[USER_CATEGORY][user1.id], userPortlet)
   
 These will now be rendered as expected.
   
@@ -641,8 +632,8 @@ portlets to users - we simply use a different category.
   >>> groupPortlet1 = DummyPortlet('Dummy for group1')
   >>> groupPortlet2 = DummyPortlet('Dummy for group2')
   
-  >>> left[GROUP_CATEGORY][group1.id].saveAssignment(groupPortlet1)
-  >>> left[GROUP_CATEGORY][group2.id].saveAssignment(groupPortlet2)
+  >>> saveAssignment(left[GROUP_CATEGORY][group1.id], groupPortlet1)
+  >>> saveAssignment(left[GROUP_CATEGORY][group2.id], groupPortlet2)
   
   >>> print view().strip()
   <html>
@@ -665,15 +656,17 @@ Blacklisting portlets
 
 It may not be desirable in all cases to inherit portlets like this. We can
 blacklist specific categories, including the special 'context' category,
-at a particular ILocalPortletAssignable, via the ILocalPortletAssignmentManager.
+at a particular ILocalPortletAssignable, via an ILocalPortletAssignmentManager.
 
 The blacklist status can be True (block this category), False (show this
 category) or None (let the parent decide).
 
-  >>> leftAtChild1.getBlacklistStatus(USER_CATEGORY) is None
+  >>> from plone.portlets.interfaces import ILocalPortletAssignmentManager
+  >>> leftAtChild1Manager = getMultiAdapter((child1, left), ILocalPortletAssignmentManager)
+  >>> leftAtChild1Manager.getBlacklistStatus(USER_CATEGORY) is None
   True
-  >>> leftAtChild1.setBlacklistStatus(USER_CATEGORY, True)
-  >>> leftAtChild1.getBlacklistStatus(USER_CATEGORY)
+  >>> leftAtChild1Manager.setBlacklistStatus(USER_CATEGORY, True)
+  >>> leftAtChild1Manager.getBlacklistStatus(USER_CATEGORY)
   True
   
   >>> print view().strip()
@@ -693,7 +686,8 @@ category) or None (let the parent decide).
   
 The status is inherited from a parent unless a child also sets a status:
 
-  >>> leftAtRoot.setBlacklistStatus(GROUP_CATEGORY, True)
+  >>> leftAtRootManager = getMultiAdapter((rootFolder, left), ILocalPortletAssignmentManager)
+  >>> leftAtRootManager.setBlacklistStatus(GROUP_CATEGORY, True)
   >>> print view().strip()
   <html>
     <body>
@@ -707,7 +701,7 @@ The status is inherited from a parent unless a child also sets a status:
     </body>
   </html>
   
-  >>> leftAtChild1.setBlacklistStatus(GROUP_CATEGORY, False)
+  >>> leftAtChild1Manager.setBlacklistStatus(GROUP_CATEGORY, False)
   >>> print view().strip()
   <html>
     <body>
@@ -726,9 +720,9 @@ The status is inherited from a parent unless a child also sets a status:
 When setting the blacklist status of the 'context' category, assignments
 at the particular context will still apply.
 
-  >>> rightAtChild1 = getMultiAdapter((child1, right), ILocalPortletAssignmentManager)
+  >>> rightAtChild1Manager = getMultiAdapter((child1, right), ILocalPortletAssignmentManager)
   >>> from plone.portlets.constants import CONTEXT_CATEGORY
-  >>> rightAtChild1.setBlacklistStatus(CONTEXT_CATEGORY, True)
+  >>> rightAtChild1Manager.setBlacklistStatus(CONTEXT_CATEGORY, True)
   >>> print view().strip()
   <html>
     <body>
@@ -742,7 +736,8 @@ at the particular context will still apply.
     </body>
   </html>
   
-  >>> rightAtChild1.saveAssignment(DummyPortlet('Dummy at child 1 right'))
+  >>> rightAtChild1 = getMultiAdapter((child1, right), IPortletAssignmentMapping)
+  >>> saveAssignment(rightAtChild1, DummyPortlet('Dummy at child 1 right'))
 
   >>> print view().strip()
   <html>
@@ -780,8 +775,8 @@ from the root folder.
     </body>
   </html>
   
-  >>> rightAtChild1 = getMultiAdapter((child11, right), ILocalPortletAssignmentManager)
-  >>> rightAtChild1.saveAssignment(DummyPortlet('Dummy at child 11 right'))
+  >>> rightAtChild11 = getMultiAdapter((child11, right), IPortletAssignmentMapping)
+  >>> saveAssignment(rightAtChild11, DummyPortlet('Dummy at child 11 right'))
   >>> print view().strip()
   <html>
     <body>
@@ -797,7 +792,8 @@ from the root folder.
     </body>
   </html>
   
-  >>> rightAtChild1.setBlacklistStatus(CONTEXT_CATEGORY, True)
+  >>> rightAtChild11Manager = getMultiAdapter((child11, right), ILocalPortletAssignmentManager)
+  >>> rightAtChild11Manager.setBlacklistStatus(CONTEXT_CATEGORY, True)
   >>> print view().strip()
   <html>
     <body>
@@ -876,16 +872,18 @@ Let's register some portlets for the dashboard.
   >>> dashboard[GROUP_CATEGORY][group1.id] = PortletAssignmentMapping()
   >>> dashboard[GROUP_CATEGORY][group2.id] = PortletAssignmentMapping()
   
-  >>> dashboard[USER_CATEGORY][user1.id].saveAssignment(userPortlet)
-  >>> dashboard[GROUP_CATEGORY][group1.id].saveAssignment(groupPortlet1)
-  >>> dashboard[GROUP_CATEGORY][group2.id].saveAssignment(groupPortlet2)
+  >>> saveAssignment(dashboard[USER_CATEGORY][user1.id], userPortlet)
+  >>> saveAssignment(dashboard[GROUP_CATEGORY][group1.id], groupPortlet1)
+  >>> saveAssignment(dashboard[GROUP_CATEGORY][group2.id], groupPortlet2)
   
 When we render this, contextual portlets are ignored. Blacklistings also do
 not apply.
   
-  >>> dashboardAtChild1 = getMultiAdapter((child1, dashboard), ILocalPortletAssignmentManager)
-  >>> dashboardAtChild1.setBlacklistStatus(USER_CATEGORY, True)
-  >>> dashboardAtChild1.saveAssignment(DummyPortlet('dummy for dashboard in context'))
+  >>> dashboardAtChild1Manager = getMultiAdapter((child1, dashboard), ILocalPortletAssignmentManager)
+  >>> dashboardAtChild1Manager.setBlacklistStatus(USER_CATEGORY, True)
+  
+  >>> dashboardAtChild1 = getMultiAdapter((child1, dashboard), IPortletAssignmentMapping)
+  >>> saveAssignment(dashboardAtChild1, DummyPortlet('dummy for dashboard in context'))
   
   >>> print view().strip()
   <html>

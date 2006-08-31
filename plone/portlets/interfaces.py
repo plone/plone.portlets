@@ -3,10 +3,13 @@ from zope import schema
 
 from zope.annotation.interfaces import IAttributeAnnotatable
 
-from zope.app.container.interfaces import IContained, IContainer, IReadContainer
+from zope.app.container.interfaces import IContained
+from zope.app.container.interfaces import IContainer
+from zope.app.container.interfaces import IOrderedContainer
+from zope.app.container.interfaces import IContainerNamesContainer
+
 from zope.app.container.constraints import containers, contains
 from zope.contentprovider.interfaces import IContentProvider
-from zope.interface.common.mapping import IReadMapping
 
 # Context - the application layer must provide these    
 
@@ -179,35 +182,45 @@ class IPortletCategoryMapping(IContainer, IContained):
     """
     contains('plone.portlets.interfaces.IPortletAssignmentMapping')
 
-class IPortletAssignmentMapping(IReadContainer, IContained):
+class IPortletAssignmentMapping(IOrderedContainer, IContainerNamesContainer, IContained):
     """A storage for portlet assignments.
     
     An IPortletCategoryMapping manages one of these for each category of 
-    context.
-    
-    This is a read container, and so it can be iterated, etc. Keys are managed
-    by the container, and so assignments should be added/updated with 
-    saveAssignment() (there is no __setitem__). Once saved, an assignment will
-    be given a __name__, which is the key used for the container operations.
+    context. It may also be stored in an annotation on an object to manage
+    portlets assigned to that object. In this case, a multi-adapter from
+    ILocalPortletAssignable and IPortletManager will be able to obtain the
+    appropriate container.
     """
     contains('plone.portlets.interfaces.IPortletAssignment')
 
-    def __delitem__(self, key):
-        """Remove the given assignment.
+class ILocalPortletAssignmentManager(Interface):
+    """A component that can manage the display of locally assigned portlets.
+    
+    An ILocalPortletAssignable may be multi-adapted along with
+    an IPortletManager to this interface, to manage how portlets will be
+    displayed relative to this context.
+    """
+    
+    def setBlacklistStatus(category, status):
+        """Manage the blacklisting status of the given category.
         
-        note: we are not using a write container because we don't want callers
-        to use __setitem__, but rather use saveAssignment.
+        If status is None, the blacklist status will be obtained from a parent,
+        defaulting to False. If status is False, the given portlet category 
+        will always be eligible for display. If status is True, the given
+        portlet category will always be blocked.
+        
+        Thus, call setBlacklistStatus('user', True) to always black out 'user'
+        portlets in this context, or setBlacklistStatus('user', False) to 
+        override any blacklisting done by a parent object. Calling
+        setBlacklistStatus('user', None) will cause the status to be acquired
+        from the parent instead (defaulting to no blacklisting).
         """
-
-    def saveAssignment(assignment):
-        """Save the given assignment.
+    
+    def getBlacklistStatus(category):
+        """Get the blacklisting status of the given category.
         
-        If this assignment has not yet been added to this container, it will
-        be appended to the list of portlets in this context.
-        """
-        
-    def moveAssignment(key, idx):
-        """Move the given assignment to the given index.
+        Note that this only applies to the current context - the status is
+        not inherited, and will default to None if not set.
         """
 
 class IPortletManager(IPortletStorage, IContained):
@@ -260,34 +273,4 @@ class IPortletManagerRenderer(IContentProvider):
     def filter(self, portlets):
         """Return a list of IPortletRenderer's to display that is a subset of
         the list of IPortletRenderer's passed in.
-        """
-        
-class ILocalPortletAssignmentManager(IPortletAssignmentMapping):
-    """A mapping of portlet assignments relative to a context.
-    
-    An ILocalPortletAssignable may be multi-adapted along with
-    an IPortletManager to this interface, to manage portlets relative to
-    that context.
-    """
-    
-    def setBlacklistStatus(category, status):
-        """Manage the blacklisting status of the given category.
-        
-        If status is None, the blacklist status will be obtained from a parent,
-        defaulting to False. If status is False, the given portlet category 
-        will always be eligible for display. If status is True, the given
-        portlet category will always be blocked.
-        
-        Thus, call setBlacklistStatus('user', True) to always black out 'user'
-        portlets in this context, or setBlacklistStatus('user', False) to 
-        override any blacklisting done by a parent object. Calling
-        setBlacklistStatus('user', None) will cause the status to be acquired
-        from the parent instead (defaulting to no blacklisting).
-        """
-    
-    def getBlacklistStatus(category):
-        """Get the blacklisting status of the given category.
-        
-        Note that this only applies to the current context - the status is
-        not inherited, and will default to None if not set.
         """

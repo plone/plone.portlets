@@ -8,13 +8,15 @@
     <include package="zope.annotation" />
     <include package="zope.app.security" />
     <include package="zope.app.event" />
+    <include package="zope.app.container" />
     <include package="zope.contentprovider" />
     
-    <adapter factory=".assignable.LocalPortletAssignmentManager" 
-             provides=".interfaces.ILocalPortletAssignmentManager"/>
+    <adapter factory=".assignable.localPortletAssignmentMappingAdapter" />
+    <adapter factory=".assignable.LocalPortletAssignmentManager" />
 
     <adapter factory=".retriever.PortletRetriever" />
     <adapter factory=".retriever.PlacelessPortletRetriever" />
+    
     <adapter factory=".manager.PortletManagerRenderer" />
 
     <subscriber handler=".events.dispatchToComponent" />

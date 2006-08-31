@@ -64,8 +64,11 @@ class PortletRetriever(object):
             if assignable is not None:
                 annotations = IAnnotations(assignable)
                 
-                local = annotations.get(CONTEXT_ASSIGNMENT_KEY, {})
-                contextAssignments.extend([a for a in local.get(manager, [])])
+                local = annotations.get(CONTEXT_ASSIGNMENT_KEY, None)
+                if local is not None:
+                    localManager = local.get(manager, None)
+                    if localManager is not None:
+                        contextAssignments.extend([a for a in localManager.values()])
                 
                 blacklistStatus = annotations.get(CONTEXT_BLACKLIST_STATUS_KEY, {}).get(manager, None)
                 if blacklistStatus is not None:
