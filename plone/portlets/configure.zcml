@@ -1,15 +1,24 @@
 <configure xmlns="http://namespaces.zope.org/zope">
 
+    <!--
+      
+      TODO: Loading these like this breaks Plone ;-)
+      
+      set up in tests only
+      
     <include package="zope.security" file="meta.zcml" />
     <include package="zope.app.security" file="meta.zcml" />
     <include package="zope.app.component" file="meta.zcml" />
     <include package="zope.app.pagetemplate" file="meta.zcml" />
+  -->
 
     <include package="zope.annotation" />
+    <!--
     <include package="zope.app.security" />
     <include package="zope.app.event" />
     <include package="zope.app.container" />
     <include package="zope.contentprovider" />
+  -->
     
     <adapter factory=".assignable.localPortletAssignmentMappingAdapter" />
     <adapter factory=".assignable.LocalPortletAssignmentManager" />
