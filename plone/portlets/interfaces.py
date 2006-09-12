@@ -89,6 +89,15 @@ class IPortletType(Interface):
         description = u'The name of the add view for assignments for this portlet type',
         required = True)
         
+    editview = schema.TextLine(
+        title = u'Edit view',
+        description = u'The name of the edit view for assignments for this portal type. ' \
+                       'Set to None if there is no edit view.',
+        required=False)
+        
+    for_ = Attribute('An interface a portlet manager must have to allow this type of portlet. ' \
+                      'May be None if there are no restrictions.')
+        
 # Generic marker interface - a portlet may reference one of these
 
 class IPortletDataProvider(Interface):
@@ -229,6 +238,15 @@ class IPortletManager(IPortletStorage, IContained):
     Typically, objects providing this interface will be persisted and used
     to manage portlet assignments. 
     """
+
+    def getAddablePortletTypes():
+        """Get all addable portlet types.
+        
+        This is achieved by looking up utilities providing IPortletType and
+        returning those which either have no for_ attribute (globally addable
+        portlets) or those which specify an interface available on this
+        portlet manager instance.
+        """
     
     def __call__(context, request, view):
         """Act as an adapter factory.
@@ -244,7 +262,7 @@ class IPortletManager(IPortletStorage, IContained):
         """
 
 class IPlacelessPortletManager(IPortletManager):
-    """A manager for placeless portlets.
+    """A marker interface for managers for placeless portlets.
     
     A placeless portlet manager is one which does not examine the context
     or the context's parent. This is achieved by way of a different adapter

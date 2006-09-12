@@ -13,3 +13,5 @@ class PortletType(Persistent):
     title = u''
     description = u''
     addview = u''
+    editiew = None
+    for_ = None

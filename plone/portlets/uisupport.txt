@@ -1,0 +1,101 @@
+=========================
+plone.portlets UI support
+=========================
+
+The plone.portlets package does not provide any UI support - that is left up
+to the application layer. However, some support is provided to make it easier
+to build user interfaces.
+
+The interface IPortletType is used to specify a registration for a portlet.
+A registration carries metadata about the portlet assignment type, such as
+a title and a description, as well as the name of the add-view to be used
+when adding it. It can also specify a particular interface that a portlet
+manager must have in order for the portlet to be addable to it.
+
+  >>> from plone.portlets.interfaces import IPortletType
+
+First, we must create a local site manager at a fictional root folder.
+
+  >>> from zope.interface import implements, Interface, directlyProvides
+  >>> from zope.component import adapts, provideAdapter
+  
+  >>> from zope.app.folder import rootFolder, Folder
+  >>> rootFolder = rootFolder()
+  
+  >>> from zope.app.component.interfaces import ISite
+  >>> from zope.component.persistentregistry import PersistentComponents
+  >>> from zope.component.globalregistry import base as siteManagerBase
+  >>> from zope.component import getSiteManager
+  
+  >>> sm = PersistentComponents()
+  >>> sm.__bases__ = (siteManagerBase,)
+  >>> rootFolder.setSiteManager(sm)
+  >>> ISite.providedBy(rootFolder)
+  True
+  
+  >>> from zope.app.component.hooks import setSite, setHooks
+  >>> setSite(rootFolder)
+  >>> setHooks()
+  
+Then we create two portlet managers. One portlet manager is given the interface
+IFoo.
+  
+  >>> from plone.portlets.interfaces import IPortletManager
+  >>> from plone.portlets.manager import PortletManager
+  
+  >>> left = PortletManager()
+  
+  >>> class IFoo(IPortletManager):
+  ...     pass
+  
+  >>> right = PortletManager()
+  >>> directlyProvides(right, IFoo)
+  
+Ordinarily, we would register these with our local site manager. See README.txt.
+  
+No portlet registrations have been made yet, so no portlets are considered
+addable.
+
+  >>> left.getAddablePortletTypes()
+  []
+  >>> right.getAddablePortletTypes()
+  []
+  
+We now want to register some fictional portlet types. For the purposes of
+demonstration, we don't actually need to create the portlet types - see
+README.txt for the full story. We will instead just create the portlet
+registrations for these fictional portlets, using a utility method.
+
+  >>> from plone.portlets import utils
+  
+  >>> utils.registerPortletType(rootFolder, title='Portlet A',
+  ...   description='Portlet number one', addview='portlets.a')
+  
+This portlet will be addable anywhere.
+
+  >>> len(left.getAddablePortletTypes()) == len(right.getAddablePortletTypes()) == 1
+  True
+  >>> left.getAddablePortletTypes()[0].addview
+  'portlets.a'
+  >>> right.getAddablePortletTypes()[0].addview
+  'portlets.a'
+  
+The second portlet type is applicable only to portlet managers providing IFoo:
+
+  >>> utils.registerPortletType(rootFolder, title='Portlet B',
+  ...   description='Portlet number two', addview='portlets.b',
+  ...   for_=IFoo)
+  
+  >>> len(left.getAddablePortletTypes())
+  1
+  >>> left.getAddablePortletTypes()[0].addview
+  'portlets.a'
+  >>> len(right.getAddablePortletTypes())
+  2
+  
+  >>> portlets = right.getAddablePortletTypes()
+  >>> portlets.sort(lambda x,y: cmp(x.addview, y.addview))
+  >>> portlets[0].addview
+  'portlets.a'
+  >>> portlets[1].addview
+  'portlets.b'

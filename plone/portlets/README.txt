@@ -825,14 +825,16 @@ an IPortletRetreiver in order to get a list of portlets to display.
 plone.portlets ships with an alternative version of the default 
 IPortletRetriever that ignores contextual portlets. This is registered as an 
 adapter from (Interface, IPlacelessPortletManager). IPlacelessPortletManager in
-turn, is implemented by the PlacelessPortletManager class, meaning that you
-can instantiate one of these to get the placeless behaviour.
+turn, is a marker interface that you can apply to a portlet manager to get the 
+placeless behaviour.
 
-  >>> from plone.portlets.manager import PlacelessPortletManager
+  >>> from plone.portlets.interfaces import IPlacelessPortletManager
   
   >>> sm = getSiteManager(rootFolder)
+  >>> dashboardPortletManager = PortletManager()
+  >>> directlyProvides(dashboardPortletManager, IPlacelessPortletManager)
   
-  >>> sm.registerUtility(component=PlacelessPortletManager(),
+  >>> sm.registerUtility(component=dashboardPortletManager,
   ...                    provided=IPortletManager,
   ...                    name='columns.dashboard')
 

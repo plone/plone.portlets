@@ -1,5 +1,5 @@
 from zope.interface import implements, Interface
-from zope.component import adapts, getMultiAdapter
+from zope.component import adapts, getMultiAdapter, getUtilitiesFor
 
 from zope.publisher.interfaces.http import IHTTPRequest
 from zope.publisher.interfaces.browser import IBrowserView
@@ -9,9 +9,9 @@ from zope.contentprovider.interfaces import UpdateNotCalled
 
 from plone.portlets.interfaces import IPortletRetriever
 from plone.portlets.interfaces import IPortletManager
-from plone.portlets.interfaces import IPlacelessPortletManager
 from plone.portlets.interfaces import IPortletManagerRenderer
 from plone.portlets.interfaces import IPortletRenderer
+from plone.portlets.interfaces import IPortletType
 
 from plone.portlets.storage import PortletStorage
 
@@ -85,12 +85,7 @@ class PortletManager(PortletStorage):
 
     def __call__(self, context, request, view):
         return getMultiAdapter((context, request, view, self), IPortletManagerRenderer)
-        
-class PlacelessPortletManager(PortletManager):
-    """Default implementation of a placeless portlet manager.
-    
-    This exists mainly to allow a different adapter for IPortletRetriever
-    to be found.
-    """
-    
-    implements(IPlacelessPortletManager)
+
+    def getAddablePortletTypes(self):
+        return [p[1] for p in getUtilitiesFor(IPortletType) 
+                    if p[1].for_ is None or p[1].for_.providedBy(self)]        
