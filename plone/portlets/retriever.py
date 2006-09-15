@@ -119,6 +119,6 @@ class PlacelessPortletRetriever(PortletRetriever):
         for category, key in pcontext.globalPortletCategories(True):
             mapping = self.storage.get(category, None)
             if mapping is not None:
-                assignments.extend([a for a in mapping[key].values()])
+                assignments.extend([a for a in mapping.get(key, {}).values()])
     
         return assignments

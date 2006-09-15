@@ -88,13 +88,7 @@ class IPortletType(Interface):
         title = u'Add view',
         description = u'The name of the add view for assignments for this portlet type',
         required = True)
-        
-    editview = schema.TextLine(
-        title = u'Edit view',
-        description = u'The name of the edit view for assignments for this portal type. ' \
-                       'Set to None if there is no edit view.',
-        required=False)
-        
+                
     for_ = Attribute('An interface a portlet manager must have to allow this type of portlet. ' \
                       'May be None if there are no restrictions.')
         

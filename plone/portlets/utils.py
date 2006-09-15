@@ -2,7 +2,7 @@ from zope.component import getSiteManager
 from plone.portlets.interfaces import IPortletType
 from plone.portlets.registration import PortletType
 
-def registerPortletType(site, title, description, addview, editview=None, for_=None):
+def registerPortletType(site, title, description, addview, for_=None):
     """Register a new type of portlet.
     
     site should be the local site where the registration should be made. The 
@@ -18,7 +18,6 @@ def registerPortletType(site, title, description, addview, editview=None, for_=N
     portlet.title = title
     portlet.description = description
     portlet.addview = addview
-    portlet.editview = editview
     portlet.for_ = for_
     
     sm.registerUtility(component=portlet, provided=IPortletType, name=addview)
