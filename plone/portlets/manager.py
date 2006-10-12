@@ -25,13 +25,14 @@ class PortletManagerRenderer(object):
     """
     implements(IPortletManagerRenderer)
     adapts(Interface, IBrowserRequest, IBrowserView, IPortletManager)
+    
+    template = None
 
     def __init__(self, context, request, view, manager):
         self.__parent__ = view
         self.manager = manager # part of interface
         self.context = context
         self.request = request
-        self.template = None
         self.__updated = False
         self.__portlets = None
         
@@ -50,7 +51,7 @@ class PortletManagerRenderer(object):
 
     def render(self):
         if not self.__updated:
-            raise UpdateNotCalled()
+            raise UpdateNotCalled
             
         portlets = self._lazyLoadPortlets()
         if self.template:
