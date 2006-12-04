@@ -15,6 +15,8 @@ from plone.portlets.interfaces import IPortletType
 
 from plone.portlets.storage import PortletStorage
 
+from plone.memoize.view import memoize
+
 class PortletManagerRenderer(object):
     """Default renderer for portlet managers.
 
@@ -34,11 +36,10 @@ class PortletManagerRenderer(object):
         self.context = context
         self.request = request
         self.__updated = False
-        self.__portlets = None
         
     @property
     def visible(self):
-        portlets = self._lazyLoadPortlets()
+        portlets = self._lazyLoadPortlets(self.manager)
         return len(portlets) > 0
 
     def filter(self, portlets):
@@ -46,25 +47,31 @@ class PortletManagerRenderer(object):
 
     def update(self):
         self.__updated = True
-        for p in self._lazyLoadPortlets():
+        for p in self._lazyLoadPortlets(self.manager):
             p.update()
 
     def render(self):
         if not self.__updated:
             raise UpdateNotCalled
             
-        portlets = self._lazyLoadPortlets()
+        portlets = self._lazyLoadPortlets(self.manager)
         if self.template:
             return self.template(portlets=portlets)
         else:
             return u'\n'.join([p.render() for p in portlets])
 
-    def _lazyLoadPortlets(self):
-        if self.__portlets is None:
-            retriever = getMultiAdapter((self.context, self.manager), IPortletRetriever)
-            self.__portlets = [self._dataToPortlet(a.data)
-                                for a in self.filter(retriever.getPortlets())]
-        return self.__portlets
+    # Note: By passing in a parameter that's different for each portlet
+    # manager, we avoid the view memoization (which is tied to the request)
+    # caching the same portlets for all managers on the page. We cache the
+    # portlets using a view memo because it they be looked up multiple times,
+    # e.g. first to check if portlets should be displayed and later to 
+    # actually render
+    
+    @memoize
+    def _lazyLoadPortlets(self, manager):
+        retriever = getMultiAdapter((self.context, manager), IPortletRetriever)
+        return [self._dataToPortlet(a.data) for a in self.filter(retriever.getPortlets())]
+
     
     def _dataToPortlet(self, data):
         """Helper method to get the correct IPortletRenderer for the given

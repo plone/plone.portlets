@@ -255,10 +255,15 @@ We look up the view and render it. Note that the portlet manager is still empty
 (no portlets have been assigned), so nothing will be displayed yet.
 
   >>> from zope.publisher.browser import TestRequest
-  >>> request = TestRequest()
+
+For our memoised views to work, we need to make the request annotatable
+
+  >>> from zope.annotation.interfaces import IAttributeAnnotatable
+  >>> from zope.interface import classImplements
+  >>> classImplements(TestRequest, IAttributeAnnotatable)
 
   >>> from zope.component import getMultiAdapter
-  >>> view = getMultiAdapter((doc1, request), name='main.html')
+  >>> view = getMultiAdapter((doc1, TestRequest()), name='main.html')
   >>> print view().strip()
   <html>
     <body>
@@ -272,7 +277,7 @@ We look up the view and render it. Note that the portlet manager is still empty
 In fact, the renderer could've told us so:
 
   >>> from zope.publisher.interfaces.browser import IBrowserView
-  >>> renderer = getMultiAdapter((doc1, request, view), name='columns.left')
+  >>> renderer = getMultiAdapter((doc1, TestRequest(), view), name='columns.left')
   >>> renderer.visible
   False
   
@@ -451,7 +456,7 @@ We can also re-order assignments:
 
 If we now render the view, we should see our newly assigned portlets.
 
-  >>> view = getMultiAdapter((rootFolder, request), name='main.html')
+  >>> view = getMultiAdapter((rootFolder, TestRequest()), name='main.html')
   >>> print view().strip()
   <html>
     <body>
@@ -469,6 +474,7 @@ property was false (the current user is not the anonymous user). Let's
 "log out" and verify that it show up.
 
   >>> __current_user__ = Anonymous
+  >>> view = getMultiAdapter((rootFolder, TestRequest()), name='main.html')
   >>> print view().strip()
   <html>
     <body>
@@ -523,6 +529,7 @@ Let's assign a portlet in a sub-folder of the root folder.
   
 This assignment does not affect rendering at the root folder:
 
+  >>> view = getMultiAdapter((rootFolder, TestRequest()), name='main.html')
   >>> print view().strip()
   <html>
     <body>
@@ -539,7 +546,7 @@ This assignment does not affect rendering at the root folder:
 It does, however, affect rendering at 'child1' (and any of its children).
 Notice also that by default, child portlets come before parent portlets.
 
-  >>> view = getMultiAdapter((child1, request), name='main.html')
+  >>> view = getMultiAdapter((child1, TestRequest()), name='main.html')
   >>> print view().strip()
   <html>
     <body>
@@ -589,6 +596,7 @@ above.
   
 These will now be rendered as expected.
   
+  >>> view = getMultiAdapter((child1, TestRequest()), name='main.html')
   >>> print view().strip()
   <html>
     <body>
@@ -605,6 +613,7 @@ These will now be rendered as expected.
   </html>
   
   >>> __current_user__ = user1
+  >>> view = getMultiAdapter((child1, TestRequest()), name='main.html')
   >>> print view().strip()
   <html>
     <body>
@@ -635,6 +644,7 @@ portlets to users - we simply use a different category.
   >>> saveAssignment(left[GROUP_CATEGORY][group1.id], groupPortlet1)
   >>> saveAssignment(left[GROUP_CATEGORY][group2.id], groupPortlet2)
   
+  >>> view = getMultiAdapter((child1, TestRequest()), name='main.html')
   >>> print view().strip()
   <html>
     <body>
@@ -669,6 +679,7 @@ category) or None (let the parent decide).
   >>> leftAtChild1Manager.getBlacklistStatus(USER_CATEGORY)
   True
   
+  >>> view = getMultiAdapter((child1, TestRequest()), name='main.html')
   >>> print view().strip()
   <html>
     <body>
@@ -688,6 +699,7 @@ The status is inherited from a parent unless a child also sets a status:
 
   >>> leftAtRootManager = getMultiAdapter((rootFolder, left), ILocalPortletAssignmentManager)
   >>> leftAtRootManager.setBlacklistStatus(GROUP_CATEGORY, True)
+  >>> view = getMultiAdapter((child1, TestRequest()), name='main.html')
   >>> print view().strip()
   <html>
     <body>
@@ -702,6 +714,7 @@ The status is inherited from a parent unless a child also sets a status:
   </html>
   
   >>> leftAtChild1Manager.setBlacklistStatus(GROUP_CATEGORY, False)
+  >>> view = getMultiAdapter((child1, TestRequest()), name='main.html')
   >>> print view().strip()
   <html>
     <body>
@@ -723,6 +736,7 @@ at the particular context will still apply.
   >>> rightAtChild1Manager = getMultiAdapter((child1, right), ILocalPortletAssignmentManager)
   >>> from plone.portlets.constants import CONTEXT_CATEGORY
   >>> rightAtChild1Manager.setBlacklistStatus(CONTEXT_CATEGORY, True)
+  >>> view = getMultiAdapter((child1, TestRequest()), name='main.html')
   >>> print view().strip()
   <html>
     <body>
@@ -739,6 +753,7 @@ at the particular context will still apply.
   >>> rightAtChild1 = getMultiAdapter((child1, right), IPortletAssignmentMapping)
   >>> saveAssignment(rightAtChild1, DummyPortlet('Dummy at child 1 right'))
 
+  >>> view = getMultiAdapter((child1, TestRequest()), name='main.html')
   >>> print view().strip()
   <html>
     <body>
@@ -760,7 +775,7 @@ from the root folder.
   >>> child1['child11'] = child11
   >>> __uids__[id(child11)] = child11
   
-  >>> view = getMultiAdapter((child11, request), name='main.html')
+  >>> view = getMultiAdapter((child11, TestRequest()), name='main.html')
   >>> print view().strip()
   <html>
     <body>
@@ -777,6 +792,7 @@ from the root folder.
   
   >>> rightAtChild11 = getMultiAdapter((child11, right), IPortletAssignmentMapping)
   >>> saveAssignment(rightAtChild11, DummyPortlet('Dummy at child 11 right'))
+  >>> view = getMultiAdapter((child11, TestRequest()), name='main.html')
   >>> print view().strip()
   <html>
     <body>
@@ -794,6 +810,7 @@ from the root folder.
   
   >>> rightAtChild11Manager = getMultiAdapter((child11, right), ILocalPortletAssignmentManager)
   >>> rightAtChild11Manager.setBlacklistStatus(CONTEXT_CATEGORY, True)
+  >>> view = getMultiAdapter((child11, TestRequest()), name='main.html')
   >>> print view().strip()
   <html>
     <body>
@@ -853,7 +870,7 @@ placeless behaviour.
   ...     adapts(Interface, IBrowserRequest)
   ...     __call__ = ViewPageTemplateFile(dashboardFileName)
   >>> provideAdapter(DashboardPage, provides=IBrowserPage, name='dashboard.html')
-  >>> view = getMultiAdapter((child1, request), name='dashboard.html')
+  >>> view = getMultiAdapter((child1, TestRequest()), name='dashboard.html')
   >>> print view().strip()
   <html>
     <body>
@@ -887,6 +904,7 @@ not apply.
   >>> dashboardAtChild1 = getMultiAdapter((child1, dashboard), IPortletAssignmentMapping)
   >>> saveAssignment(dashboardAtChild1, DummyPortlet('dummy for dashboard in context'))
   
+  >>> view = getMultiAdapter((child1, TestRequest()), name='dashboard.html')
   >>> print view().strip()
   <html>
     <body>
