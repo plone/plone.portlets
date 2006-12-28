@@ -146,6 +146,10 @@ the order in which portlets are rendered.
   ...     def __init__(self, context):
   ...         self.context = context
   ...
+  ...     @property
+  ...     def uid(self):
+  ...         return __uids__[id(self.context)]
+  ...
   ...     def getParent(self):
   ...         return self.context.__parent__
   ...

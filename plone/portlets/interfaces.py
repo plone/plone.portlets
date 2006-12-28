@@ -26,6 +26,9 @@ class IPortletContext(Interface):
     render portlets.
     """
     
+    uid = schema.TextLine(title=u"A unique id or path for this specific context",
+                          required=True)
+    
     def getParent():
         """Get the portlet parent of the current context.
         
@@ -160,7 +163,12 @@ class IPortletRetriever(Interface):
     """
 
     def getPortlets():
-        """Return a list of IPortletAssignment's to be rendered
+        """Return a list of IPortletAssignment's to be rendered.
+        
+        Returns a list of dicts with keys 'assignment', containing the actual
+        assignment object; 'category', containing the category the 
+        assignment came from; 'key', being the key within this category; and
+        'name' being the name of the assignment.
         """
 
 # Portlet managment
@@ -283,6 +291,7 @@ class IPortletManagerRenderer(IContentProvider):
                           default=True)
 
     def filter(self, portlets):
-        """Return a list of IPortletRenderer's to display that is a subset of
-        the list of IPortletRenderer's passed in.
+        """Return a list of portlets to display that is a subset of
+        the list of portlets passed in. The list contains dicts as returned
+        by IPortletRetriever.getPortlets().
         """

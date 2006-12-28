@@ -32,7 +32,7 @@ class PortletRetriever(object):
         if pcontext is None:
             return []
             
-        categories = []
+        categories = [] # holds a list of (category, key, assignment)
         blacklisted = {}
         manager = self.storage.__name__
         
@@ -47,7 +47,8 @@ class PortletRetriever(object):
         for category, key in pcontext.globalPortletCategories(False):
             mapping = self.storage.get(category, None)
             if mapping is not None:
-                categories.append((category, [a for a in mapping.get(key, {}).values()],))
+                for a in mapping.get(key, {}).values():
+                    categories.append((category, key, a,))
             blacklisted[category] = None
         
         # Get contextual portlets and black/white listings if possible. 
@@ -68,7 +69,7 @@ class PortletRetriever(object):
                 if local is not None:
                     localManager = local.get(manager, None)
                     if localManager is not None:
-                        contextAssignments.extend([a for a in localManager.values()])
+                        contextAssignments.extend([(CONTEXT_CATEGORY, currentpc.uid, a) for a in localManager.values()])
                 
                 blacklistStatus = annotations.get(CONTEXT_BLACKLIST_STATUS_KEY, {}).get(manager, None)
                 if blacklistStatus is not None:
@@ -87,14 +88,18 @@ class PortletRetriever(object):
             if current is not None:
                 currentpc = IPortletContext(current, None)
         
-        categories = [(CONTEXT_CATEGORY, contextAssignments)] + categories
+        categories = contextAssignments + categories
         
         assignments = []
-        for category, portlets in categories:
+        for category, key, assignment in categories:
             # If there was no blacklisting information, or this was explicitly
             # *not* blacklisted, add to the list of assignments
             if blacklisted.get(category, None) is None or blacklisted[category] == False:
-                assignments.extend(portlets)
+                assignments.append({'category'    : category,
+                                    'key'         : key,
+                                    'name'        : assignment.__name__,
+                                    'assignment'  : assignment
+                                    })
         return assignments
         
 class PlacelessPortletRetriever(PortletRetriever):
@@ -119,6 +124,11 @@ class PlacelessPortletRetriever(PortletRetriever):
         for category, key in pcontext.globalPortletCategories(True):
             mapping = self.storage.get(category, None)
             if mapping is not None:
-                assignments.extend([a for a in mapping.get(key, {}).values()])
+                for assignment in mapping.get(key, {}).values():
+                    assignments.append({'category'    : category,
+                                        'key'         : key,
+                                        'name'        : assignment.__name__,
+                                        'assignment'  : assignment
+                                        })
     
         return assignments

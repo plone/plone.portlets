@@ -43,7 +43,7 @@ class PortletManagerRenderer(object):
         return len(portlets) > 0
 
     def filter(self, portlets):
-        return [p for p in portlets if p.available]
+        return [p for p in portlets if p['assignment'].available]
 
     def update(self):
         self.__updated = True
@@ -58,7 +58,7 @@ class PortletManagerRenderer(object):
         if self.template:
             return self.template(portlets=portlets)
         else:
-            return u'\n'.join([p.render() for p in portlets])
+            return u'\n'.join([p['renderer'].render() for p in portlets])
 
     # Note: By passing in a parameter that's different for each portlet
     # manager, we avoid the view memoization (which is tied to the request)
@@ -70,8 +70,13 @@ class PortletManagerRenderer(object):
     @memoize
     def _lazyLoadPortlets(self, manager):
         retriever = getMultiAdapter((self.context, manager), IPortletRetriever)
-        return [self._dataToPortlet(a.data) for a in self.filter(retriever.getPortlets())]
-
+        items = []
+        for p in self.filter(retriever.getPortlets()):
+            info = p.copy()
+            info['manager'] = self.manager.__name__
+            items.append(dict(info = info,
+                              renderer = self._dataToPortlet(p['assignment'].data)))
+        return items
     
     def _dataToPortlet(self, data):
         """Helper method to get the correct IPortletRenderer for the given
