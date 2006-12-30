@@ -295,3 +295,11 @@ class IPortletManagerRenderer(IContentProvider):
         the list of portlets passed in. The list contains dicts as returned
         by IPortletRetriever.getPortlets().
         """
+        
+    def portletsToShow(self):
+        """Get a list of portlets that will be shown.
+        
+        Returns a list of dicts with keys corresponding to that returned by
+        IPortletRetriever.getPortlets(), with the additional key 'renderer'
+        containing the appropriate IPortletRenderer.
+        """

@@ -41,22 +41,25 @@ class PortletManagerRenderer(object):
         
     @property
     def visible(self):
-        portlets = self._lazyLoadPortlets(self.manager)
+        portlets = self.portletsToShow()
         return len(portlets) > 0
 
     def filter(self, portlets):
         return [p for p in portlets if p['assignment'].available]
+        
+    def portletsToShow(self):
+        return self._lazyLoadPortlets(self.manager)
 
     def update(self):
         self.__updated = True
-        for p in self._lazyLoadPortlets(self.manager):
+        for p in self.portletsToShow():
             p.update()
 
     def render(self):
         if not self.__updated:
             raise UpdateNotCalled
             
-        portlets = self._lazyLoadPortlets(self.manager)
+        portlets = self.portletsToShow()
         if self.template:
             return self.template(portlets=portlets)
         else:
@@ -76,9 +79,9 @@ class PortletManagerRenderer(object):
         for p in self.filter(retriever.getPortlets()):
             info = p.copy()
             info['manager'] = self.manager.__name__
+            info['renderer'] = self._dataToPortlet(p['assignment'].data)
             hashPortletInfo(info)
-            items.append(dict(info = info,
-                              renderer = self._dataToPortlet(p['assignment'].data)))
+            items.append(info)
         return items
     
     def _dataToPortlet(self, data):
