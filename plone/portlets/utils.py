@@ -1,6 +1,7 @@
 from zope.component import getSiteManager
 from plone.portlets.interfaces import IPortletType
 from plone.portlets.registration import PortletType
+import binascii
 
 def registerPortletType(site, title, description, addview, for_=None):
     """Register a new type of portlet.
@@ -31,3 +32,27 @@ def unregisterPortletType(site, addview):
     
     sm = getSiteManager(site)
     sm.unregisterUtility(provided=IPortletType, name=addview)
+
+def hashPortletInfo(info):
+    """Creates a hash from the portlet information.
+
+    This is a bidirectional function. The hash must only contain characters
+    acceptable as part of a html id.
+
+    info is the portlet info dictionary. Hash is put into info, and
+    also returned.
+    """
+    concat_txt = '%(manager)s\n%(category)s\n%(key)s\n%(name)s' % info
+    info['hash'] = binascii.b2a_hex(concat_txt)
+    return info['hash']
+
+def unhashPortletInfo(hash):
+    """Creates the portlet info from the hash.
+
+    Output is the info dictionary (containing only the 
+    hashed fields).
+    """
+    concat_txt = binascii.a2b_hex(hash)
+    manager, category, key, name = concat_txt.splitlines()
+    info = dict(manager=manager, category=category, key=key, name=name, hash=hash)
+    return info

@@ -48,6 +48,11 @@ def test_suite():
             setUp=configurationSetUp,
             tearDown=configurationTearDown,
             optionflags=optionflags),
+        doctest.DocFileSuite(
+            'utils.txt',
+            setUp=configurationSetUp,
+            tearDown=configurationTearDown,
+            optionflags=optionflags),
         ))
 
 if __name__ == '__main__':

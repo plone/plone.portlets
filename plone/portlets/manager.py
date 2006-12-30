@@ -17,6 +17,8 @@ from plone.portlets.storage import PortletStorage
 
 from plone.memoize.view import memoize
 
+from utils import hashPortletInfo
+
 class PortletManagerRenderer(object):
     """Default renderer for portlet managers.
 
@@ -74,6 +76,7 @@ class PortletManagerRenderer(object):
         for p in self.filter(retriever.getPortlets()):
             info = p.copy()
             info['manager'] = self.manager.__name__
+            hashPortletInfo(info)
             items.append(dict(info = info,
                               renderer = self._dataToPortlet(p['assignment'].data)))
         return items
