@@ -3,7 +3,7 @@ plone.portlets credits
 ======================
 
 plone.portlets is a Zope 3 reimplementation of PlonePortlets by Plone Solutions 
-A/S (http://plonesolutions.com). The original implementation was sponsored IBAS data recovery ASA 
+A/S (http://plonesolutions.com). The original implementation was sponsored IBAS data recovery ASA. 
 
  - Martin Aspeli <optilude@gmx.net>
     plone.portlets implementation
