@@ -18,7 +18,7 @@ platforms. It should work in a "pure Zope 3" environment.
       author='Martin Aspeli',
       author_email='plone-developers@lists.sourceforge.net',
       url='http://svn.plone.org/svn/plone/plone.portlets',
-      license='GPL',
+      license='LGPL',
       packages=find_packages(exclude=['ez_setup']),
       namespace_packages=['plone'],
       include_package_data=True,
