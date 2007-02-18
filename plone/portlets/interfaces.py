@@ -153,6 +153,11 @@ class IPortletRenderer(IContentProvider):
     adapter, regardless of whether it actually implements IPortletDataProvider)
     """
     
+    available = schema.Bool(title=u'Available',
+                            description=u'Whether or not this portlet shuld be rendered',
+                            required=True,
+                            readonly=True)
+    
 # Discovery of portlets
 
 class IPortletRetriever(Interface):

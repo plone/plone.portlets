@@ -334,6 +334,7 @@ external object.
   ... 
   ...     def __init__(self, context, request, view, manager, data):
   ...         self.data = data
+  ...         self.available = True
   ...
   ...     def update(self):
   ...         pass
@@ -373,6 +374,7 @@ that the portlet context also relies upon.
   ... 
   ...     def __init__(self, context, request, view, manager, data):
   ...         self.data = data
+  ...         self.available = True
   ...
   ...     def update(self):
   ...         pass
@@ -513,6 +515,7 @@ writing a bit easier:
   ... 
   ...     def __init__(self, context, request, view, manager, data):
   ...         self.data = data
+  ...         self.available = True
   ...
   ...     def update(self):
   ...         pass

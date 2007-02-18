@@ -77,11 +77,13 @@ class PortletManagerRenderer(object):
         retriever = getMultiAdapter((self.context, manager), IPortletRetriever)
         items = []
         for p in self.filter(retriever.getPortlets()):
-            info = p.copy()
-            info['manager'] = self.manager.__name__
-            info['renderer'] = self._dataToPortlet(p['assignment'].data)
-            hashPortletInfo(info)
-            items.append(info)
+            renderer = self._dataToPortlet(p['assignment'].data)
+            if renderer.available:
+                info = p.copy()
+                info['manager'] = self.manager.__name__
+                info['renderer'] = renderer
+                hashPortletInfo(info)
+                items.append(info)
         return items
     
     def _dataToPortlet(self, data):
