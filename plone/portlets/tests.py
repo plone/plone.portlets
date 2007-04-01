@@ -36,6 +36,35 @@ def configurationSetUp(test):
 def configurationTearDown(test):
     tearDown()
 
+def test_safe_render():
+    r"""
+    Render the portlet safely, so that when an exception
+    occurs, we log and don't bail out.
+
+      >>> from plone.portlets.manager import PortletManagerRenderer
+      >>> class PortletRenderer:
+      ...     def __init__(self, error=False):
+      ...         self.error = error
+      ...     def render(self):
+      ...         if self.error:
+      ...             raise Exception()
+      ...         return 'portlet rendered'
+
+    When no error occurs, ``safe_render`` will return the portlet
+    renderer's ``render()``:
+    
+      >>> renderer = PortletManagerRenderer(*(None,) * 4)
+      >>> renderer.safe_render(PortletRenderer())
+      'portlet rendered'
+
+    When an error is raised, the ``error_message`` template is
+    rendered:
+    
+      >>> renderer.error_message = lambda: 'error rendered'
+      >>> renderer.safe_render(PortletRenderer(error=True))
+      'error rendered'
+    """
+
 def test_suite():
     return unittest.TestSuite((
         doctest.DocFileSuite(
@@ -53,7 +82,7 @@ def test_suite():
             setUp=configurationSetUp,
             tearDown=configurationTearDown,
             optionflags=optionflags),
-        ))
+        doctest.DocTestSuite()))
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')

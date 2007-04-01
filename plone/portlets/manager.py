@@ -1,7 +1,8 @@
+from ZODB.POSException import ConflictError
+
 from zope.interface import implements, Interface
 from zope.component import adapts, getMultiAdapter, getUtilitiesFor
 
-from zope.publisher.interfaces.http import IHTTPRequest
 from zope.publisher.interfaces.browser import IBrowserView
 from zope.publisher.interfaces.browser import IBrowserRequest
 
@@ -19,6 +20,9 @@ from plone.memoize.view import memoize
 
 from utils import hashPortletInfo
 
+import logging
+logger = logging.getLogger('portlets')
+
 class PortletManagerRenderer(object):
     """Default renderer for portlet managers.
 
@@ -31,6 +35,7 @@ class PortletManagerRenderer(object):
     adapts(Interface, IBrowserRequest, IBrowserView, IPortletManager)
     
     template = None
+    error_message = None
 
     def __init__(self, context, request, view, manager):
         self.__parent__ = view
@@ -64,6 +69,15 @@ class PortletManagerRenderer(object):
             return self.template(portlets=portlets)
         else:
             return u'\n'.join([p['renderer'].render() for p in portlets])
+
+    def safe_render(self, portlet_renderer):
+        try:
+            return portlet_renderer.render()
+        except ConflictError:
+            raise
+        except Exception:
+            logger.exception('Error while rendering %r' % (self,))
+            return self.error_message()
 
     # Note: By passing in a parameter that's different for each portlet
     # manager, we avoid the view memoization (which is tied to the request)

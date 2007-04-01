@@ -295,16 +295,22 @@ class IPortletManagerRenderer(IContentProvider):
                           required=True,
                           default=True)
 
-    def filter(self, portlets):
+    def filter(portlets):
         """Return a list of portlets to display that is a subset of
         the list of portlets passed in. The list contains dicts as returned
         by IPortletRetriever.getPortlets().
         """
         
-    def portletsToShow(self):
+    def portletsToShow():
         """Get a list of portlets that will be shown.
         
         Returns a list of dicts with keys corresponding to that returned by
         IPortletRetriever.getPortlets(), with the additional key 'renderer'
         containing the appropriate IPortletRenderer.
+        """
+
+    def safe_render(portlet_renderer):
+        """Render a portlet in such a way that exceptions are not
+        raised but rather logged and an error is shown in place of the
+        portlet.
         """
