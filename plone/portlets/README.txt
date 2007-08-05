@@ -775,8 +775,9 @@ at the particular context will still apply.
     </body>
   </html>
   
-A child of child1 will now still get the portlets from child1, but not those
-from the root folder.
+If we create a child of child1, it iwll acquire the parent setting for "block 
+parent portlets". Of course, this still says "block parent". Thus, we get no
+portlets from child1 here.
 
   >>> child11 = Folder()
   >>> child1['child11'] = child11
@@ -792,13 +793,13 @@ from the root folder.
         <div>Dummy for group2</div>
       </div>
       <div class="right-column">
-        <div>Dummy at child 1 right</div>
       </div>
     </body>
   </html>
   
   >>> rightAtChild11 = getMultiAdapter((child11, right), IPortletAssignmentMapping)
   >>> saveAssignment(rightAtChild11, DummyPortlet('Dummy at child 11 right'))
+  
   >>> view = getMultiAdapter((child11, TestRequest()), name='main.html')
   >>> print view().strip()
   <html>
@@ -810,12 +811,13 @@ from the root folder.
       </div>
       <div class="right-column">
         <div>Dummy at child 11 right</div>
-        <div>Dummy at child 1 right</div>
       </div>
     </body>
   </html>
   
-  >>> rightAtChild11Manager = getMultiAdapter((child11, right), ILocalPortletAssignmentManager)
+We'd get the same effect by explicitly blocking portlets from the parent.
+  
+  >>> rightAtChild11Manager = getMultiAdapter((child11, right), ILocalPortletAssignmentManager)  
   >>> rightAtChild11Manager.setBlacklistStatus(CONTEXT_CATEGORY, True)
   >>> view = getMultiAdapter((child11, TestRequest()), name='main.html')
   >>> print view().strip()
@@ -828,6 +830,28 @@ from the root folder.
       </div>
       <div class="right-column">
         <div>Dummy at child 11 right</div>
+      </div>
+    </body>
+  </html>
+  
+Conversely, if child11 had the context category to "always show" (white-
+listing), it will get the portlets from child1, but not those from the root 
+folder.
+  
+  >>> rightAtChild11Manager = getMultiAdapter((child11, right), ILocalPortletAssignmentManager)
+  >>> rightAtChild11Manager.setBlacklistStatus(CONTEXT_CATEGORY, False)
+  >>> view = getMultiAdapter((child11, TestRequest()), name='main.html')
+  >>> print view().strip()
+  <html>
+    <body>
+      <div class="left-column">
+        <div>Dummy at child1</div>
+        <div>Dummy for group1</div>
+        <div>Dummy for group2</div>
+      </div>
+      <div class="right-column">
+        <div>Dummy at child 11 right</div>
+        <div>Dummy at child 1 right</div>
       </div>
     </body>
   </html>
