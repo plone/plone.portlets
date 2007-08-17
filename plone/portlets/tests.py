@@ -2,6 +2,7 @@ import unittest
 
 import plone.portlets
 
+import zope.component
 import zope.security
 import zope.app.security
 import zope.app.component
@@ -24,9 +25,20 @@ def configurationSetUp(test):
     XMLConfig('meta.zcml', zope.app.security)()
     XMLConfig('meta.zcml', zope.app.component)()
     XMLConfig('meta.zcml', zope.app.pagetemplate)()
-    
+
+    # BBB conditional code for loading the utility dispatchers
+    # In Zope 2.11 they are in zope.component
+    try:
+        XMLConfig('configure.zcml', zope.component)()
+    except IOError:
+        pass
+    # In Zope 2.10 they are in zope.app.event
+    try:
+        XMLConfig('configure.zcml', zope.app.event)()
+    except IOError:
+        pass
+
     XMLConfig('configure.zcml', zope.app.security)()
-    XMLConfig('configure.zcml', zope.app.event)()
     XMLConfig('configure.zcml', zope.app.container)()
     XMLConfig('configure.zcml', zope.contentprovider)()
     
