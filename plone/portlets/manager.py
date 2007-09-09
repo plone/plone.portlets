@@ -50,7 +50,16 @@ class PortletManagerRenderer(object):
         return len(portlets) > 0
 
     def filter(self, portlets):
-        return [p for p in portlets if p['assignment'].available]
+        filtered = []
+        for p in portlets:
+            try:
+                if p['assignment'].available:
+                    filtered.append(p)
+            except ConflictError:
+                raise
+            except Exception, e:
+                logger.exception('Error while determining availability of portlet %r: %s' % (p, str(e)))
+        return filtered 
         
     def portletsToShow(self):
         return self._lazyLoadPortlets(self.manager)
