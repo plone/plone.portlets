@@ -58,7 +58,7 @@ class PortletManagerRenderer(object):
             except ConflictError:
                 raise
             except Exception, e:
-                logger.exception('Error while determining availability of portlet %r: %s' % (p, str(e)))
+                logger.exception('Error while determining assignment availability of portlet %r: %s' % (p, str(e)))
         return filtered 
         
     def portletsToShow(self):
@@ -101,7 +101,14 @@ class PortletManagerRenderer(object):
         items = []
         for p in self.filter(retriever.getPortlets()):
             renderer = self._dataToPortlet(p['assignment'].data)
-            if renderer.available:
+            try:
+                isAvailable = renderer.available
+            except ConflictError:
+                raise
+            except Exception, e:
+                isAvailable = False
+                logger.exception('Error while determining renderer availability of portlet %r: %s' % (p, str(e)))
+            if isAvailable:
                 info = p.copy()
                 info['manager'] = self.manager.__name__
                 info['renderer'] = renderer
