@@ -134,7 +134,7 @@ class IPortletAssignment(IContained):
                         required=True)
         
     available = schema.Bool(title=u'Available',
-                            description=u'Whether or not this portlet shuld be rendered',
+                            description=u'Whether or not this portlet should be rendered',
                             required=True,
                             readonly=True)
     
