@@ -67,7 +67,7 @@ class PortletManagerRenderer(object):
     def update(self):
         self.__updated = True
         for p in self.portletsToShow():
-            p.update()
+            p['renderer'].update()
 
     def render(self):
         if not self.__updated:
