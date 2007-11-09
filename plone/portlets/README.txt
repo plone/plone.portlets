@@ -775,9 +775,8 @@ at the particular context will still apply.
     </body>
   </html>
   
-If we create a child of child1, it iwll acquire the parent setting for "block 
-parent portlets". Of course, this still says "block parent". Thus, we get no
-portlets from child1 here.
+If we create a child of child1, it will see that the portlets above child1
+are still blocked, but those from child11 are not blocked.
 
   >>> child11 = Folder()
   >>> child1['child11'] = child11
@@ -793,6 +792,7 @@ portlets from child1 here.
         <div>Dummy for group2</div>
       </div>
       <div class="right-column">
+        <div>Dummy at child 1 right</div>
       </div>
     </body>
   </html>
@@ -811,32 +811,16 @@ portlets from child1 here.
       </div>
       <div class="right-column">
         <div>Dummy at child 11 right</div>
+        <div>Dummy at child 1 right</div>
       </div>
     </body>
   </html>
   
-We'd get the same effect by explicitly blocking portlets from the parent.
-  
-  >>> rightAtChild11Manager = getMultiAdapter((child11, right), ILocalPortletAssignmentManager)  
-  >>> rightAtChild11Manager.setBlacklistStatus(CONTEXT_CATEGORY, True)
-  >>> view = getMultiAdapter((child11, TestRequest()), name='main.html')
-  >>> print view().strip()
-  <html>
-    <body>
-      <div class="left-column">
-        <div>Dummy at child1</div>
-        <div>Dummy for group1</div>
-        <div>Dummy for group2</div>
-      </div>
-      <div class="right-column">
-        <div>Dummy at child 11 right</div>
-      </div>
-    </body>
-  </html>
-  
-Conversely, if child11 had the context category to "always show" (white-
-listing), it will get the portlets from child1, but not those from the root 
-folder.
+We'd get the same effect by explicitly not blocking: if child11 had the 
+context category to "always show" (white-listing), it will get the portlets 
+from child1, but not those from the root folder. Thus, there is little
+difference between the blocking states 'None' and 'False' for contextual
+portlets. In the UI, a simple True/False or True/None may suffice.
   
   >>> rightAtChild11Manager = getMultiAdapter((child11, right), ILocalPortletAssignmentManager)
   >>> rightAtChild11Manager.setBlacklistStatus(CONTEXT_CATEGORY, False)
@@ -852,6 +836,26 @@ folder.
       <div class="right-column">
         <div>Dummy at child 11 right</div>
         <div>Dummy at child 1 right</div>
+      </div>
+    </body>
+  </html>
+  
+If we wanted to hide the parent portlets here as well, we could explicitly
+block them as well.
+  
+  >>> rightAtChild11Manager = getMultiAdapter((child11, right), ILocalPortletAssignmentManager)  
+  >>> rightAtChild11Manager.setBlacklistStatus(CONTEXT_CATEGORY, True)
+  >>> view = getMultiAdapter((child11, TestRequest()), name='main.html')
+  >>> print view().strip()
+  <html>
+    <body>
+      <div class="left-column">
+        <div>Dummy at child1</div>
+        <div>Dummy for group1</div>
+        <div>Dummy for group2</div>
+      </div>
+      <div class="right-column">
+        <div>Dummy at child 11 right</div>
       </div>
     </body>
   </html>
