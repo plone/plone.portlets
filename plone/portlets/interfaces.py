@@ -208,6 +208,10 @@ class IPortletAssignmentMapping(IOrderedContainer, IContainerNamesContainer, ICo
     appropriate container.
     """
     contains('plone.portlets.interfaces.IPortletAssignment')
+    
+    __manager__ = schema.TextLine(title=u"Name of the portlet manager this mapping belongs to")
+    __category__ = schema.TextLine(title=u'Name of the category this mapping belongs to')
+    
 
 class ILocalPortletAssignmentManager(Interface):
     """A component that can manage the display of locally assigned portlets.
