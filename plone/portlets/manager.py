@@ -138,5 +138,13 @@ class PortletManager(PortletStorage):
         return getMultiAdapter((context, request, view, self), IPortletManagerRenderer)
 
     def getAddablePortletTypes(self):
-        return [p[1] for p in getUtilitiesFor(IPortletType) 
-                    if p[1].for_ is None or p[1].for_.providedBy(self)]        
+       addable = []
+       for p in getUtilitiesFor(IPortletType):
+           #BBB - first condition, because starting with Plone 3.1
+           #every p[1].for_ should be a list
+           if type(p[1].for_) not in (tuple, list): 
+               if p[1].for_ is None or p[1].for_.providedBy(self):
+                   addable.append(p[1])
+           elif p[1].for_ == [] or [i for i in p[1].for_ if i.providedBy(self)]:
+               addable.append(p[1])
+       return addable
