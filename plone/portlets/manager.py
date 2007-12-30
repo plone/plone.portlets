@@ -23,6 +23,8 @@ from utils import hashPortletInfo
 import logging
 logger = logging.getLogger('portlets')
 
+from Products.CMFPlone.utils import log_deprecated
+
 class PortletManagerRenderer(object):
     """Default renderer for portlet managers.
 
@@ -141,10 +143,13 @@ class PortletManager(PortletStorage):
        addable = []
        for p in getUtilitiesFor(IPortletType):
            #BBB - first condition, because starting with Plone 3.1
-           #every p[1].for_ should be a list
+           #every p[1].for_ should be a nonempty list
            if type(p[1].for_) not in (tuple, list): 
+               log_deprecated("Portlet type %s has a for_ " % p[1].addview + \
+                 "attribute which is not a list, which will not be " \
+                 "supported in Plone 4.0.")
                if p[1].for_ is None or p[1].for_.providedBy(self):
                    addable.append(p[1])
-           elif p[1].for_ == [] or [i for i in p[1].for_ if i.providedBy(self)]:
+           elif [i for i in p[1].for_ if i.providedBy(self)]:
                addable.append(p[1])
        return addable
