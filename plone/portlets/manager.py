@@ -145,6 +145,6 @@ class PortletManager(PortletStorage):
            if type(p[1].for_) not in (tuple, list): 
                if p[1].for_ is None or p[1].for_.providedBy(self):
                    addable.append(p[1])
-           elif p[1].for_ == [] or [i for i in p[1].for_ if i.providedBy(self)]:
+           elif [i for i in p[1].for_ if i.providedBy(self)]:
                addable.append(p[1])
        return addable
