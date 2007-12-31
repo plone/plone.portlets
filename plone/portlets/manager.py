@@ -145,9 +145,12 @@ class PortletManager(PortletStorage):
            #BBB - first condition, because starting with Plone 3.1
            #every p[1].for_ should be a list
            if type(p[1].for_) not in (tuple, list): 
-               log_deprecated("Portlet type %s has a for_ " % p[1].addview + \
-                 "attribute which is not a list, which will not be " \
-                 "supported in Plone 4.0.")
+               log_deprecated("Portlet type %s is using a " % addview + \
+                 "deprecated format for storing interfaces of portlet " \
+                 "managers where it is addable. Its for_ attribute should " \   
+                 "be a list of portlet manager interfaces, using [zope." \
+                 "interface.Interface] for the portlet type to be addable " \
+                 "anywhere. The old format will be unsupported in Plone 4.0.")
                if p[1].for_ is None or p[1].for_.providedBy(self):
                    addable.append(p[1])
            elif [i for i in p[1].for_ if i.providedBy(self)]:
