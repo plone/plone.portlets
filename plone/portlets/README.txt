@@ -880,22 +880,60 @@ adapter from (Interface, IPlacelessPortletManager). IPlacelessPortletManager in
 turn, is a marker interface that you can apply to a portlet manager to get the 
 placeless behaviour.
 
+A Dashboard typically renders an number of PortletManagers. Even the default
+Portlets in Plone have a left_column and right_column. We want to be able to
+move around portlets between those managers.
+
+A utility named ColumnManager allows you to store the PortletManagers id and
+lookup other PortletManager.
+
+  >>> from plone.portlets.columns import ColumnManager
+  >>> from plone.portlets.interfaces import IColumnManager
+  >>> dashboardManager =  ColumnManager()
+  >>> sm = getSiteManager(rootFolder)
+  >>> sm.registerUtility(component=dashboardManager,
+  ...                    provided=IColumnManager,
+  ...                    name='plone.dashboard')
+
   >>> from plone.portlets.interfaces import IPlacelessPortletManager
   
-  >>> sm = getSiteManager(rootFolder)
-  >>> dashboardPortletManager = PortletManager()
-  >>> directlyProvides(dashboardPortletManager, IPlacelessPortletManager)
-  
-  >>> sm.registerUtility(component=dashboardPortletManager,
+  >>> dashboard1 = PortletManager()
+  >>> dashboard2 = PortletManager()
+  >>> directlyProvides(dashboard1, IPlacelessPortletManager)
+  >>> directlyProvides(dashboard2, IPlacelessPortletManager)
+  >>> sm.registerUtility(component=dashboard1,
   ...                    provided=IPortletManager,
-  ...                    name='columns.dashboard')
+  ...                    name='columns.dashboard1')
+  >>> sm.registerUtility(component=dashboard2,
+  ...                    provided=IPortletManager,
+  ...                    name='columns.dashboard2')
+
+We setup a ColumnManager to which we add the to PortletManagers
+
+  >>> db_manager = getUtility(IColumnManager, name='plone.dashboard')
+  >>> db_manager.append('columns.dashboard1')
+  >>> db_manager.append('columns.dashboard2')
+
+  >>> db_manager.left('columns.dashboard1')
+
+  >>> db_manager.right('columns.dashboard1')
+  'columns.dashboard2'
+
+  >>> db_manager.left('columns.dashboard2')
+  'columns.dashboard1'
+
+  >>> db_manager.right('columns.dashboard2')
+
 
   >>> dashboardFileName = os.path.join(tempDir, 'dashboard.pt')
   >>> open(dashboardFileName, 'w').write("""
   ... <html>
   ...   <body>
-  ...     <div class="dashboard">
-  ...       <tal:block replace="structure provider:columns.dashboard" />
+  ...     <div class="dashboard1">
+  ...       <tal:block replace="structure provider:columns.dashboard1" />
+  ...     </div>
+  ...     <div class="dashboard2">
+  ...       <tal:block replace="structure provider:columns.dashboard2" />
   ...     </div>
   ...   </body>
   ... </html>
@@ -909,45 +947,54 @@ placeless behaviour.
   >>> print view().strip()
   <html>
     <body>
-      <div class="dashboard">
+      <div class="dashboard1">
+      </div>
+      <div class="dashboard2">
       </div>
     </body>
   </html>
   
 Let's register some portlets for the dashboard.
 
-  >>> dashboard = getUtility(IPortletManager, name='columns.dashboard')
+  >>> dashboard1 = getUtility(IPortletManager, name='columns.dashboard1')
+  >>> dashboard2 = getUtility(IPortletManager, name='columns.dashboard2')
+  >>> 
   
-  >>> dashboard[USER_CATEGORY] = PortletCategoryMapping()
-  >>> dashboard[USER_CATEGORY][Anonymous.id] = PortletAssignmentMapping()
-  >>> dashboard[USER_CATEGORY][user1.id] = PortletAssignmentMapping()
+  >>> dashboard1[USER_CATEGORY] = PortletCategoryMapping()
+  >>> dashboard1[USER_CATEGORY][Anonymous.id] = PortletAssignmentMapping()
+  >>> dashboard1[USER_CATEGORY][user1.id] = PortletAssignmentMapping()
   
-  >>> dashboard[GROUP_CATEGORY] = PortletCategoryMapping()
-  >>> dashboard[GROUP_CATEGORY][group1.id] = PortletAssignmentMapping()
-  >>> dashboard[GROUP_CATEGORY][group2.id] = PortletAssignmentMapping()
+  >>> dashboard2[GROUP_CATEGORY] = PortletCategoryMapping()
+  >>> dashboard2[GROUP_CATEGORY][group1.id] = PortletAssignmentMapping()
+  >>> dashboard2[GROUP_CATEGORY][group2.id] = PortletAssignmentMapping()
   
-  >>> saveAssignment(dashboard[USER_CATEGORY][user1.id], userPortlet)
-  >>> saveAssignment(dashboard[GROUP_CATEGORY][group1.id], groupPortlet1)
-  >>> saveAssignment(dashboard[GROUP_CATEGORY][group2.id], groupPortlet2)
+  >>> saveAssignment(dashboard1[USER_CATEGORY][user1.id], userPortlet)
+  >>> saveAssignment(dashboard2[GROUP_CATEGORY][group1.id], groupPortlet1)
+  >>> saveAssignment(dashboard2[GROUP_CATEGORY][group2.id], groupPortlet2)
   
 When we render this, contextual portlets are ignored. Blacklistings also do
 not apply.
   
-  >>> dashboardAtChild1Manager = getMultiAdapter((child1, dashboard), ILocalPortletAssignmentManager)
+  >>> dashboardAtChild1Manager = getMultiAdapter((child1, dashboard1), ILocalPortletAssignmentManager)
   >>> dashboardAtChild1Manager.setBlacklistStatus(USER_CATEGORY, True)
   
-  >>> dashboardAtChild1 = getMultiAdapter((child1, dashboard), IPortletAssignmentMapping)
+  >>> dashboardAtChild1 = getMultiAdapter((child1, dashboard1), IPortletAssignmentMapping)
   >>> saveAssignment(dashboardAtChild1, DummyPortlet('dummy for dashboard in context'))
+
+
+#  >>> db_manager.move_portlet_to_column('Assignment-1', 'columns.dashboard2')
+#  >>> TODO actually check if it was moved
   
   >>> view = getMultiAdapter((child1, TestRequest()), name='dashboard.html')
   >>> print view().strip()
   <html>
     <body>
-      <div class="dashboard">
+      <div class="dashboard1">
         <div>Dummy for user1</div>
+      </div>
+      <div class="dashboard2">        
         <div>Dummy for group1</div>
         <div>Dummy for group2</div>
       </div>
     </body>
   </html>
-  

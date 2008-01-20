@@ -7,8 +7,11 @@ import zope.security
 import zope.app.security
 import zope.app.component
 import zope.app.pagetemplate
+try:
+    import zope.event as event
+except ImportError:
+    import zope.app.event as event
 
-import zope.app.event
 import zope.app.container
 import zope.contentprovider
 
@@ -34,7 +37,7 @@ def configurationSetUp(test):
         pass
     # In Zope 2.10 they are in zope.app.event
     try:
-        XMLConfig('configure.zcml', zope.app.event)()
+        XMLConfig('configure.zcml', event)()
     except IOError:
         pass
 
