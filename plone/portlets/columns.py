@@ -43,9 +43,6 @@ class ColumnManager(Persistent):
             # if name in column.getUserPortletAssignment()
 
     def __iter__(self):
-        return self
-        
-    def next(self):
         for column in self.columns:
             yield column
             
