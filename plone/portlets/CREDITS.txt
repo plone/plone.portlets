@@ -14,3 +14,6 @@ Development of plone.portlets and plone.app.portlets was generously sponsored by
     
  - Geir Baekholt
     original design, use case support and sanity checking
+    
+ - Jean-Paul Ladage
+    columnmanager, for use of drag and drop

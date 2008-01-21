@@ -34,12 +34,6 @@ class ColumnManager(Persistent):
             package. 
         """
         raise NotImplementedError
-        
-
-    def get_column_name_of(self, name):
-        for column_name in self.columns:
-            column = queryUtility(IPortletManager, column_name)
-            # if name in column.getUserPortletAssignment()
 
     def __iter__(self):
         for column in self.columns:
