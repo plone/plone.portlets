@@ -980,10 +980,6 @@ not apply.
   
   >>> dashboardAtChild1 = getMultiAdapter((child1, dashboard1), IPortletAssignmentMapping)
   >>> saveAssignment(dashboardAtChild1, DummyPortlet('dummy for dashboard in context'))
-
-
-#  >>> db_manager.move_portlet_to_column('Assignment-1', 'columns.dashboard2')
-#  >>> TODO actually check if it was moved
   
   >>> view = getMultiAdapter((child1, TestRequest()), name='dashboard.html')
   >>> print view().strip()
