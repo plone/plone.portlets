@@ -30,11 +30,10 @@ class ColumnManager(Persistent):
             return self.columns[current+1]
 
     def move_portlet_to_column(self, portlet, column):
-        # 1. get the portletManager and copy the portlet
-        # 2. get the column and append the portlet
-        # 3. remove the portlet from the old portletManager
-        src_column_name = self.get_column_name_of(portlet)
-        src_column = queryUtility(IPortletManager, src_column_name)
+        """ This method needs to be implemented by the plone.app.portlet
+            package. 
+        """
+        raise NotImplementedError
         
 
     def get_column_name_of(self, name):
