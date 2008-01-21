@@ -33,7 +33,9 @@ class ColumnManager(Persistent):
         # 1. get the portletManager and copy the portlet
         # 2. get the column and append the portlet
         # 3. remove the portlet from the old portletManager
-        pass
+        src_column_name = self.get_column_name_of(portlet)
+        src_column = queryUtility(IPortletManager, src_column_name)
+        
 
     def get_column_name_of(self, name):
         for column_name in self.columns:
@@ -41,4 +43,9 @@ class ColumnManager(Persistent):
             # if name in column.getUserPortletAssignment()
 
     def __iter__(self):
-        return self.columns.__iter__()
+        return self
+        
+    def next(self)
+        for column in self.columns:
+            yield column
+            
