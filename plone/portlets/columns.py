@@ -45,7 +45,7 @@ class ColumnManager(Persistent):
     def __iter__(self):
         return self
         
-    def next(self)
+    def next(self):
         for column in self.columns:
             yield column
             
