@@ -3,7 +3,7 @@ from plone.portlets.interfaces import IPortletType
 from plone.portlets.registration import PortletType
 import binascii
 
-def registerPortletType(site, title, description, addview, for_=None):
+def registerPortletType(site, title, description, addview, for_=[]):
     """Register a new type of portlet.
     
     site should be the local site where the registration should be made. The 
