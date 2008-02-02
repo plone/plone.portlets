@@ -53,7 +53,7 @@ IFoo1, and a second is given the interface IFoo2.
   ...     pass
   
   >>> right = PortletManager()
-  >>> directlyProvides(right, IFoo22)
+  >>> directlyProvides(right, IFoo2)
   
   >>> middle = PortletManager()
   
