@@ -2,16 +2,6 @@ import unittest
 
 import plone.portlets
 
-import zope.component
-import zope.security
-import zope.app.security
-import zope.app.component
-import zope.app.pagetemplate
-
-import zope.app.event
-import zope.app.container
-import zope.contentprovider
-
 from zope.testing import doctest
 from zope.component.testing import setUp, tearDown
 from zope.configuration.xmlconfig import XMLConfig
@@ -20,22 +10,31 @@ optionflags = doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS
 
 def configurationSetUp(test):
     setUp()
-    
+
+    import zope.contentprovider
+    import zope.security
+    import zope.app.component
+    import zope.app.container
+    import zope.app.pagetemplate
+    import zope.app.security
+
     XMLConfig('meta.zcml', zope.security)()
-    XMLConfig('meta.zcml', zope.app.security)()
     XMLConfig('meta.zcml', zope.app.component)()
     XMLConfig('meta.zcml', zope.app.pagetemplate)()
+    XMLConfig('meta.zcml', zope.app.security)()
 
     # BBB conditional code for loading the utility dispatchers
     # In Zope 2.11 they are in zope.component
     try:
+        import zope.component
         XMLConfig('configure.zcml', zope.component)()
     except IOError:
         pass
     # In Zope 2.10 they are in zope.app.event
     try:
+        import zope.app.event
         XMLConfig('configure.zcml', zope.app.event)()
-    except IOError:
+    except (ImportError, IOError):
         pass
 
     XMLConfig('configure.zcml', zope.app.security)()
