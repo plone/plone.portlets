@@ -2,9 +2,9 @@ Changelog for plone.portlets
 
     (name of developer listed in brackets)
 
-plone.portlets - 1.1
+plone.portlets - 1.1 - UNRELEASED
 
-    - PLIPS 205 and 218: Allow registering portlet types to multiple portlet
+    - PLIPs 205 and 218: Allow registering portlet types to multiple portlet
       manager interfaces, require portlet types to be explicitly registered
       for portlet manager interfaces, enable modifying registrations through
       GenericSetup, and restrict most default Plone portlet types to left/
