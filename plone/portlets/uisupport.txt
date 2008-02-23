@@ -37,19 +37,25 @@ First, we must create a local site manager at a fictional root folder.
   >>> setSite(rootFolder)
   >>> setHooks()
   
-Then we create two portlet managers. One portlet manager is given the interface
-IFoo.
+Then we create three portlet managers. One portlet manager is given the interface
+IFoo1, and a second is given the interface IFoo2.
   
   >>> from plone.portlets.interfaces import IPortletManager
   >>> from plone.portlets.manager import PortletManager
   
-  >>> left = PortletManager()
+  >>> class IFoo1(IPortletManager):
+  ...     pass
   
-  >>> class IFoo(IPortletManager):
+  >>> left = PortletManager()
+  >>> directlyProvides(left, IFoo1)
+  
+  >>> class IFoo2(IPortletManager):
   ...     pass
   
   >>> right = PortletManager()
-  >>> directlyProvides(right, IFoo)
+  >>> directlyProvides(right, IFoo2)
+  
+  >>> middle = PortletManager()
   
 Ordinarily, we would register these with our local site manager. See README.txt.
   
@@ -59,6 +65,8 @@ addable.
   >>> left.getAddablePortletTypes()
   []
   >>> right.getAddablePortletTypes()
+  []
+  >>> middle.getAddablePortletTypes()
   []
   
 We now want to register some fictional portlet types. For the purposes of
@@ -73,29 +81,45 @@ registrations for these fictional portlets, using a utility method.
   
 This portlet will be addable anywhere.
 
-  >>> len(left.getAddablePortletTypes()) == len(right.getAddablePortletTypes()) == 1
-  True
-  >>> left.getAddablePortletTypes()[0].addview
-  'portlets.a'
-  >>> right.getAddablePortletTypes()[0].addview
-  'portlets.a'
-  
-The second portlet type is applicable only to portlet managers providing IFoo:
+  >>> [portlet.addview for portlet in left.getAddablePortletTypes()]
+  ['portlets.a']
+  >>> [portlet.addview for portlet in right.getAddablePortletTypes()]
+  ['portlets.a']
+  >>> [portlet.addview for portlet in middle.getAddablePortletTypes()]
+  ['portlets.a']
+ 
+The second portlet type is applicable only to portlet managers providing IFoo1:
 
   >>> utils.registerPortletType(rootFolder, title='Portlet B',
   ...   description='Portlet number two', addview='portlets.b',
-  ...   for_=IFoo)
+  ...   for_=[IFoo1])
   
-  >>> len(left.getAddablePortletTypes())
-  1
-  >>> left.getAddablePortletTypes()[0].addview
-  'portlets.a'
-  >>> len(right.getAddablePortletTypes())
-  2
+  >>> portlets = left.getAddablePortletTypes()
+  >>> portlets.sort(lambda x,y: cmp(x.addview, y.addview))
+  >>> [portlet.addview for portlet in portlets]
+  ['portlets.a', 'portlets.b']
+
+  >>> [portlet.addview for portlet in right.getAddablePortletTypes()]
+  ['portlets.a']
+  
+  >>> [portlet.addview for portlet in middle.getAddablePortletTypes()]
+  ['portlets.a'] 
+
+The third portlet type is applicable only to portlet managers providing IFoo1 or IFoo2:
+  
+  >>> utils.registerPortletType(rootFolder, title='Portlet C',
+  ...   description='Portlet number three', addview='portlets.c',
+  ...   for_=[IFoo1, IFoo2])
+  
+  >>> portlets = left.getAddablePortletTypes()
+  >>> portlets.sort(lambda x,y: cmp(x.addview, y.addview))
+  >>> [portlet.addview for portlet in portlets]
+  ['portlets.a', 'portlets.b', 'portlets.c']
   
   >>> portlets = right.getAddablePortletTypes()
   >>> portlets.sort(lambda x,y: cmp(x.addview, y.addview))
-  >>> portlets[0].addview
-  'portlets.a'
-  >>> portlets[1].addview
-  'portlets.b'
+  >>> [portlet.addview for portlet in portlets]
+  ['portlets.a', 'portlets.c']
+  
+  >>> [portlet.addview for portlet in middle.getAddablePortletTypes()]
+  ['portlets.a']
