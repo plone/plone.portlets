@@ -13,6 +13,7 @@ plone.portlets - 1.1 - UNRELEASED
     
     - PLIP207: Allow custom portlet managers, i.e., allow specifying an
       alternative portlet manager class through GenericSetup.
+      [sirgarr]
 
 plone.portlets - 1.0.6
 
