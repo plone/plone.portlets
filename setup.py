@@ -25,6 +25,7 @@ platforms. It should work in a "pure Zope 3" environment.
       zip_safe=False,
       install_requires=[
         'setuptools',
+        'plone.memoize',
       ],
       entry_points="""
       # -*- Entry points: -*-
