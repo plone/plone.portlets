@@ -4,6 +4,9 @@ Changelog for plone.portlets
 
 plone.portlets - 1.1 - UNRELEASED
 
+    - Changed a type() comparison into a isinstance comparison.
+      [hannosch]
+
     - PLIPs 205 and 218: Allow registering portlet types to multiple portlet
       manager interfaces, require portlet types to be explicitly registered
       for portlet manager interfaces, enable modifying registrations through

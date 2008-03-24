@@ -142,7 +142,7 @@ class PortletManager(PortletStorage):
        for p in getUtilitiesFor(IPortletType):
            #BBB - first condition, because starting with Plone 3.1
            #every p[1].for_ should be a list
-           if type(p[1].for_) is not list:
+           if not isinstance(p[1].for_, list):
                logger.warning("Deprecation Warning Portlet type " + \
                  "%s is using a deprecated format for " % p[1].addview + \
                  "storing interfaces of portlet managers where it is " + \
