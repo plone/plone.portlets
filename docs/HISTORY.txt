@@ -4,6 +4,13 @@ Changelog for plone.portlets
 
 plone.portlets - 1.1 - UNRELEASED
 
+    - Ensure the keys stored in a portlet assignment mapping are always 
+      unicode. This is necessary because an OOBTree will, once one unicode key
+      has been added, force all keys to unicode. This can lead to unicode
+      decode errors.
+      Fixes http://dev.plone.org/plone/ticket/6100
+      [optilude]
+
     - Changed a type() comparison into a isinstance comparison.
       [hannosch]
 
