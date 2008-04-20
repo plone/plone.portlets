@@ -2,7 +2,7 @@ Changelog for plone.portlets
 
     (name of developer listed in brackets)
 
-plone.portlets - 1.1 - UNRELEASED
+plone.portlets - 1.1.0 - April 20th 2008
 
     - Ensure the keys stored in a portlet assignment mapping are always 
       unicode. This is necessary because an OOBTree will, once one unicode key
