@@ -9,6 +9,9 @@ CONTEXT_BLACKLIST_STATUS_KEY = 'plone.portlets.categoryblackliststatus'
 USER_CATEGORY = 'user'
 GROUP_CATEGORY = 'group'
 CONTENT_TYPE_CATEGORY = 'content_type'
+GLOBAL_CATEGORY = 'global'
+GLOBAL_CATEGORY_KEY = u'global'
+
 
 # This is stored under the CONTEXT_ASSIGNMENT_KEY annotation, not in the
 # IPortletManager utility
