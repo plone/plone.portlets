@@ -426,7 +426,7 @@ for convenience.
   >>> from zope.app.container.interfaces import INameChooser
   >>> def saveAssignment(mapping, assignment):
   ...     chooser = INameChooser(mapping)
-  ...     mapping[chooser.chooseName(None, assignment)] = assignment
+  ...     mapping[chooser.chooseName('', assignment)] = assignment
   
   >>> saveAssignment(leftAtRoot, lpa)
   >>> lpa.__name__ in leftAtRoot
