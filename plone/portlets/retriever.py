@@ -1,5 +1,6 @@
 from zope.interface import implements, Interface
 from zope.component import adapts
+from zope.component import queryAdapter
 from zope.annotation.interfaces import IAnnotations
 
 from plone.portlets.interfaces import IPortletContext
@@ -32,7 +33,7 @@ class PortletRetriever(object):
         describing assignments to render.
         """
         
-        pcontext = IPortletContext(self.context, None)
+        pcontext = queryAdapter(self.context, IPortletContext)
         if pcontext is None:
             return []
             
@@ -73,9 +74,9 @@ class PortletRetriever(object):
         parentsBlocked = False
         
         while current is not None and currentpc is not None:
-            assignable = ILocalPortletAssignable(current, None)
+            assignable = queryAdapter(current, ILocalPortletAssignable)
             if assignable is not None:
-                annotations = IAnnotations(assignable)
+                annotations = queryAdapter(assignable, IAnnotations)
                 
                 if not parentsBlocked:
                     local = annotations.get(CONTEXT_ASSIGNMENT_KEY, None)
@@ -105,7 +106,7 @@ class PortletRetriever(object):
             # Check the parent - if there is no parent, we will stop
             current = currentpc.getParent()
             if current is not None:
-                currentpc = IPortletContext(current, None)
+                currentpc = queryAdapter(current, IPortletContext)
         
         # Get all global mappings for non-blacklisted categories
         
@@ -139,7 +140,7 @@ class PlacelessPortletRetriever(PortletRetriever):
         self.storage = storage
         
     def getPortlets(self):
-        pcontext = IPortletContext(self.context, None)
+        pcontext = queryAdapter(self.context, IPortletContext)
         if pcontext is None:
             return []
             

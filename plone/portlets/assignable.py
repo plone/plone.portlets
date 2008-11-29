@@ -1,7 +1,10 @@
 from persistent.dict import PersistentDict
 
-from zope.interface import implements, implementer
-from zope.component import adapts, adapter
+from zope.interface import implementer
+from zope.interface import implements
+from zope.component import adapter
+from zope.component import adapts
+from zope.component import queryAdapter
 from zope.annotation.interfaces import IAnnotations
 
 from plone.portlets.interfaces import ILocalPortletAssignmentManager
@@ -23,7 +26,7 @@ def localPortletAssignmentMappingAdapter(context, manager):
     by finding one in the object's annotations. The container will be created
     if necessary.
     """
-    annotations = IAnnotations(context)
+    annotations = queryAdapter(context, IAnnotations)
     local = annotations.get(CONTEXT_ASSIGNMENT_KEY, None)
     if local is None:
         local = annotations[CONTEXT_ASSIGNMENT_KEY] = OOBTree()
@@ -56,7 +59,7 @@ class LocalPortletAssignmentManager(object):
         return blacklist.get(category, None)
         
     def _getBlacklist(self, create=False):
-        annotations = IAnnotations(self.context)
+        annotations = queryAdapter(self.context, IAnnotations)
         local = annotations.get(CONTEXT_BLACKLIST_STATUS_KEY, None)
         if local is None:
             if create:
