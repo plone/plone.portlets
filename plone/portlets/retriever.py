@@ -32,8 +32,12 @@ class PortletRetriever(object):
         """Work out which portlets to display, returning a list of dicts
         describing assignments to render.
         """
-        
-        pcontext = queryAdapter(self.context, IPortletContext)
+
+        if IPortletContext.providedBy(self.context):
+            pcontext = self.context
+        else:
+            pcontext = queryAdapter(self.context, IPortletContext)
+
         if pcontext is None:
             return []
             
@@ -74,10 +78,17 @@ class PortletRetriever(object):
         parentsBlocked = False
         
         while current is not None and currentpc is not None:
-            assignable = queryAdapter(current, ILocalPortletAssignable)
+            if ILocalPortletAssignable.providedBy(current):
+                assignable = current
+            else:
+                assignable = queryAdapter(current, ILocalPortletAssignable)
+
             if assignable is not None:
-                annotations = queryAdapter(assignable, IAnnotations)
-                
+                if IAnnotations.providedBy(assignable):
+                    annotations = assignable
+                else:
+                    annotations = queryAdapter(assignable, IAnnotations)
+
                 if not parentsBlocked:
                     local = annotations.get(CONTEXT_ASSIGNMENT_KEY, None)
                     if local is not None:
@@ -106,7 +117,10 @@ class PortletRetriever(object):
             # Check the parent - if there is no parent, we will stop
             current = currentpc.getParent()
             if current is not None:
-                currentpc = queryAdapter(current, IPortletContext)
+                if IPortletContext.providedBy(current):
+                    currentpc = current
+                else:
+                    currentpc = queryAdapter(current, IPortletContext)
         
         # Get all global mappings for non-blacklisted categories
         
@@ -140,10 +154,14 @@ class PlacelessPortletRetriever(PortletRetriever):
         self.storage = storage
         
     def getPortlets(self):
-        pcontext = queryAdapter(self.context, IPortletContext)
+        if IPortletContext.providedBy(self.context):
+            pcontext = self.context
+        else:
+            pcontext = queryAdapter(self.context, IPortletContext)
+
         if pcontext is None:
             return []
-            
+
         assignments = []
         for category, key in pcontext.globalPortletCategories(True):
             mapping = self.storage.get(category, None)

@@ -26,7 +26,10 @@ def localPortletAssignmentMappingAdapter(context, manager):
     by finding one in the object's annotations. The container will be created
     if necessary.
     """
-    annotations = queryAdapter(context, IAnnotations)
+    if IAnnotations.providedBy(context):
+        annotations = context
+    else:
+        annotations = queryAdapter(context, IAnnotations)
     local = annotations.get(CONTEXT_ASSIGNMENT_KEY, None)
     if local is None:
         local = annotations[CONTEXT_ASSIGNMENT_KEY] = OOBTree()
@@ -59,7 +62,10 @@ class LocalPortletAssignmentManager(object):
         return blacklist.get(category, None)
         
     def _getBlacklist(self, create=False):
-        annotations = queryAdapter(self.context, IAnnotations)
+        if IAnnotations.providedBy(self.context):
+            annotations = self.context
+        else:
+            annotations = queryAdapter(self.context, IAnnotations)
         local = annotations.get(CONTEXT_BLACKLIST_STATUS_KEY, None)
         if local is None:
             if create:
