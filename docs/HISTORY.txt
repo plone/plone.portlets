@@ -2,8 +2,10 @@ Changelog for plone.portlets
 
     (name of developer listed in brackets)
 
-
 plone.portlets
+
+    - Specify package dependencies.
+      [hannosch]
 
     - Replaced direct invocations of interfaces with queryAdapter calls. The
       former does a suboptimal getattr call internally.
