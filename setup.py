@@ -13,7 +13,6 @@ using local components. This package is used by plone.app.portlets to provide
 Plone-specific portlets, but should be generic enough to work on other 
 platforms. It should work in a "pure Zope 3" environment.
 """,
-      classifiers=[],
       classifiers=[
           "Environment :: Web Environment",
           "Framework :: Plone",
