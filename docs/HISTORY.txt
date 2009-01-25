@@ -4,6 +4,9 @@ Changelog for plone.portlets
 
 plone.portlets - 1.2
 
+    - Clarified license and copyright statements.
+      [hannosch]
+
     - Specify package dependencies.
       [hannosch]
 

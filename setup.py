@@ -14,8 +14,17 @@ Plone-specific portlets, but should be generic enough to work on other
 platforms. It should work in a "pure Zope 3" environment.
 """,
       classifiers=[],
+      classifiers=[
+          "Environment :: Web Environment",
+          "Framework :: Plone",
+          "Framework :: Zope2",
+          "Framework :: Zope3",
+          "License :: OSI Approved :: GNU General Public License (GPL)",
+          "Operating System :: OS Independent",
+          "Programming Language :: Python",
+        ],
       keywords='portlet viewlet',
-      author='Martin Aspeli',
+      author='Plone Foundation',
       author_email='plone-developers@lists.sourceforge.net',
       url='http://svn.plone.org/svn/plone/plone.portlets',
       license='GPL',
