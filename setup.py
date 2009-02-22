@@ -1,5 +1,4 @@
 from setuptools import setup, find_packages
-import sys, os
 
 version = '1.2'
 
@@ -31,23 +30,28 @@ platforms. It should work in a "pure Zope 3" environment.
       namespace_packages=['plone'],
       include_package_data=True,
       zip_safe=False,
+      extras_require=dict(
+          test=[
+              'zope.configuration',
+              'zope.security',
+              'zope.testing',
+              'zope.app.component',
+              'zope.app.content',
+              'zope.app.folder',
+              'zope.app.pagetemplate',
+              'zope.app.security',
+          ],
+      ),
       install_requires=[
         'setuptools',
         'ZODB3',
         'plone.memoize',
         'zope.annotation',
         'zope.component',
-        'zope.configuration',
         'zope.contentprovider',
         'zope.interface',
         'zope.publisher',
         'zope.schema',
-        'zope.security',
-        'zope.app.component',
         'zope.app.container',
-        'zope.app.content',
-        'zope.app.folder',
-        'zope.app.pagetemplate',
-        'zope.app.security',
       ],
       )
