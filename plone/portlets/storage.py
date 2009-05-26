@@ -1,3 +1,6 @@
+
+import logging
+
 from zope.interface import implements
 
 from zope.app.container.btree import BTreeContainer
@@ -17,9 +20,16 @@ from BTrees.OOBTree import OOBTree
 # Directory where user ids are binary GUIDs. However, that's a problem for
 # another day, since it'll require more complex migration.
 
+LOG = logging.getLogger('portlets')
+
 def _coerce(key):
     if isinstance(key, str):
-        key = unicode(key, encoding='utf-8')
+        try:
+            key = unicode(key, encoding='utf-8')
+        except UnicodeDecodeError:
+            LOG.warn('Unable to convert %r to unicode' % key)
+            return unicode(key, encoding='utf-8', 'ignore')
+
     return key
 
 class PortletStorage(BTreeContainer):

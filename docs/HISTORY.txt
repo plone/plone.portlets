@@ -4,6 +4,9 @@ Changelog for plone.portlets
 
 plone.portlets - 1.2
 
+    - Fix/workaround for http://dev.plone.org/plone/ticket/8128
+      [ajung]
+
     - Moved test-only dependencies to a test extra requirement.
       [hannosch]
 
