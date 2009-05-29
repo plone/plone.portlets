@@ -2,6 +2,13 @@ Changelog for plone.portlets
 
     (name of developer listed in brackets)
 
+plone.portlets - 1.1.1 - Unreleased
+
+    - Fix/workaround for http://dev.plone.org/plone/ticket/8128
+      (UnicodeDecodeError within _coerce() caused by external data
+      with wrong encoding).
+      [ajung]
+
 plone.portlets - 1.1.0 - April 20th 2008
 
     - Ensure the keys stored in a portlet assignment mapping are always 
