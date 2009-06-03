@@ -4,7 +4,7 @@ import logging
 from zope.interface import implements
 
 from zope.app.container.btree import BTreeContainer
-from zope.app.container.contained import Contained, NameChooser
+from zope.app.container.contained import Contained
 from zope.app.container.ordered import OrderedContainer
 
 from plone.portlets.interfaces import IPortletStorage
@@ -22,29 +22,32 @@ from BTrees.OOBTree import OOBTree
 
 LOG = logging.getLogger('portlets')
 
+
 def _coerce(key):
     if isinstance(key, str):
         try:
             key = unicode(key, encoding='utf-8')
         except UnicodeDecodeError:
             LOG.warn('Unable to convert %r to unicode' % key)
-            return unicode(key, encoding='utf-8', 'ignore')
+            return unicode(key, 'utf-8', 'ignore')
 
     return key
+
 
 class PortletStorage(BTreeContainer):
     """The default portlet storage.
     """
     implements(IPortletStorage)
-        
+
+
 class PortletCategoryMapping(BTreeContainer, Contained):
     """The default category/key mapping storage.
     """
     implements(IPortletCategoryMapping)
-    
+
     # We need to hack some stuff to make sure keys are unicode.
     # The shole BTreeContainer/SampleContainer mess is a pain in the backside
-    
+
     def __getitem__(self, key):
         return super(PortletCategoryMapping, self).__getitem__(_coerce(key))
 
@@ -65,23 +68,23 @@ class PortletCategoryMapping(BTreeContainer, Contained):
     def __delitem__(self, key):
         '''See interface `IWriteContainer`'''
         super(PortletCategoryMapping, self).__delitem__(_coerce(key))
-        
+
 
 class PortletAssignmentMapping(OrderedContainer):
     """The default assignment mapping storage.
     """
     implements(IPortletAssignmentMapping)
-    
+
     __manager__ = u''
     __category__ = u''
     __name__ = u''
-    
+
     def __init__(self, manager=u'', category=u'', name=u''):
         # XXX: This depends on implementation detail in OrderedContainer,
         # but it uses a PersistentDict, which sucks :-/
         OrderedContainer.__init__(self)
         self._data = OOBTree()
-        
+
         self.__manager__ = manager
         self.__category__ = category
         self.__name__ = name
