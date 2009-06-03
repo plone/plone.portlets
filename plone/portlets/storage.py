@@ -28,7 +28,7 @@ def _coerce(key):
             key = unicode(key, encoding='utf-8')
         except UnicodeDecodeError:
             LOG.warn('Unable to convert %r to unicode' % key)
-            return unicode(key, encoding='utf-8', 'ignore')
+            return unicode(key, 'utf-8', 'ignore')
 
     return key
 

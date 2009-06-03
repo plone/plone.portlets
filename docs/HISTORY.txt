@@ -4,6 +4,10 @@ Changelog for plone.portlets
 
 plone.portlets - 1.2
 
+    - Fixed 'SyntaxError: non-keyword arg after keyword arg' in
+      unicode call.
+      [maurits]
+
     - Fix/workaround for http://dev.plone.org/plone/ticket/8128
       (UnicodeDecodeError within _coerce() caused by external data
       with wrong encoding).
