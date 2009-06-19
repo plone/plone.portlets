@@ -2,7 +2,7 @@ Changelog for plone.portlets
 
     (name of developer listed in brackets)
 
-plone.portlets - 1.2
+plone.portlets - 1.2 - June 19th 2009
 
     - Fixed 'SyntaxError: non-keyword arg after keyword arg' in
       unicode call.
