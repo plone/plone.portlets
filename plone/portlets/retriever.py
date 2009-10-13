@@ -8,11 +8,13 @@ from plone.portlets.interfaces import ILocalPortletAssignable
 from plone.portlets.interfaces import IPortletManager
 from plone.portlets.interfaces import IPlacelessPortletManager
 from plone.portlets.interfaces import IPortletRetriever
+from plone.portlets.interfaces import IPortletAssignmentSettings
 
 from plone.portlets.constants import CONTEXT_ASSIGNMENT_KEY
 from plone.portlets.constants import CONTEXT_BLACKLIST_STATUS_KEY
 
 from plone.portlets.constants import CONTEXT_CATEGORY
+
 
 class PortletRetriever(object):
     """The default portlet retriever.
@@ -133,6 +135,9 @@ class PortletRetriever(object):
         
         assignments = []
         for category, key, assignment in categories:
+            settings = IPortletAssignmentSettings(assignment)
+            if not settings.get('visible', True):
+                continue
             assignments.append({'category'    : category,
                                 'key'         : key,
                                 'name'        : assignment.__name__,

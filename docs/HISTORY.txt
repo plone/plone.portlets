@@ -1,7 +1,10 @@
 Changelog for plone.portlets
 
-    (name of developer listed in brackets)
+plone.portlets - 1.3 - Unreleased
 
+    - Added support for showing/hiding of all portlets (PLIP #9286)
+      [igbun]
+      
 plone.portlets - 1.2 - June 19th 2009
 
     - Fixed 'SyntaxError: non-keyword arg after keyword arg' in

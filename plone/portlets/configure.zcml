@@ -10,6 +10,8 @@
     
     <adapter factory=".manager.PortletManagerRenderer" />
 
+    <adapter factory=".settings.portletAssignmentSettingsFactory"/>
+
     <subscriber handler=".events.dispatchToComponent" />
     <subscriber handler=".events.registerPortletManagerRenderer" />
     <subscriber handler=".events.unregisterPortletManagerRenderer" />
