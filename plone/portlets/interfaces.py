@@ -3,12 +3,12 @@ from zope import schema
 
 from zope.annotation.interfaces import IAttributeAnnotatable
 
-from zope.app.container.interfaces import IContained
-from zope.app.container.interfaces import IContainer
-from zope.app.container.interfaces import IOrderedContainer
-from zope.app.container.interfaces import IContainerNamesContainer
+from zope.container.interfaces import IContained
+from zope.container.interfaces import IContainer
+from zope.container.interfaces import IOrderedContainer
+from zope.container.interfaces import IContainerNamesContainer
 
-from zope.app.container.constraints import containers, contains
+from zope.container.constraints import contains
 from zope.contentprovider.interfaces import IContentProvider
 
 # Context - the application layer must provide these    

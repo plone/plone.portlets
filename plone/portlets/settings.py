@@ -1,6 +1,6 @@
 from zope.interface import implements, implementer
 from zope.component import adapter, queryAdapter
-from zope.app.container.contained import Contained
+from zope.container.contained import Contained
 from plone.portlets.interfaces import IPortletAssignment, IPortletAssignmentSettings
 from persistent.dict import PersistentDict
 from zope.annotation import IAnnotations

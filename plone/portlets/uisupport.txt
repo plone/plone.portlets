@@ -22,7 +22,7 @@ First, we must create a local site manager at a fictional root folder.
   >>> from zope.app.folder import rootFolder, Folder
   >>> rootFolder = rootFolder()
   
-  >>> from zope.app.component.interfaces import ISite
+  >>> from zope.location.interfaces import ISite
   >>> from zope.component.persistentregistry import PersistentComponents
   >>> from zope.component.globalregistry import base as siteManagerBase
   >>> from zope.component import getSiteManager
@@ -33,7 +33,7 @@ First, we must create a local site manager at a fictional root folder.
   >>> ISite.providedBy(rootFolder)
   True
   
-  >>> from zope.app.component.hooks import setSite, setHooks
+  >>> from zope.site.hooks import setSite, setHooks
   >>> setSite(rootFolder)
   >>> setHooks()
   

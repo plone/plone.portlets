@@ -84,7 +84,7 @@ that user's groups.
   
   >>> from zope import schema
   
-  >>> from zope.app.container.interfaces import IContained
+  >>> from zope.container.interfaces import IContained
   >>> from zope.app.folder.interfaces import IFolder
   >>> from zope.app.folder import rootFolder, Folder
   
@@ -186,7 +186,7 @@ portlet context will work for all of them.
 We then turn our root folder into a site, so that we can make local 
 registrations on it.
 
-  >>> from zope.app.component.interfaces import ISite
+  >>> from zope.location.interfaces import ISite
   >>> from zope.component.persistentregistry import PersistentComponents
   >>> from zope.component.globalregistry import base as siteManagerBase
   >>> from zope.component import getSiteManager
@@ -197,7 +197,7 @@ registrations on it.
   >>> ISite.providedBy(rootFolder)
   True
   
-  >>> from zope.app.component.hooks import setSite, setHooks
+  >>> from zope.site.hooks import setSite, setHooks
   >>> setSite(rootFolder)
   >>> setHooks()
   
@@ -311,7 +311,7 @@ external object.
   >>> from plone.portlets.interfaces import IPortletRenderer
   >>> from plone.portlets.interfaces import IPortletManager
   >>> from persistent import Persistent
-  >>> from zope.app.container.contained import Contained
+  >>> from zope.container.contained import Contained
   
   >>> class ILoginPortlet(IPortletDataProvider):
   ...   pass
@@ -423,7 +423,7 @@ This will inform the adding view that it should use an INameChooser to pick
 an appropriate name. We will simulate that here with the following function,
 for convenience.
 
-  >>> from zope.app.container.interfaces import INameChooser
+  >>> from zope.container.interfaces import INameChooser
   >>> def saveAssignment(mapping, assignment):
   ...     chooser = INameChooser(mapping)
   ...     mapping[chooser.chooseName('', assignment)] = assignment

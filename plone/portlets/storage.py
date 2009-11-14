@@ -3,9 +3,9 @@ import logging
 
 from zope.interface import implements
 
-from zope.app.container.btree import BTreeContainer
-from zope.app.container.contained import Contained
-from zope.app.container.ordered import OrderedContainer
+from zope.container.btree import BTreeContainer
+from zope.container.contained import Contained
+from zope.container.ordered import OrderedContainer
 
 from plone.portlets.interfaces import IPortletStorage
 from plone.portlets.interfaces import IPortletCategoryMapping
