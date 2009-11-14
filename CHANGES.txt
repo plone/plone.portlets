@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.0a1 - Unreleased
+2.0a1 - 2009-11-14
 ------------------
 
 - Avoid a variety of zope.app dependencies in favor of Zope Toolkit packages.
