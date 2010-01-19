@@ -114,6 +114,11 @@ class PortletManagerRenderer(object):
                 info['renderer'] = renderer
                 hashPortletInfo(info)
                 items.append(info)
+                
+                # Record metadata on the renderer
+                renderer.__portlet_metadata__ = info.copy()
+                del renderer.__portlet_metadata__['renderer']
+                
         return items
     
     def _dataToPortlet(self, data):

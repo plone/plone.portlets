@@ -153,6 +153,15 @@ class IPortletRenderer(IContentProvider):
     adapter, regardless of whether it actually implements IPortletDataProvider)
     """
     
+    __portlet_metadata__ = schema.Dict(
+            title=u"Metadata",
+            description=u"Information about the portlet set during portlet retrieval",
+            required=True,
+            readonly=True,
+            key_type=schema.ASCIILine(),
+            value_type=schema.TextLine(),
+        )
+    
     available = schema.Bool(title=u'Available',
                             description=u'Whether or not this portlet shuld be rendered',
                             required=True,

@@ -34,7 +34,7 @@ class PortletRetriever(object):
         """Work out which portlets to display, returning a list of dicts
         describing assignments to render.
         """
-
+        
         if IPortletContext.providedBy(self.context):
             pcontext = self.context
         else:

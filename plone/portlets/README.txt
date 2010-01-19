@@ -148,7 +148,7 @@ the order in which portlets are rendered.
   ...
   ...     @property
   ...     def uid(self):
-  ...         return __uids__[id(self.context)]
+  ...         return id(self.context)
   ...
   ...     def getParent(self):
   ...         return self.context.__parent__
@@ -438,7 +438,7 @@ portlet renderer.
   
   >>> doc1 = TestDocument(u'Test document one')
   >>> __uids__[id(doc1)] = doc1
-  >>> rootFolder['doc1'] = doc1 
+  >>> rootFolder['doc1'] = doc1
   >>> dpa1 = UIDPortletAssignment(doc1)
   
   >>> doc2 = TestDocument(u'Test document two')
@@ -951,3 +951,62 @@ not apply.
     </body>
   </html>
   
+Portlet metadata
+----------------
+
+Sometimes, it is useful for a portlet renderer to know where the underlying
+portlet came from, i.e. which manager, category, key and assignment name
+were used to look it up. During the portlet retrieval process, that
+information is made available as the ``__portlet_metadata__`` attribute on
+the renderer.
+
+  >>> class IDataAware(IPortletDataProvider):
+  ...   pass
+  
+  >>> class DataAwarePortlet(Persistent, Contained):
+  ...     implements(IPortletAssignment, IDataAware)
+  ...     
+  ...     def __init__(self, available=True):
+  ...         self.available = available
+  ...     data = property(lambda self: self)
+  
+  >>> class DataAwareRenderer(object):
+  ...     implements(IPortletRenderer)
+  ...     adapts(Interface, IBrowserRequest, IBrowserView, 
+  ...             IPortletManager, IDataAware)
+  ... 
+  ...     def __init__(self, context, request, view, manager, data):
+  ...         self.data = data
+  ...         self.available = True
+  ...
+  ...     def update(self):
+  ...         pass
+  ...
+  ...     def render(self, *args, **kwargs):
+  ...         md = self.__portlet_metadata__
+  ...         return "Manager: %s; Category: %s; Key: %s; Name: %s" % (md['manager'], md['category'], md['key'], md['name'],)
+
+  >>> provideAdapter(DataAwareRenderer)
+  
+Let's assign this in the root folder.
+
+  >>> dataPortlet = DataAwarePortlet()
+  >>> leftAtRoot = getMultiAdapter((rootFolder, left), IPortletAssignmentMapping)
+  >>> saveAssignment(leftAtRoot, dataPortlet)
+  
+Let's verify the output
+
+  >>> view = getMultiAdapter((rootFolder, TestRequest()), name='main.html')
+  >>> print view().strip()
+  <html>
+      <body>
+        <div class="left-column">
+          Manager: columns.left; Category: context; Key: ...; Name: DataAwarePortlet
+          <div>Dummy for user1</div>
+        </div>
+        <div class="right-column">
+          <div>Test document one</div>
+          <div>Test document two</div>
+        </div>
+      </body>
+    </html>
