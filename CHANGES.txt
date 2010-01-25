@@ -1,12 +1,12 @@
 Changelog
 =========
 
-2.0b1 - Unreleased
+2.0b1 - 2010-01-25
 ------------------
 
-- Added __portlet_metadata__ attribute to portlet renderers, to make it easier
-  for a portlet to know how it was looked up (and thus reconstruct a URL to
-  itself, for example).
+- Added ``__portlet_metadata__`` attribute to portlet renderers, to make it
+  easier for a portlet to know how it was looked up (and thus reconstruct a URL
+  to itself, for example).
   [optilude]
 
 2.0a1 - 2009-11-14
