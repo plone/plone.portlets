@@ -4,6 +4,9 @@ Changelog
 2.0b2 - unreleased
 ------------------
 
+- Protect the exception logging against funky portlets. In error cases even
+  doing a repr() on the portlet might cause an infinite recursion error.
+  [hannosch]
 
 2.0b1 - 2010-01-25
 ------------------

@@ -58,9 +58,12 @@ class PortletManagerRenderer(object):
             except ConflictError:
                 raise
             except Exception, e:
-                logger.exception('Error while determining assignment availability of portlet %r: %s' % (p, str(e)))
-        return filtered 
-        
+                logger.exception(
+                    "Error while determining assignment availability of "
+                    "portlet (%r %r %r): %s" % (
+                    p['category'], p['key'], p['name'], str(e)))
+        return filtered
+
     def portletsToShow(self):
         return self._lazyLoadPortlets(self.manager)
 
@@ -107,7 +110,10 @@ class PortletManagerRenderer(object):
                 raise
             except Exception, e:
                 isAvailable = False
-                logger.exception('Error while determining renderer availability of portlet %r: %s' % (p, str(e)))
+                logger.exception(
+                    "Error while determining renderer availability of portlet "
+                    "(%r %r %r): %s" % (
+                    p['category'], p['key'], p['name'], str(e)))
             if isAvailable:
                 info = p.copy()
                 info['manager'] = self.manager.__name__
