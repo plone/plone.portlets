@@ -15,11 +15,17 @@ def configurationSetUp(test):
     import zope.container
     import zope.contentprovider
     import zope.security
-    import zope.app.pagetemplate
 
     XMLConfig('meta.zcml', zope.security)()
     XMLConfig('meta.zcml', zope.component)()
-    XMLConfig('meta.zcml', zope.app.pagetemplate)()
+
+    try:
+        import zope.browserpage
+    except ImportError:
+        import zope.app.pagetemplate
+        XMLConfig('meta.zcml', zope.app.pagetemplate)()
+    else:
+        XMLConfig('meta.zcml', zope.browserpage)()
 
     XMLConfig('configure.zcml', zope.component)()
     XMLConfig('configure.zcml', zope.security)()

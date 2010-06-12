@@ -4,6 +4,8 @@ Changelog
 2.0b3 - unreleased
 ------------------
 
+- Use zope.browserpage if available.
+  [hannosch]
 
 2.0b2 - 2010-03-27
 ------------------
