@@ -1,12 +1,14 @@
+import doctest
 import unittest
 
 import plone.portlets
 
-from zope.testing import doctest
 from zope.component.testing import setUp, tearDown
 from zope.configuration.xmlconfig import XMLConfig
 
+
 optionflags = doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS
+
 
 def configurationSetUp(test):
     setUp()
@@ -31,12 +33,13 @@ def configurationSetUp(test):
     XMLConfig('configure.zcml', zope.security)()
     XMLConfig('configure.zcml', zope.container)()
     XMLConfig('configure.zcml', zope.contentprovider)()
-    
+
     XMLConfig('configure.zcml', plone.portlets)()
 
 
 def configurationTearDown(test):
     tearDown()
+
 
 def test_safe_render():
     r"""
@@ -54,18 +57,19 @@ def test_safe_render():
 
     When no error occurs, ``safe_render`` will return the portlet
     renderer's ``render()``:
-    
+
       >>> renderer = PortletManagerRenderer(*(None,) * 4)
       >>> renderer.safe_render(PortletRenderer())
       'portlet rendered'
 
     When an error is raised, the ``error_message`` template is
     rendered:
-    
+
       >>> renderer.error_message = lambda: 'error rendered'
       >>> renderer.safe_render(PortletRenderer(error=True))
       'error rendered'
     """
+
 
 def test_suite():
     return unittest.TestSuite((
@@ -85,6 +89,3 @@ def test_suite():
             tearDown=configurationTearDown,
             optionflags=optionflags),
         doctest.DocTestSuite()))
-
-if __name__ == '__main__':
-    unittest.main(defaultTest='test_suite')

@@ -4,6 +4,9 @@ Changelog
 2.0b3 - unreleased
 ------------------
 
+- Use the standard libraries doctest module.
+  [hannosch]
+
 - Use zope.browserpage if available.
   [hannosch]
 
