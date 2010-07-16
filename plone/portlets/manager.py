@@ -1,27 +1,26 @@
-from ZODB.POSException import ConflictError
+import logging
 
-from zope.interface import implements, Interface
-from zope.component import adapts, getMultiAdapter, getUtilitiesFor
-
+from plone.memoize.view import memoize
+from zope.component import adapts
+from zope.component import getMultiAdapter
+from zope.component import getUtilitiesFor
+from zope.contentprovider.interfaces import UpdateNotCalled
+from zope.interface import implements
+from zope.interface import Interface
 from zope.publisher.interfaces.browser import IBrowserView
 from zope.publisher.interfaces.browser import IBrowserRequest
-
-from zope.contentprovider.interfaces import UpdateNotCalled
+from ZODB.POSException import ConflictError
 
 from plone.portlets.interfaces import IPortletRetriever
 from plone.portlets.interfaces import IPortletManager
 from plone.portlets.interfaces import IPortletManagerRenderer
 from plone.portlets.interfaces import IPortletRenderer
 from plone.portlets.interfaces import IPortletType
-
 from plone.portlets.storage import PortletStorage
+from plone.portlets.utils import hashPortletInfo
 
-from plone.memoize.view import memoize
-
-from utils import hashPortletInfo
-
-import logging
 logger = logging.getLogger('portlets')
+
 
 class PortletManagerRenderer(object):
     """Default renderer for portlet managers.
@@ -88,7 +87,7 @@ class PortletManagerRenderer(object):
         except ConflictError:
             raise
         except Exception:
-            logger.exception('Error while rendering %r' % (self,))
+            logger.exception('Error while rendering %r' % (self, ))
             return self.error_message()
 
     # Note: By passing in a parameter that's different for each portlet
@@ -131,7 +130,8 @@ class PortletManagerRenderer(object):
         data object.
         """
         return getMultiAdapter((self.context, self.request, self.__parent__,
-                                    self.manager, data,), IPortletRenderer)
+                                self.manager, data, ), IPortletRenderer)
+
 
 class PortletManager(PortletStorage):
     """Default implementation of the portlet manager.
@@ -145,23 +145,24 @@ class PortletManager(PortletStorage):
     __name__ = __parent__ = None
 
     def __call__(self, context, request, view):
-        return getMultiAdapter((context, request, view, self), IPortletManagerRenderer)
+        return getMultiAdapter((context, request, view, self),
+                               IPortletManagerRenderer)
 
     def getAddablePortletTypes(self):
-       addable = []
-       for p in getUtilitiesFor(IPortletType):
-           #BBB - first condition, because starting with Plone 3.1
-           #every p[1].for_ should be a list
-           if not isinstance(p[1].for_, list):
-               logger.warning("Deprecation Warning Portlet type " + \
-                 "%s is using a deprecated format for " % p[1].addview + \
-                 "storing interfaces of portlet managers where it is " + \
-                 "addable. Its for_ attribute should be a list of portlet " + \
-                 "manager interfaces, using [zope.interface.Interface] " + \
-                 "for the portlet type to be addable anywhere. The old " + \
-                 "format will be unsupported in Plone 4.0.")
-               if p[1].for_ is None or p[1].for_.providedBy(self):
-                   addable.append(p[1])
-           elif [i for i in p[1].for_ if i.providedBy(self)]:
-               addable.append(p[1])
-       return addable
+        addable = []
+        for p in getUtilitiesFor(IPortletType):
+            # BBB - first condition, because starting with Plone 3.1
+            #every p[1].for_ should be a list
+            if not isinstance(p[1].for_, list):
+                logger.warning("Deprecation Warning Portlet type %s is using "
+                    "a deprecated format for storing interfaces of portlet "
+                    "managers where it is addable. Its for_ attribute should "
+                    "be a list of portlet manager interfaces, using "
+                    "[zope.interface.Interface] for the portlet type to be "
+                    "addable anywhere. The old format will be unsupported in "
+                    " Plone 4.0." % p[1].addview)
+                if p[1].for_ is None or p[1].for_.providedBy(self):
+                    addable.append(p[1])
+            elif [i for i in p[1].for_ if i.providedBy(self)]:
+                addable.append(p[1])
+        return addable
