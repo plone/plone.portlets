@@ -8,7 +8,7 @@ Changelog
 2.0 - 2010-07-16
 ----------------
 
-- Update license to GLP version 2 only.
+- Update license to GPL version 2 only.
   [hannosch]
 
 - Make it possible to rely on the ``__portlet_metadata__`` of a portlet
