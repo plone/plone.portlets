@@ -27,13 +27,13 @@ class PortletManagerRenderer(object):
     """Default renderer for portlet managers.
 
     When the zope.contentprovider handler for the provider: expression looks up
-    a name, context, it will find an adapter factory that in turn finds an 
+    a name, context, it will find an adapter factory that in turn finds an
     instance of this class, by doing an adapter lookup for (context, request,
     view, manager).
     """
     implements(IPortletManagerRenderer)
     adapts(Interface, IBrowserRequest, IBrowserView, IPortletManager)
-    
+
     template = None
     error_message = None
 
@@ -43,7 +43,7 @@ class PortletManagerRenderer(object):
         self.context = context
         self.request = request
         self.__updated = False
-        
+
     @property
     def visible(self):
         portlets = self.portletsToShow()
@@ -75,7 +75,7 @@ class PortletManagerRenderer(object):
     def render(self):
         if not self.__updated:
             raise UpdateNotCalled
-            
+
         portlets = self.portletsToShow()
         if self.template:
             return self.template(portlets=portlets)
@@ -95,15 +95,22 @@ class PortletManagerRenderer(object):
     # manager, we avoid the view memoization (which is tied to the request)
     # caching the same portlets for all managers on the page. We cache the
     # portlets using a view memo because it they be looked up multiple times,
-    # e.g. first to check if portlets should be displayed and later to 
+    # e.g. first to check if portlets should be displayed and later to
     # actually render
-    
+
     @memoize
     def _lazyLoadPortlets(self, manager):
         retriever = getMultiAdapter((self.context, manager), IPortletRetriever)
         items = []
         for p in self.filter(retriever.getPortlets()):
             renderer = self._dataToPortlet(p['assignment'].data)
+            info = p.copy()
+            info['manager'] = self.manager.__name__
+            info['renderer'] = renderer
+            hashPortletInfo(info)
+            # Record metadata on the renderer
+            renderer.__portlet_metadata__ = info.copy()
+            del renderer.__portlet_metadata__['renderer']
             try:
                 isAvailable = renderer.available
             except ConflictError:
@@ -115,18 +122,10 @@ class PortletManagerRenderer(object):
                     "(%r %r %r): %s" % (
                     p['category'], p['key'], p['name'], str(e)))
             if isAvailable:
-                info = p.copy()
-                info['manager'] = self.manager.__name__
-                info['renderer'] = renderer
-                hashPortletInfo(info)
                 items.append(info)
-                
-                # Record metadata on the renderer
-                renderer.__portlet_metadata__ = info.copy()
-                del renderer.__portlet_metadata__['renderer']
-                
+
         return items
-    
+
     def _dataToPortlet(self, data):
         """Helper method to get the correct IPortletRenderer for the given
         data object.

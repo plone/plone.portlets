@@ -1,9 +1,13 @@
 Changelog
 =========
 
-2.0b4 - unreleased
-------------------
+2.0 - unreleased
+----------------
 
+- Make it possible to rely on the ``__portlet_metadata__`` of a portlet
+  renderer to determine its availability. This closes
+  http://dev.plone.org/plone/ticket/10742.
+  [enriquepablo, hannosch]
 
 2.0b3 - 2010-06-13
 ------------------
