@@ -4,6 +4,9 @@ Changelog
 2.0 - unreleased
 ----------------
 
+- Update license to GLP version 2 only.
+  [hannosch]
+
 - Make it possible to rely on the ``__portlet_metadata__`` of a portlet
   renderer to determine its availability. This closes
   http://dev.plone.org/plone/ticket/10742.
