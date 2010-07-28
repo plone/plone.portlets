@@ -34,7 +34,7 @@ class PortletRetriever(object):
         """Work out which portlets to display, returning a list of dicts
         describing assignments to render.
         """
-        
+
         if IPortletContext.providedBy(self.context):
             pcontext = self.context
         else:
@@ -42,26 +42,26 @@ class PortletRetriever(object):
 
         if pcontext is None:
             return []
-            
+
         # Holds a list of (category, key, assignment).
-        categories = [] 
-        
-        # Keeps track of the blacklisting status for global categores 
+        categories = []
+
+        # Keeps track of the blacklisting status for global categores
         # (user, group, content type). The status is either True (blocked)
         # or False (not blocked).
         blacklisted = {}
-                
+
         # This is the name of the manager (column) we're rendering
         manager = self.storage.__name__
-        
+
         # 1. Fetch blacklisting status for each global category
 
         # First, find out which categories we will need to determine
         # blacklist status for
-        
+
         for category, key in pcontext.globalPortletCategories(False):
             blacklisted[category] = None
-        
+
         # Then walk the content hierarchy to find out what blacklist status
         # was assigned. Note that the blacklist is tri-state; if it's None it
         # means no assertion has been made (i.e. the category has neither been
@@ -71,14 +71,14 @@ class PortletRetriever(object):
         # this item that also set a black- or white-list value will then be
         # ignored.
 
-        # Whilst walking the hierarchy, we also collect parent portlets, 
+        # Whilst walking the hierarchy, we also collect parent portlets,
         # until we hit the first block.
 
         current = self.context
         currentpc = pcontext
         blacklistFetched = set()
         parentsBlocked = False
-        
+
         while current is not None and currentpc is not None:
             if ILocalPortletAssignable.providedBy(current):
                 assignable = current
@@ -109,13 +109,13 @@ class PortletRetriever(object):
                                 blacklisted[cat] = status
                             if status is not None:
                                 blacklistFetched.add(cat)
-                                
+
             # We can abort if parents are blocked and we've fetched all
             # blacklist statuses
-            
+
             if parentsBlocked and len(blacklistFetched) == len(blacklisted):
                 break
-                    
+
             # Check the parent - if there is no parent, we will stop
             current = currentpc.getParent()
             if current is not None:
@@ -123,16 +123,16 @@ class PortletRetriever(object):
                     currentpc = current
                 else:
                     currentpc = queryAdapter(current, IPortletContext)
-        
+
         # Get all global mappings for non-blacklisted categories
-        
+
         for category, key in pcontext.globalPortletCategories(False):
             if not blacklisted[category]:
                 mapping = self.storage.get(category, None)
                 if mapping is not None:
                     for a in mapping.get(key, {}).values():
                         categories.append((category, key, a,))
-        
+
         assignments = []
         for category, key, assignment in categories:
             settings = IPortletAssignmentSettings(assignment)
@@ -144,20 +144,20 @@ class PortletRetriever(object):
                                 'assignment'  : assignment
                                 })
         return assignments
-        
+
 class PlacelessPortletRetriever(PortletRetriever):
     """A placeless portlet retriever.
-    
+
     This will aggregate user portlets, then group portlets.
     """
-    
+
     implements(IPortletRetriever)
     adapts(Interface, IPlacelessPortletManager)
-    
+
     def __init__(self, context, storage):
         self.context = context
         self.storage = storage
-        
+
     def getPortlets(self):
         if IPortletContext.providedBy(self.context):
             pcontext = self.context
@@ -172,10 +172,13 @@ class PlacelessPortletRetriever(PortletRetriever):
             mapping = self.storage.get(category, None)
             if mapping is not None:
                 for assignment in mapping.get(key, {}).values():
+                    settings = IPortletAssignmentSettings(assignment)
+                    if not settings.get('visible', True):
+                        continue
                     assignments.append({'category'    : category,
                                         'key'         : key,
                                         'name'        : assignment.__name__,
                                         'assignment'  : assignment
                                         })
-    
+
         return assignments
