@@ -5,7 +5,7 @@ Changelog
 ------------------
 
 - Added a method to get unavailable portlets of of a manager.
-  This refs https://dev.plone.org/plone/ticket/11343
+  This refs http://dev.plone.org/plone/ticket/11343
   [thomasdesvenain]
 
 2.0 - 2010-07-16
