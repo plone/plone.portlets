@@ -64,6 +64,9 @@ class PortletManagerRenderer(object):
         return filtered
 
     def portletsToShow(self):
+        return [p for p in self.allPortlets() if p['available']]
+
+    def allPortlets(self):
         return self._lazyLoadPortlets(self.manager)
 
     def update(self):
@@ -120,8 +123,9 @@ class PortletManagerRenderer(object):
                     "Error while determining renderer availability of portlet "
                     "(%r %r %r): %s" % (
                     p['category'], p['key'], p['name'], str(e)))
-            if isAvailable:
-                items.append(info)
+
+            info['available'] = isAvailable
+            items.append(info)
 
         return items
 

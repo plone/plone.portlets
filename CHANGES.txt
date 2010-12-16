@@ -4,6 +4,9 @@ Changelog
 2.0.1 - unreleased
 ------------------
 
+- Added a method to get unavailable portlets of of a manager.
+  This refs https://dev.plone.org/plone/ticket/11343
+  [thomasdesvenain]
 
 2.0 - 2010-07-16
 ----------------
@@ -75,7 +78,7 @@ Changelog
 1.1.0 - 2008-04-20
 ------------------
 
-- Ensure the keys stored in a portlet assignment mapping are always 
+- Ensure the keys stored in a portlet assignment mapping are always
   unicode. This is necessary because an OOBTree will, once one unicode key
   has been added, force all keys to unicode. This can lead to unicode
   decode errors.
