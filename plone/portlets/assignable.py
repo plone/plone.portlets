@@ -19,6 +19,7 @@ from plone.portlets.constants import CONTEXT_CATEGORY
 
 from BTrees.OOBTree import OOBTree
 
+
 @adapter(ILocalPortletAssignable, IPortletManager)
 @implementer(IPortletAssignmentMapping)
 def localPortletAssignmentMappingAdapter(context, manager):
@@ -38,7 +39,7 @@ def localPortletAssignmentMappingAdapter(context, manager):
         portlets = local[manager.__name__] = PortletAssignmentMapping(manager=manager.__name__,
                                                                       category=CONTEXT_CATEGORY)
     return portlets
-    
+
 
 class LocalPortletAssignmentManager(object):
     """Default implementation of ILocalPortletAssignmentManager which stores
@@ -54,13 +55,13 @@ class LocalPortletAssignmentManager(object):
     def setBlacklistStatus(self, category, status):
         blacklist = self._getBlacklist(True)
         blacklist[category] = status
-    
+
     def getBlacklistStatus(self, category):
         blacklist = self._getBlacklist(False)
         if blacklist is None:
             return None
         return blacklist.get(category, None)
-        
+
     def _getBlacklist(self, create=False):
         if IAnnotations.providedBy(self.context):
             annotations = self.context

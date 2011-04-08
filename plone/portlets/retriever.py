@@ -131,19 +131,20 @@ class PortletRetriever(object):
                 mapping = self.storage.get(category, None)
                 if mapping is not None:
                     for a in mapping.get(key, {}).values():
-                        categories.append((category, key, a,))
+                        categories.append((category, key, a, ))
 
         assignments = []
         for category, key, assignment in categories:
             settings = IPortletAssignmentSettings(assignment)
             if not settings.get('visible', True):
                 continue
-            assignments.append({'category'    : category,
-                                'key'         : key,
-                                'name'        : assignment.__name__,
-                                'assignment'  : assignment
+            assignments.append({'category': category,
+                                'key': key,
+                                'name': assignment.__name__,
+                                'assignment': assignment
                                 })
         return assignments
+
 
 class PlacelessPortletRetriever(PortletRetriever):
     """A placeless portlet retriever.
@@ -175,10 +176,10 @@ class PlacelessPortletRetriever(PortletRetriever):
                     settings = IPortletAssignmentSettings(assignment)
                     if not settings.get('visible', True):
                         continue
-                    assignments.append({'category'    : category,
-                                        'key'         : key,
-                                        'name'        : assignment.__name__,
-                                        'assignment'  : assignment
+                    assignments.append({'category': category,
+                                        'key': key,
+                                        'name': assignment.__name__,
+                                        'assignment': assignment
                                         })
 
         return assignments
