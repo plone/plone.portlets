@@ -4,6 +4,9 @@ Changelog
 2.0.2 - Unreleased
 ------------------
 
+- Add MANIFEST.in.
+  [WouterVH]
+
 2.0.1 - 2011-01-03
 ------------------
 
