@@ -4,6 +4,9 @@ Changelog for plone.portlets
 
 plone.portlets - 1.1.1 - Unreleased
 
+	- Added support for showing/hiding of all portlets (PLIP #9286)
+ 	  [igbun, malthe]
+
     - Fixed 'SyntaxError: non-keyword arg after keyword arg' in
       unicode call.
       [maurits]
