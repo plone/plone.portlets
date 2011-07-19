@@ -114,7 +114,8 @@ class IPortletDataProvider(Interface):
 
 # Portlet assignment - new types of portlets may need one of these
 
-class IPortletAssignment(IContained):
+class IPortletAssignment(IContained, IAttributeAnnotatable): 
+
     """Assignment of a portlet to a given portlet manager relative to a 
     context, user or group.
     
@@ -243,6 +244,18 @@ class ILocalPortletAssignmentManager(Interface):
         not inherited, and will default to None if not set.
         """
 
+    def setNoInheritSetting(setting):
+        """Manage the no-inherit setting.
+
+        If setting is False, inheritance will be set to work as
+        normally. If the setting is True, inheritance will be disabled
+        for portlets added to this context.
+        """
+
+    def getNoInheritSetting(setting):
+        """Get the no-inherit setting for this context."""
+
+
 class IPortletManager(IPortletStorage, IContained):
     """A manager for portlets.
     
@@ -318,3 +331,12 @@ class IPortletManagerRenderer(IContentProvider):
         raised but rather logged and an error is shown in place of the
         portlet.
         """
+
+
+class IPortletAssignmentSettings(Interface):
+    """ Adapts IPortletAssignment to return additional settings for a portlet assignment.
+
+    Implementations of this interface will typically be stored in an annotation
+    of the assignment.
+
+    """

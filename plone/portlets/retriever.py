@@ -7,10 +7,11 @@ from plone.portlets.interfaces import ILocalPortletAssignable
 from plone.portlets.interfaces import IPortletManager
 from plone.portlets.interfaces import IPlacelessPortletManager
 from plone.portlets.interfaces import IPortletRetriever
+from plone.portlets.interfaces import IPortletAssignmentSettings
 
 from plone.portlets.constants import CONTEXT_ASSIGNMENT_KEY
 from plone.portlets.constants import CONTEXT_BLACKLIST_STATUS_KEY
-
+from plone.portlets.constants import CONTEXT_NO_INHERIT_SETTING_KEY
 from plone.portlets.constants import CONTEXT_CATEGORY
 
 class PortletRetriever(object):
@@ -71,20 +72,26 @@ class PortletRetriever(object):
         currentpc = pcontext
         blacklistFetched = set()
         parentsBlocked = False
-        
+
         while current is not None and currentpc is not None:
             assignable = ILocalPortletAssignable(current, None)
             if assignable is not None:
                 annotations = IAnnotations(assignable)
-                
-                if not parentsBlocked:
-                    local = annotations.get(CONTEXT_ASSIGNMENT_KEY, None)
-                    if local is not None:
-                        localManager = local.get(manager, None)
-                        if localManager is not None:
-                            categories.extend([(CONTEXT_CATEGORY, currentpc.uid, a) for a in localManager.values()])
 
-                blacklistStatus = annotations.get(CONTEXT_BLACKLIST_STATUS_KEY, {}).get(manager, None)
+                if not parentsBlocked:
+                    noinherit = annotations.get(CONTEXT_NO_INHERIT_SETTING_KEY)
+                    if not noinherit:
+                        local = annotations.get(CONTEXT_ASSIGNMENT_KEY, None)
+                        if local is not None:
+                            localManager = local.get(manager, None)
+                            if localManager is not None:
+                                categories.extend(
+                                    [(CONTEXT_CATEGORY, currentpc.uid, a)
+                                     for a in localManager.values()])
+
+                blacklistStatus = annotations.get(
+                    CONTEXT_BLACKLIST_STATUS_KEY, {}).get(manager, None)
+
                 if blacklistStatus is not None:
                     for cat, status in blacklistStatus.items():
                         if cat == CONTEXT_CATEGORY:
@@ -118,6 +125,10 @@ class PortletRetriever(object):
         
         assignments = []
         for category, key, assignment in categories:
+            settings = IPortletAssignmentSettings(assignment)
+            if not settings.get('visible', True):
+                continue
+
             assignments.append({'category'    : category,
                                 'key'         : key,
                                 'name'        : assignment.__name__,
@@ -148,6 +159,10 @@ class PlacelessPortletRetriever(PortletRetriever):
             mapping = self.storage.get(category, None)
             if mapping is not None:
                 for assignment in mapping.get(key, {}).values():
+                    settings = IPortletAssignmentSettings(assignment)
+                    if not settings.get('visible', True):
+                        continue
+
                     assignments.append({'category'    : category,
                                         'key'         : key,
                                         'name'        : assignment.__name__,

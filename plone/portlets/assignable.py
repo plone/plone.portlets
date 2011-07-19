@@ -13,6 +13,7 @@ from plone.portlets.storage import PortletAssignmentMapping
 from plone.portlets.constants import CONTEXT_ASSIGNMENT_KEY
 from plone.portlets.constants import CONTEXT_BLACKLIST_STATUS_KEY
 from plone.portlets.constants import CONTEXT_CATEGORY
+from plone.portlets.constants import CONTEXT_NO_INHERIT_SETTING_KEY
 
 from BTrees.OOBTree import OOBTree
 
@@ -54,7 +55,21 @@ class LocalPortletAssignmentManager(object):
         if blacklist is None:
             return None
         return blacklist.get(category, None)
-        
+
+    def setNoInheritSetting(self, setting):
+        annotations = IAnnotations(self.context)
+        annotations[CONTEXT_NO_INHERIT_SETTING_KEY] = setting
+
+    def getNoInheritSetting(self):
+        annotations = IAnnotations(self.context)
+        return annotations.get(CONTEXT_NO_INHERIT_SETTING_KEY, None)
+
+    def getBlacklistStatus(self, category):
+        blacklist = self._getBlacklist(False)
+        if blacklist is None:
+            return None
+        return blacklist.get(category, None)
+
     def _getBlacklist(self, create=False):
         annotations = IAnnotations(self.context)
         local = annotations.get(CONTEXT_BLACKLIST_STATUS_KEY, None)
