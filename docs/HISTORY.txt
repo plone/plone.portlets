@@ -2,14 +2,16 @@ Changelog for plone.portlets
 
     (name of developer listed in brackets)
 
-plone.portlets - 1.1.1 - Unreleased
+plone.portlets - (unreleased)
+
+	- Added support for showing/hiding of all portlets (PLIP #9286)
+ 	  [igbun, malthe]
 
     - Added an option to assign portlets locally with no inheritance
       allowed (PLIP #12024).
       [malthe]
 
-	- Added support for showing/hiding of all portlets (PLIP #9286)
- 	  [igbun, malthe]
+plone.portlets - 1.2 - June 19th 2009
 
     - Fixed 'SyntaxError: non-keyword arg after keyword arg' in
       unicode call.
@@ -19,6 +21,19 @@ plone.portlets - 1.1.1 - Unreleased
       (UnicodeDecodeError within _coerce() caused by external data
       with wrong encoding).
       [ajung]
+
+    - Moved test-only dependencies to a test extra requirement.
+      [hannosch]
+
+    - Clarified license and copyright statements.
+      [hannosch]
+
+    - Specify package dependencies.
+      [hannosch]
+
+    - Replaced direct invocations of interfaces with queryAdapter calls. The
+      former does a suboptimal getattr call internally.
+      [hannosch]
 
 plone.portlets - 1.1.0 - April 20th 2008
 
