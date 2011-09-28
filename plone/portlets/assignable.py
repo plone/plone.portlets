@@ -16,6 +16,7 @@ from plone.portlets.storage import PortletAssignmentMapping
 from plone.portlets.constants import CONTEXT_ASSIGNMENT_KEY
 from plone.portlets.constants import CONTEXT_BLACKLIST_STATUS_KEY
 from plone.portlets.constants import CONTEXT_CATEGORY
+from plone.portlets.constants import CONTEXT_LOCAL_ASSIGNMENT_KEY
 
 from BTrees.OOBTree import OOBTree
 
@@ -61,6 +62,18 @@ class LocalPortletAssignmentManager(object):
         if blacklist is None:
             return None
         return blacklist.get(category, None)
+
+    def setLocalAssignment(self, setting):
+        annotations = IAnnotations(self.context)
+        local = annotations.setdefault(CONTEXT_LOCAL_ASSIGNMENT_KEY, {})
+        local[self.manager.__name__] = setting
+
+    def getLocalAssignment(self):
+        annotations = IAnnotations(self.context)
+        local = annotations.get(CONTEXT_LOCAL_ASSIGNMENT_KEY, None)
+        if local is None:
+            return False
+        return local.get(self.manager.__name__)
 
     def _getBlacklist(self, create=False):
         if IAnnotations.providedBy(self.context):

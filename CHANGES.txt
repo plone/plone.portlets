@@ -1,6 +1,14 @@
 Changelog
 =========
 
+In next feature release ...
+
+- Added an annotation on the portlet assignable to inform a portlet
+  retriever whether the assigned portlets should be inherited
+  down to the portlet context's children.
+  (PLIP #12024).
+  [malthe]
+
 2.0.3 - Unreleased
 ------------------
 

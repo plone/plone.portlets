@@ -121,7 +121,6 @@ class IPortletDataProvider(Interface):
 
 # Portlet assignment - new types of portlets may need one of these
 
-
 class IPortletAssignment(IContained, IAttributeAnnotatable):
     """Assignment of a portlet to a given portlet manager relative to a
     context, user or group.
@@ -267,6 +266,18 @@ class ILocalPortletAssignmentManager(Interface):
         Note that this only applies to the current context - the status is
         not inherited, and will default to None if not set.
         """
+
+    def setLocalAssignment(setting):
+        """Manage the local assignment setting.
+
+        If setting is False, portlet inheritance will be set to work
+        as normally. If the setting is True, inheritance will be
+        disabled for portlets added to this context (i.e. portlets are
+        assigned locally only).
+        """
+
+    def getLocalAssignment(setting):
+        """Get the local assignment setting for this context."""
 
 
 class IPortletManager(IPortletStorage, IContained):

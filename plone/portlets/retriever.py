@@ -12,7 +12,7 @@ from plone.portlets.interfaces import IPortletAssignmentSettings
 
 from plone.portlets.constants import CONTEXT_ASSIGNMENT_KEY
 from plone.portlets.constants import CONTEXT_BLACKLIST_STATUS_KEY
-
+from plone.portlets.constants import CONTEXT_LOCAL_ASSIGNMENT_KEY
 from plone.portlets.constants import CONTEXT_CATEGORY
 
 
@@ -74,7 +74,7 @@ class PortletRetriever(object):
         # Whilst walking the hierarchy, we also collect parent portlets,
         # until we hit the first block.
 
-        current = self.context
+        context = current = self.context
         currentpc = pcontext
         blacklistFetched = set()
         parentsBlocked = False
@@ -92,13 +92,24 @@ class PortletRetriever(object):
                     annotations = queryAdapter(assignable, IAnnotations)
 
                 if not parentsBlocked:
-                    local = annotations.get(CONTEXT_ASSIGNMENT_KEY, None)
-                    if local is not None:
-                        localManager = local.get(manager, None)
-                        if localManager is not None:
-                            categories.extend([(CONTEXT_CATEGORY, currentpc.uid, a) for a in localManager.values()])
+                    if context is current:
+                        enabled = True
+                    else:
+                        local = annotations.get(CONTEXT_LOCAL_ASSIGNMENT_KEY)
+                        enabled = not local.get(manager) if local else True
 
-                blacklistStatus = annotations.get(CONTEXT_BLACKLIST_STATUS_KEY, {}).get(manager, None)
+                    if enabled:
+                        local = annotations.get(CONTEXT_ASSIGNMENT_KEY, None)
+                        if local is not None:
+                            localManager = local.get(manager, None)
+                            if localManager is not None:
+                                categories.extend(
+                                    [(CONTEXT_CATEGORY, currentpc.uid, a)
+                                     for a in localManager.values()])
+
+                blacklistStatus = annotations.get(
+                    CONTEXT_BLACKLIST_STATUS_KEY, {}).get(manager, None)
+
                 if blacklistStatus is not None:
                     for cat, status in blacklistStatus.items():
                         if cat == CONTEXT_CATEGORY:

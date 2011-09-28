@@ -4,6 +4,7 @@
 CONTEXT_ASSIGNMENT_KEY = 'plone.portlets.contextassignments'
 CONTEXT_BLACKLIST_STATUS_KEY = 'plone.portlets.categoryblackliststatus'
 ASSIGNMENT_SETTINGS_KEY = 'plone.portlets.assignmentsettings'
+CONTEXT_LOCAL_ASSIGNMENT_KEY = 'plone.portlets.localassignment'
 
 # Portlet assignment categories
 
