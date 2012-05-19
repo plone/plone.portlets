@@ -85,8 +85,8 @@ that user's groups.
   >>> from zope import schema
   
   >>> from zope.container.interfaces import IContained
-  >>> from zope.app.folder.interfaces import IFolder
-  >>> from zope.app.folder import rootFolder, Folder
+  >>> from zope.site.interfaces import IFolder
+  >>> from zope.site.folder import rootFolder, Folder
   
   >>> directlyProvides(IFolder, IContentType)
   

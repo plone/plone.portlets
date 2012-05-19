@@ -19,7 +19,7 @@ First, we must create a local site manager at a fictional root folder.
   >>> from zope.interface import implements, Interface, directlyProvides
   >>> from zope.component import adapts, provideAdapter
   
-  >>> from zope.app.folder import rootFolder, Folder
+  >>> from zope.site.folder import rootFolder, Folder
   >>> rootFolder = rootFolder()
   
   >>> from zope.location.interfaces import ISite
