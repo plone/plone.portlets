@@ -30,7 +30,6 @@ setup(name='plone.portlets',
               'zope.configuration',
               'zope.location',
               'zope.security',
-              'zope.app.content',
           ],
       ),
       install_requires=[

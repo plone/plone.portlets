@@ -79,8 +79,6 @@ that user's groups.
 
   >>> from zope.interface import implements, Interface, directlyProvides
   >>> from zope.component import adapts, provideAdapter
-  >>> from zope.app.content import queryContentType
-  >>> from zope.app.content.interfaces import IContentType
   
   >>> from zope import schema
   
@@ -88,7 +86,7 @@ that user's groups.
   >>> from zope.site.interfaces import IFolder
   >>> from zope.site.folder import rootFolder, Folder
   
-  >>> directlyProvides(IFolder, IContentType)
+  >>> IFolder._content_iface = True
   
   >>> __uids__ = {}
   
@@ -156,7 +154,9 @@ the order in which portlets are rendered.
   ...     def globalPortletCategories(self, placeless=False):
   ...         cats = []
   ...         if not placeless:
-  ...             ct = queryContentType(self.context).getName()
+  ...             interfaces = self.context.__provides__.interfaces()
+  ...             ct = [i for i in interfaces if
+  ...                 getattr(i, '_content_iface', False)][0].getName()
   ...             cats.append((CONTENT_TYPE_CATEGORY, ct,))
   ...         cats.append((USER_CATEGORY, __current_user__.id,))
   ...         cats.extend([(GROUP_CATEGORY, i.id,) for i in __current_user__.groups])
@@ -170,7 +170,7 @@ portlet context will work for all of them.
   
   >>> class ITestDocument(IContained):
   ...     text = schema.TextLine(title=u"Text to render")
-  >>> directlyProvides(ITestDocument, IContentType)
+  >>> ITestDocument._content_iface = True
   
   >>> class TestDocument(object):
   ...     implements(ITestDocument)
