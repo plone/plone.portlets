@@ -245,7 +245,7 @@ We register the template as a view for all objects.
   >>> from zope.publisher.interfaces.browser import IBrowserPage
   >>> from zope.publisher.interfaces.browser import IBrowserRequest
   >>> from zope.publisher.browser import BrowserPage
-  >>> from zope.app.pagetemplate import ViewPageTemplateFile
+  >>> from zope.browserpage import ViewPageTemplateFile
   >>> class TestPage(BrowserPage):
   ...     adapts(Interface, IBrowserRequest)
   ...     __call__ = ViewPageTemplateFile(templateFileName)

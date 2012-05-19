@@ -26,11 +26,11 @@ setup(name='plone.portlets',
       zip_safe=False,
       extras_require=dict(
           test=[
+              'zope.browserpage',
               'zope.configuration',
               'zope.location',
               'zope.security',
               'zope.app.content',
-              'zope.app.pagetemplate',
           ],
       ),
       install_requires=[

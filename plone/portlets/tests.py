@@ -13,6 +13,7 @@ optionflags = doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS
 def configurationSetUp(test):
     setUp()
 
+    import zope.browserpage
     import zope.component
     import zope.container
     import zope.contentprovider
@@ -20,14 +21,7 @@ def configurationSetUp(test):
 
     XMLConfig('meta.zcml', zope.security)()
     XMLConfig('meta.zcml', zope.component)()
-
-    try:
-        import zope.browserpage
-    except ImportError:
-        import zope.app.pagetemplate
-        XMLConfig('meta.zcml', zope.app.pagetemplate)()
-    else:
-        XMLConfig('meta.zcml', zope.browserpage)()
+    XMLConfig('meta.zcml', zope.browserpage)()
 
     XMLConfig('configure.zcml', zope.component)()
     XMLConfig('configure.zcml', zope.security)()
