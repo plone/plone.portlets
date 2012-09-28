@@ -1,18 +1,18 @@
 from zope.interface import implements, Interface
 from zope.component import adapts
+from zope.component import getMultiAdapter
 from zope.component import queryAdapter
 from zope.annotation.interfaces import IAnnotations
 
 from plone.portlets.interfaces import IPortletContext
 from plone.portlets.interfaces import ILocalPortletAssignable
+from plone.portlets.interfaces import ILocalPortletAssignmentManager
 from plone.portlets.interfaces import IPortletManager
 from plone.portlets.interfaces import IPlacelessPortletManager
 from plone.portlets.interfaces import IPortletRetriever
 from plone.portlets.interfaces import IPortletAssignmentSettings
 
 from plone.portlets.constants import CONTEXT_ASSIGNMENT_KEY
-from plone.portlets.constants import CONTEXT_BLACKLIST_STATUS_KEY
-
 from plone.portlets.constants import CONTEXT_CATEGORY
 
 
@@ -98,17 +98,15 @@ class PortletRetriever(object):
                         if localManager is not None:
                             categories.extend([(CONTEXT_CATEGORY, currentpc.uid, a) for a in localManager.values()])
 
-                blacklistStatus = annotations.get(CONTEXT_BLACKLIST_STATUS_KEY, {}).get(manager, None)
-                if blacklistStatus is not None:
-                    for cat, status in blacklistStatus.items():
-                        if cat == CONTEXT_CATEGORY:
-                            if not parentsBlocked and status == True:
-                                parentsBlocked = True
-                        else: # global portlet categories
-                            if blacklisted.get(cat, False) is None:
-                                blacklisted[cat] = status
-                            if status is not None:
-                                blacklistFetched.add(cat)
+                lpam = getMultiAdapter((assignable, self.storage), ILocalPortletAssignmentManager)
+                if lpam.getBlacklistStatus(CONTEXT_CATEGORY):
+                    parentsBlocked = True
+                for cat, cat_status in blacklisted.items():
+                    local_status = lpam.getBlacklistStatus(cat)
+                    if local_status is not None:
+                        blacklistFetched.add(cat)
+                        if cat_status is None:
+                            blacklisted[cat] = local_status
 
             # We can abort if parents are blocked and we've fetched all
             # blacklist statuses
