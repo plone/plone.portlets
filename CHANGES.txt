@@ -1,8 +1,8 @@
 Changelog
 =========
 
-2.1.1 (unreleased)
-------------------
+2.2 (2012-10-01)
+----------------
 
 - Added an adapter and IBlockingPortletManager marker interface which portlet
   managers can provide to block parent contextual portlets by default.
