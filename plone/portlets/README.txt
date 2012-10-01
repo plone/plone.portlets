@@ -859,7 +859,43 @@ block them as well.
       </div>
     </body>
   </html>
-  
+
+Blocking parent contextual portlets by default
+----------------------------------------------
+
+To create a portlet manager that blocks parent contextual portlets by default
+register an IBlockingPortletManager instead.
+
+  >>> from plone.portlets.interfaces import IBlockingPortletManager 
+  >>> from zope.interface import alsoProvides
+  >>> alsoProvides(right, IBlockingPortletManager)
+
+Parent contextual portlets are now blacklisted by default.
+
+  >>> child2 = Folder()
+  >>> child1['child2'] = child2
+  >>> __uids__[id(child2)] = child2
+
+  >>> rightAtChild2Manager = getMultiAdapter((child2, right), ILocalPortletAssignmentManager)
+  >>> rightAtChild2Manager.getBlacklistStatus(CONTEXT_CATEGORY)
+  True
+
+And are hidden in the view.
+
+  >>> view = getMultiAdapter((child2, TestRequest()), name='main.html')
+  >>> print view().strip()
+    <html>
+      <body>
+        <div class="left-column">
+          <div>Dummy at child1</div>
+          <div>Dummy for group1</div>
+          <div>Dummy for group2</div>
+        </div>
+        <div class="right-column">
+        </div>
+      </body>
+    </html>
+
 Using a different retrieval algorithm
 -------------------------------------
 

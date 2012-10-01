@@ -4,6 +4,7 @@
     
     <adapter factory=".assignable.localPortletAssignmentMappingAdapter" />
     <adapter factory=".assignable.LocalPortletAssignmentManager" />
+    <adapter factory=".assignable.BlockingLocalPortletAssignmentManager" />
 
     <adapter factory=".retriever.PortletRetriever" />
     <adapter factory=".retriever.PlacelessPortletRetriever" />

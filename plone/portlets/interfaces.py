@@ -299,6 +299,12 @@ class IPortletManager(IPortletStorage, IContained):
         """
 
 
+class IBlockingPortletManager(IPortletManager):
+    """A marker interface for portlet managers which should block parent
+    contextual portlets by default.
+    """
+
+
 class IPlacelessPortletManager(IPortletManager):
     """A marker interface for managers for placeless portlets.
 

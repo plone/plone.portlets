@@ -4,6 +4,10 @@ Changelog
 2.1.1 (unreleased)
 ------------------
 
+- Added an adapter and IBlockingPortletManager marker interface which portlet
+  managers can provide to block parent contextual portlets by default.
+  [elro]
+
 - Delegate to ILocalPortletAssignmentManager for category blacklist retrieval.
   This allows a custom adapter to override the default blacklist settings per
   portlet manager.

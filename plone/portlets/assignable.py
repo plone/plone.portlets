@@ -7,6 +7,7 @@ from zope.component import adapts
 from zope.component import queryAdapter
 from zope.annotation.interfaces import IAnnotations
 
+from plone.portlets.interfaces import IBlockingPortletManager
 from plone.portlets.interfaces import ILocalPortletAssignmentManager
 from plone.portlets.interfaces import IPortletAssignmentMapping
 from plone.portlets.interfaces import ILocalPortletAssignable
@@ -80,3 +81,16 @@ class LocalPortletAssignmentManager(object):
             else:
                 return None
         return blacklist
+
+
+class BlockingLocalPortletAssignmentManager(LocalPortletAssignmentManager):
+    """Implementation of ILocalPortletAssignmentManager which by default blocks
+    parent contextual portlets.
+    """
+    adapts(ILocalPortletAssignable, IBlockingPortletManager)
+
+    def getBlacklistStatus(self, category):
+        value = super(BlockingLocalPortletAssignmentManager, self).getBlacklistStatus(category)
+        if category is CONTEXT_CATEGORY and value is None:
+            return True
+        return value
