@@ -60,3 +60,18 @@ Now, let's check it only contains the allowed characters:
   >>> re_allowed.match(hash) is not None
   True
 
+Unicode handling
+----------------
+
+The use of zope.container.ordered as base class unfortunately means that the
+name of an assignment is always a unicode instance. This requires some
+extra handling in hashPortletInfo.
+
+  >>> info = dict(
+  ...     manager = 'plone.leftcolumn',
+  ...     category = 'context',
+  ...     key = '/Pl\xc3\xb8ne',
+  ...     name = u'login',
+  ...     )
+
+  >>> hash = hashPortletInfo(info)

@@ -46,6 +46,7 @@ def hashPortletInfo(info):
     info is the portlet info dictionary. Hash is put into info, and
     also returned.
     """
+    info['name'] = str(info['name'])
     concat_txt = '%(manager)s\n%(category)s\n%(key)s\n%(name)s' % info
     info['hash'] = binascii.b2a_hex(concat_txt)
     return info['hash']

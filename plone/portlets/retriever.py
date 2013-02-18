@@ -142,7 +142,7 @@ class PortletRetriever(object):
                 continue
             assignments.append({'category': category,
                                 'key': key,
-                                'name': assignment.__name__,
+                                'name': str(assignment.__name__),
                                 'assignment': assignment
                                 })
         return assignments
