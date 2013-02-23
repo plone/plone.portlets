@@ -4,6 +4,10 @@ Changelog
 2.2.1 (unreleased)
 ------------------
 
+- Do not break in placeless portlet retriever if there is no underlying code
+  available for existing portlet assignment.
+  [vipod]
+
 - Prevent possible unicode errors when creating portlet hashes.
 
 

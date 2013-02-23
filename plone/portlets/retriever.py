@@ -175,9 +175,15 @@ class PlacelessPortletRetriever(PortletRetriever):
             mapping = self.storage.get(category, None)
             if mapping is not None:
                 for assignment in mapping.get(key, {}).values():
-                    settings = IPortletAssignmentSettings(assignment)
-                    if not settings.get('visible', True):
+                    try:
+                        settings = IPortletAssignmentSettings(assignment)
+                    except TypeError:
+                        # Portlet does not exist any longer
                         continue
+                    else:
+                        if not settings.get('visible', True):
+                            continue
+
                     assignments.append({'category': category,
                                         'key': key,
                                         'name': assignment.__name__,
