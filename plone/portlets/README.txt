@@ -272,8 +272,10 @@ For our memoised views to work, we need to make the request annotatable
   <html>
     <body>
       <div class="left-column">
+  <BLANKLINE>
       </div>
       <div class="right-column">
+  <BLANKLINE>
       </div>
     </body>
   </html>
@@ -329,9 +331,9 @@ external object.
   
   >>> class LoginPortletRenderer(object):
   ...     implements(IPortletRenderer)
-  ...     adapts(Interface, IBrowserRequest, IBrowserView, 
+  ...     adapts(Interface, IBrowserRequest, IBrowserView,
   ...             IPortletManager, ILoginPortlet)
-  ... 
+  ...
   ...     def __init__(self, context, request, view, manager, data):
   ...         self.data = data
   ...         self.available = True
@@ -946,6 +948,7 @@ placeless behaviour.
   <html>
     <body>
       <div class="dashboard">
+  <BLANKLINE>
       </div>
     </body>
   </html>

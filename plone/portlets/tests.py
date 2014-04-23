@@ -168,8 +168,7 @@ def test_portlet_metadata_availability():
       >>> renderer.render()
       u'dummy portlet renderer'
     """
-
-
+"""
 def test_suite():
     return unittest.TestSuite((
         doctest.DocFileSuite(
@@ -188,3 +187,4 @@ def test_suite():
             tearDown=configurationTearDown,
             optionflags=optionflags),
         doctest.DocTestSuite()))
+"""
