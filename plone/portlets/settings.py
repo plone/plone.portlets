@@ -25,7 +25,7 @@ class PortletAssignmentSettings(Contained):
     def get(self, name, default=None):
         return self.data.get(name, default)
 
-        
+
 @adapter(IPortletAssignment)
 @implementer(IPortletAssignmentSettings)
 def portletAssignmentSettingsFactory(context):
@@ -34,5 +34,5 @@ def portletAssignmentSettingsFactory(context):
 
     if settings is None:
         settings = annotations[ASSIGNMENT_SETTINGS_KEY] = PortletAssignmentSettings()
-    
+
     return settings

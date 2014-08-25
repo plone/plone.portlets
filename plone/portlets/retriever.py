@@ -135,7 +135,7 @@ class PortletRetriever(object):
         for category, key, assignment in categories:
             try:
                 settings = IPortletAssignmentSettings(assignment)
-                if not settings.get('visible', True):   
+                if not settings.get('visible', True):
                     continue
             except TypeError:
                 # Portlet does not exist any longer

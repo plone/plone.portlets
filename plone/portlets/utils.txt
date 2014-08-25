@@ -3,7 +3,7 @@ Portlet utils
 =============
 
 The portlets need a hash that can play as an id in the html
-page. For this, a pair of symetric hash and unhash functions 
+page. For this, a pair of symetric hash and unhash functions
 is provided.
 
   >>> from plone.portlets.utils import hashPortletInfo, unhashPortletInfo
@@ -42,7 +42,7 @@ html id. We should only allow the characters a-zA-Z0-9 . (We
 could actually allow -, but it's even better not to.)
 
 For the sake of the example, we put stranger characters into
-the dictionary, mainly /-+_@ should be tested. 
+the dictionary, mainly /-+_@ should be tested.
 
   >>> info = dict(
   ...     manager = 'plone.leftcolumn',
