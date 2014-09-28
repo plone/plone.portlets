@@ -2,7 +2,7 @@ Changelog for plone.portlets
 
     (name of developer listed in brackets)
 
-plone.portlets - (unreleased)
+plone.portlets - 1.2.1 - (unreleased)
 
 	- Added support for showing/hiding of all portlets (PLIP #9286)
  	  [igbun, malthe]
