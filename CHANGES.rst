@@ -4,13 +4,9 @@ Changelog
 2.2.2 (unreleased)
 ------------------
 
-New:
-
-- *add item here*
-
 Fixes:
 
-- *add item here*
+- Rerelease to fix problem on test server.  [maurits]
 
 
 2.2.1 (2016-02-12)
