@@ -1,7 +1,7 @@
 from persistent.dict import PersistentDict
 
 from zope.interface import implementer
-from zope.interface import implements
+from zope.interface import implementer
 from zope.component import adapter
 from zope.component import adapts
 from zope.component import queryAdapter
@@ -42,11 +42,11 @@ def localPortletAssignmentMappingAdapter(context, manager):
     return portlets
 
 
+@implementer(ILocalPortletAssignmentManager)
 class LocalPortletAssignmentManager(object):
     """Default implementation of ILocalPortletAssignmentManager which stores
     information in an annotation.
     """
-    implements(ILocalPortletAssignmentManager)
     adapts(ILocalPortletAssignable, IPortletManager)
 
     def __init__(self, context, manager):
