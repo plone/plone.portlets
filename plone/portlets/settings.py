@@ -1,4 +1,4 @@
-from zope.interface import implements, implementer
+from zope.interface import implementer, implementer
 from zope.component import adapter, queryAdapter
 from zope.container.contained import Contained
 from plone.portlets.interfaces import IPortletAssignment, IPortletAssignmentSettings
@@ -7,8 +7,8 @@ from zope.annotation import IAnnotations
 from plone.portlets.constants import ASSIGNMENT_SETTINGS_KEY
 
 
+@implementer(IPortletAssignmentSettings)
 class PortletAssignmentSettings(Contained):
-    implements(IPortletAssignmentSettings)
 
     def __init__(self):
         self.data = PersistentDict()

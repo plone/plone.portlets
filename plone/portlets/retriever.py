@@ -1,4 +1,4 @@
-from zope.interface import implements, Interface
+from zope.interface import implementer, Interface
 from zope.component import adapts
 from zope.component import getMultiAdapter
 from zope.component import queryAdapter
@@ -16,14 +16,13 @@ from plone.portlets.constants import CONTEXT_ASSIGNMENT_KEY
 from plone.portlets.constants import CONTEXT_CATEGORY
 
 
+@implementer(IPortletRetriever)
 class PortletRetriever(object):
     """The default portlet retriever.
 
     This will examine the context and its parents for contextual portlets,
     provided they provide ILocalPortletAssignable.
     """
-
-    implements(IPortletRetriever)
     adapts(Interface, IPortletManager)
 
     def __init__(self, context, storage):
@@ -148,13 +147,12 @@ class PortletRetriever(object):
         return assignments
 
 
+@implementer(IPortletRetriever)
 class PlacelessPortletRetriever(PortletRetriever):
     """A placeless portlet retriever.
 
     This will aggregate user portlets, then group portlets.
     """
-
-    implements(IPortletRetriever)
     adapts(Interface, IPlacelessPortletManager)
 
     def __init__(self, context, storage):

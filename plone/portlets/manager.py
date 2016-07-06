@@ -5,7 +5,7 @@ from zope.component import adapts
 from zope.component import getMultiAdapter
 from zope.component import getUtilitiesFor
 from zope.contentprovider.interfaces import UpdateNotCalled
-from zope.interface import implements
+from zope.interface import implementer
 from zope.interface import Interface
 from zope.publisher.interfaces.browser import IBrowserView
 from zope.publisher.interfaces.browser import IBrowserRequest
@@ -22,6 +22,7 @@ from plone.portlets.utils import hashPortletInfo
 logger = logging.getLogger('portlets')
 
 
+@implementer(IPortletManagerRenderer)
 class PortletManagerRenderer(object):
     """Default renderer for portlet managers.
 
@@ -30,7 +31,6 @@ class PortletManagerRenderer(object):
     instance of this class, by doing an adapter lookup for (context, request,
     view, manager).
     """
-    implements(IPortletManagerRenderer)
     adapts(Interface, IBrowserRequest, IBrowserView, IPortletManager)
 
     template = None
@@ -137,14 +137,13 @@ class PortletManagerRenderer(object):
                                 self.manager, data, ), IPortletRenderer)
 
 
+@implementer(IPortletManager)
 class PortletManager(PortletStorage):
     """Default implementation of the portlet manager.
 
     Provides the functionality that allows the portlet manager to act as an
     adapter factory.
     """
-
-    implements(IPortletManager)
 
     __name__ = __parent__ = None
 

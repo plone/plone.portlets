@@ -1,7 +1,7 @@
 
 import logging
 
-from zope.interface import implements
+from zope.interface import implementer
 
 from zope.container.btree import BTreeContainer
 from zope.container.contained import Contained
@@ -34,16 +34,16 @@ def _coerce(key):
     return key
 
 
+@implementer(IPortletStorage)
 class PortletStorage(BTreeContainer):
     """The default portlet storage.
     """
-    implements(IPortletStorage)
 
 
+@implementer(IPortletCategoryMapping)
 class PortletCategoryMapping(BTreeContainer, Contained):
     """The default category/key mapping storage.
     """
-    implements(IPortletCategoryMapping)
 
     # We need to hack some stuff to make sure keys are unicode.
     # The shole BTreeContainer/SampleContainer mess is a pain in the backside
@@ -70,10 +70,10 @@ class PortletCategoryMapping(BTreeContainer, Contained):
         super(PortletCategoryMapping, self).__delitem__(_coerce(key))
 
 
+@implementer(IPortletAssignmentMapping)
 class PortletAssignmentMapping(OrderedContainer):
     """The default assignment mapping storage.
     """
-    implements(IPortletAssignmentMapping)
 
     __manager__ = u''
     __category__ = u''
