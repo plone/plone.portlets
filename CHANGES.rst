@@ -4,10 +4,6 @@ Changelog
 2.2.3 (unreleased)
 ------------------
 
-New:
-
-- *add item here*
-
 Fixes:
 
 - Use zope.interface decorator.
