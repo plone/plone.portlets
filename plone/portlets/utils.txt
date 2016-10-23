@@ -57,7 +57,7 @@ Now, let's check it only contains the allowed characters:
 
   >>> import re
   >>> re_allowed = re.compile(r'^[a-zA-Z0-9]*$')
-  >>> re_allowed.match(hash) is not None
+  >>> re_allowed.match(hash.decode()) is not None
   True
 
 Unicode handling

@@ -56,7 +56,7 @@ class PortletManagerRenderer(object):
                     filtered.append(p)
             except ConflictError:
                 raise
-            except Exception, e:
+            except Exception as e:
                 logger.exception(
                     "Error while determining assignment availability of "
                     "portlet (%r %r %r): %s" % (
@@ -117,7 +117,7 @@ class PortletManagerRenderer(object):
                 isAvailable = renderer.available
             except ConflictError:
                 raise
-            except Exception, e:
+            except Exception as e:
                 isAvailable = False
                 logger.exception(
                     "Error while determining renderer availability of portlet "

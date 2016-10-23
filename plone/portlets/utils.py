@@ -46,9 +46,14 @@ def hashPortletInfo(info):
     info is the portlet info dictionary. Hash is put into info, and
     also returned.
     """
-    info['name'] = str(info['name'])
-    concat_txt = '%(manager)s\n%(category)s\n%(key)s\n%(name)s' % info
-    info['hash'] = binascii.b2a_hex(concat_txt)
+    # Make sure all info values are decoded
+    newinfo = {}
+    for k, v in info.items():
+        if hasattr(v, 'decode'):
+            v = v.decode('utf8')
+        newinfo[k] = v
+    concat_txt = u'%(manager)s\n%(category)s\n%(key)s\n%(name)s' % newinfo
+    info['hash'] = binascii.b2a_hex(concat_txt.encode('utf8'))
     return info['hash']
 
 
@@ -58,7 +63,7 @@ def unhashPortletInfo(hash):
     Output is the info dictionary (containing only the
     hashed fields).
     """
-    concat_txt = binascii.a2b_hex(hash)
+    concat_txt = binascii.a2b_hex(hash).decode()
     manager, category, key, name = concat_txt.splitlines()
     info = dict(manager=manager, category=category, key=key, name=name, hash=hash)
     return info

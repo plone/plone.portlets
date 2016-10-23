@@ -71,10 +71,10 @@ def test_portlet_metadata_availability():
     the PortletManagerRenderer checks for the availability of
     the PortletRenderers
 
-      >>> from zope.component import adapts
+      >>> from zope.component import adapter
       >>> from zope.component import provideAdapter
       >>> from zope.interface import directlyProvides
-      >>> from zope.interface import implements
+      >>> from zope.interface import implementer
       >>> from zope.interface import Interface
 
     Define a dummy PortletManager
@@ -84,16 +84,16 @@ def test_portlet_metadata_availability():
       >>> class IDummyPortletManager(IPortletManager):
       ...     "Dummy portlet manager"
 
-      >>> class DummyPortletManager:
-      ...     implements(IDummyPortletManager)
+      >>> @implementer(IDummyPortletManager)
+      ... class DummyPortletManager:
       ...     __name__ = None
 
     Define a dummy PortletRenderer that is only available in case
     it has __portlet_metadata__
 
       >>> from plone.portlets.interfaces import IPortletRenderer
-      >>> class DummyPortletRenderer:
-      ...     implements(IPortletRenderer)
+      >>> @implementer(IPortletRenderer)
+      ... class DummyPortletRenderer:
       ...
       ...     @property
       ...     def available(self):
@@ -117,9 +117,9 @@ def test_portlet_metadata_availability():
       >>> from plone.portlets.interfaces import IPortletRetriever
       >>> from plone.portlets.retriever import PortletRetriever
 
-      >>> class DummyPortletRetriever(PortletRetriever):
-      ...     implements(IPortletRetriever)
-      ...     adapts(Interface, IDummyPortletManager)
+      >>> @implementer(IPortletRetriever)
+      ... @adapter(Interface, IDummyPortletManager)
+      ... class DummyPortletRetriever(PortletRetriever):
       ...
       ...     def getPortlets(self):
       ...         p = dict()
@@ -147,8 +147,9 @@ def test_portlet_metadata_availability():
 
     We need a dummy context that implements Interface
 
-      >>> class DummyContext(object):
-      ...     implements(Interface)
+      >>> @implementer(Interface)
+      ... class DummyContext(object):
+      ...     pass
 
     We now test the PortletManagerRenderer. We override the _dataToPortlet
     method since our data is already our correct (dummy) IPortletRenderer
@@ -165,8 +166,8 @@ def test_portlet_metadata_availability():
       ...                                   TestRequest(),
       ...                                   None, DummyPortletManager())
       >>> renderer.update()
-      >>> renderer.render()
-      u'dummy portlet renderer'
+      >>> print(renderer.render())
+      dummy portlet renderer
     """
 
 

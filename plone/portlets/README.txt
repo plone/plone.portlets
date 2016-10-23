@@ -77,8 +77,8 @@ is obviously not a realistic implementation (since it is non-persistent and
 instance-specific). The environment also represents the current user and
 that user's groups.
 
-  >>> from zope.interface import implements, Interface, directlyProvides
-  >>> from zope.component import adapts, provideAdapter
+  >>> from zope.interface import implementer, Interface, directlyProvides
+  >>> from zope.component import adapter, provideAdapter
 
   >>> from zope import schema
 
@@ -97,14 +97,14 @@ that user's groups.
   >>> class ITestGroup(Interface):
   ...     id = schema.TextLine(title=u'Group id')
 
-  >>> class TestUser(object):
-  ...     implements(ITestUser)
+  >>> @implementer(ITestUser)
+  ... class TestUser(object):
   ...     def __init__(self, id, groups):
   ...         self.id = id
   ...         self.groups = groups
 
-  >>> class TestGroup(object):
-  ...     implements(ITestGroup)
+  >>> @implementer(ITestGroup)
+  ... class TestGroup(object):
   ...     def __init__(self, id):
   ...         self.id = id
 
@@ -137,9 +137,9 @@ the order in which portlets are rendered.
   >>> from plone.portlets.constants import GROUP_CATEGORY
   >>> from plone.portlets.constants import CONTENT_TYPE_CATEGORY
 
-  >>> class TestPortletContext(object):
-  ...     implements(IPortletContext)
-  ...     adapts(Interface)
+  >>> @implementer(IPortletContext)
+  ... @adapter(Interface)
+  ... class TestPortletContext(object):
   ...
   ...     def __init__(self, context):
   ...         self.context = context
@@ -172,8 +172,8 @@ portlet context will work for all of them.
   ...     text = schema.TextLine(title=u"Text to render")
   >>> ITestDocument._content_iface = True
 
-  >>> class TestDocument(object):
-  ...     implements(ITestDocument)
+  >>> @implementer(ITestDocument)
+  ... class TestDocument(object):
   ...
   ...     def __init__(self, text=u''):
   ...         self.__name__ = None
@@ -227,7 +227,7 @@ We should now be able to get this via a provider: expression:
   >>> import os, tempfile
   >>> tempDir = tempfile.mkdtemp()
   >>> templateFileName = os.path.join(tempDir, 'template.pt')
-  >>> open(templateFileName, 'w').write("""
+  >>> _ = open(templateFileName, 'w').write("""
   ... <html>
   ...   <body>
   ...     <div class="left-column">
@@ -246,8 +246,8 @@ We register the template as a view for all objects.
   >>> from zope.publisher.interfaces.browser import IBrowserRequest
   >>> from zope.publisher.browser import BrowserPage
   >>> from zope.browserpage import ViewPageTemplateFile
-  >>> class TestPage(BrowserPage):
-  ...     adapts(Interface, IBrowserRequest)
+  >>> @adapter(Interface, IBrowserRequest)
+  ... class TestPage(BrowserPage):
   ...     __call__ = ViewPageTemplateFile(templateFileName)
   >>> provideAdapter(TestPage, provides=IBrowserPage, name='main.html')
 
@@ -268,7 +268,7 @@ For our memoised views to work, we need to make the request annotatable
 
   >>> from zope.component import getMultiAdapter
   >>> view = getMultiAdapter((doc1, TestRequest()), name='main.html')
-  >>> print view().strip()
+  >>> print(view().strip())
   <html>
     <body>
       <div class="left-column">
@@ -316,8 +316,8 @@ external object.
   >>> class ILoginPortlet(IPortletDataProvider):
   ...   pass
 
-  >>> class LoginPortletAssignment(Persistent, Contained):
-  ...     implements(IPortletAssignment, ILoginPortlet)
+  >>> @implementer(IPortletAssignment, ILoginPortlet)
+  ... class LoginPortletAssignment(Persistent, Contained):
   ...
   ...     @property
   ...     def available(self):
@@ -327,10 +327,9 @@ external object.
   ...     def data(self):
   ...         return self
 
-  >>> class LoginPortletRenderer(object):
-  ...     implements(IPortletRenderer)
-  ...     adapts(Interface, IBrowserRequest, IBrowserView,
-  ...             IPortletManager, ILoginPortlet)
+  >>> @implementer(IPortletRenderer)
+  ... @adapter(Interface, IBrowserRequest, IBrowserView, IPortletManager, ILoginPortlet)
+  ... class LoginPortletRenderer(object):
   ...
   ...     def __init__(self, context, request, view, manager, data):
   ...         self.data = data
@@ -353,8 +352,8 @@ as the ITestContent interface is already available.
 Notice that the assignment type is generic here, relying on the contrived UID
 that the portlet context also relies upon.
 
-  >>> class UIDPortletAssignment(Persistent, Contained):
-  ...     implements(IPortletAssignment)
+  >>> @implementer(IPortletAssignment)
+  ... class UIDPortletAssignment(Persistent, Contained):
   ...
   ...     def __init__(self, obj):
   ...         self.uid = id(obj)
@@ -367,10 +366,9 @@ that the portlet context also relies upon.
   ...     def data(self):
   ...          return __uids__[self.uid]
 
-  >>> class DocumentPortletRenderer(object):
-  ...     implements(IPortletRenderer)
-  ...     adapts(Interface, IBrowserRequest, IBrowserView,
-  ...             IPortletManager, ITestDocument)
+  >>> @implementer(IPortletRenderer)
+  ... @adapter(Interface, IBrowserRequest, IBrowserView, IPortletManager, ITestDocument)
+  ... class DocumentPortletRenderer(object):
   ...
   ...     def __init__(self, context, request, view, manager, data):
   ...         self.data = data
@@ -463,7 +461,7 @@ We can also re-order assignments:
 If we now render the view, we should see our newly assigned portlets.
 
   >>> view = getMultiAdapter((rootFolder, TestRequest()), name='main.html')
-  >>> print view().strip()
+  >>> print(view().strip())
   <html>
     <body>
       <div class="left-column">
@@ -481,7 +479,7 @@ property was false (the current user is not the anonymous user). Let's
 
   >>> __current_user__ = Anonymous
   >>> view = getMultiAdapter((rootFolder, TestRequest()), name='main.html')
-  >>> print view().strip()
+  >>> print(view().strip())
   <html>
     <body>
       <div class="left-column">
@@ -500,18 +498,17 @@ writing a bit easier:
   >>> class IDummyPortlet(IPortletDataProvider):
   ...   text = schema.TextLine(title=u'Text to render')
 
-  >>> class DummyPortlet(Persistent, Contained):
-  ...     implements(IPortletAssignment, IDummyPortlet)
+  >>> @implementer(IPortletAssignment, IDummyPortlet)
+  ... class DummyPortlet(Persistent, Contained):
   ...
   ...     def __init__(self, text, available=True):
   ...         self.text = text
   ...         self.available = available
   ...     data = property(lambda self: self)
 
-  >>> class DummyPortletRenderer(object):
-  ...     implements(IPortletRenderer)
-  ...     adapts(Interface, IBrowserRequest, IBrowserView,
-  ...             IPortletManager, IDummyPortlet)
+  >>> @implementer(IPortletRenderer)
+  ... @adapter(Interface, IBrowserRequest, IBrowserView, IPortletManager, IDummyPortlet)
+  ... class DummyPortletRenderer(object):
   ...
   ...     def __init__(self, context, request, view, manager, data):
   ...         self.data = data
@@ -537,7 +534,7 @@ Let's assign a portlet in a sub-folder of the root folder.
 This assignment does not affect rendering at the root folder:
 
   >>> view = getMultiAdapter((rootFolder, TestRequest()), name='main.html')
-  >>> print view().strip()
+  >>> print(view().strip())
   <html>
     <body>
       <div class="left-column">
@@ -554,7 +551,7 @@ It does, however, affect rendering at 'child1' (and any of its children).
 Notice also that by default, child portlets come before parent portlets.
 
   >>> view = getMultiAdapter((child1, TestRequest()), name='main.html')
-  >>> print view().strip()
+  >>> print(view().strip())
   <html>
     <body>
       <div class="left-column">
@@ -604,7 +601,7 @@ above.
 These will now be rendered as expected.
 
   >>> view = getMultiAdapter((child1, TestRequest()), name='main.html')
-  >>> print view().strip()
+  >>> print(view().strip())
   <html>
     <body>
       <div class="left-column">
@@ -621,7 +618,7 @@ These will now be rendered as expected.
 
   >>> __current_user__ = user1
   >>> view = getMultiAdapter((child1, TestRequest()), name='main.html')
-  >>> print view().strip()
+  >>> print(view().strip())
   <html>
     <body>
       <div class="left-column">
@@ -652,7 +649,7 @@ portlets to users - we simply use a different category.
   >>> saveAssignment(left[GROUP_CATEGORY][group2.id], groupPortlet2)
 
   >>> view = getMultiAdapter((child1, TestRequest()), name='main.html')
-  >>> print view().strip()
+  >>> print(view().strip())
   <html>
     <body>
       <div class="left-column">
@@ -687,7 +684,7 @@ category) or None (let the parent decide).
   True
 
   >>> view = getMultiAdapter((child1, TestRequest()), name='main.html')
-  >>> print view().strip()
+  >>> print(view().strip())
   <html>
     <body>
       <div class="left-column">
@@ -707,7 +704,7 @@ The status is inherited from a parent unless a child also sets a status:
   >>> leftAtRootManager = getMultiAdapter((rootFolder, left), ILocalPortletAssignmentManager)
   >>> leftAtRootManager.setBlacklistStatus(GROUP_CATEGORY, True)
   >>> view = getMultiAdapter((child1, TestRequest()), name='main.html')
-  >>> print view().strip()
+  >>> print(view().strip())
   <html>
     <body>
       <div class="left-column">
@@ -722,7 +719,7 @@ The status is inherited from a parent unless a child also sets a status:
 
   >>> leftAtChild1Manager.setBlacklistStatus(GROUP_CATEGORY, False)
   >>> view = getMultiAdapter((child1, TestRequest()), name='main.html')
-  >>> print view().strip()
+  >>> print(view().strip())
   <html>
     <body>
       <div class="left-column">
@@ -744,7 +741,7 @@ at the particular context will still apply.
   >>> from plone.portlets.constants import CONTEXT_CATEGORY
   >>> rightAtChild1Manager.setBlacklistStatus(CONTEXT_CATEGORY, True)
   >>> view = getMultiAdapter((child1, TestRequest()), name='main.html')
-  >>> print view().strip()
+  >>> print(view().strip())
   <html>
     <body>
       <div class="left-column">
@@ -761,7 +758,7 @@ at the particular context will still apply.
   >>> saveAssignment(rightAtChild1, DummyPortlet('Dummy at child 1 right'))
 
   >>> view = getMultiAdapter((child1, TestRequest()), name='main.html')
-  >>> print view().strip()
+  >>> print(view().strip())
   <html>
     <body>
       <div class="left-column">
@@ -783,7 +780,7 @@ are still blocked, but those from child11 are not blocked.
   >>> __uids__[id(child11)] = child11
 
   >>> view = getMultiAdapter((child11, TestRequest()), name='main.html')
-  >>> print view().strip()
+  >>> print(view().strip())
   <html>
     <body>
       <div class="left-column">
@@ -801,7 +798,7 @@ are still blocked, but those from child11 are not blocked.
   >>> saveAssignment(rightAtChild11, DummyPortlet('Dummy at child 11 right'))
 
   >>> view = getMultiAdapter((child11, TestRequest()), name='main.html')
-  >>> print view().strip()
+  >>> print(view().strip())
   <html>
     <body>
       <div class="left-column">
@@ -825,7 +822,7 @@ portlets. In the UI, a simple True/False or True/None may suffice.
   >>> rightAtChild11Manager = getMultiAdapter((child11, right), ILocalPortletAssignmentManager)
   >>> rightAtChild11Manager.setBlacklistStatus(CONTEXT_CATEGORY, False)
   >>> view = getMultiAdapter((child11, TestRequest()), name='main.html')
-  >>> print view().strip()
+  >>> print(view().strip())
   <html>
     <body>
       <div class="left-column">
@@ -846,7 +843,7 @@ block them as well.
   >>> rightAtChild11Manager = getMultiAdapter((child11, right), ILocalPortletAssignmentManager)
   >>> rightAtChild11Manager.setBlacklistStatus(CONTEXT_CATEGORY, True)
   >>> view = getMultiAdapter((child11, TestRequest()), name='main.html')
-  >>> print view().strip()
+  >>> print(view().strip())
   <html>
     <body>
       <div class="left-column">
@@ -883,7 +880,7 @@ Parent contextual portlets are now blacklisted by default.
 And are hidden in the view.
 
   >>> view = getMultiAdapter((child2, TestRequest()), name='main.html')
-  >>> print view().strip()
+  >>> print(view().strip())
     <html>
       <body>
         <div class="left-column">
@@ -927,7 +924,7 @@ placeless behaviour.
   ...                    name='columns.dashboard')
 
   >>> dashboardFileName = os.path.join(tempDir, 'dashboard.pt')
-  >>> open(dashboardFileName, 'w').write("""
+  >>> _ = open(dashboardFileName, 'w').write("""
   ... <html>
   ...   <body>
   ...     <div class="dashboard">
@@ -937,12 +934,12 @@ placeless behaviour.
   ... </html>
   ... """)
 
-  >>> class DashboardPage(BrowserPage):
-  ...     adapts(Interface, IBrowserRequest)
+  >>> @adapter(Interface, IBrowserRequest)
+  ... class DashboardPage(BrowserPage):
   ...     __call__ = ViewPageTemplateFile(dashboardFileName)
   >>> provideAdapter(DashboardPage, provides=IBrowserPage, name='dashboard.html')
   >>> view = getMultiAdapter((child1, TestRequest()), name='dashboard.html')
-  >>> print view().strip()
+  >>> print(view().strip())
   <html>
     <body>
       <div class="dashboard">
@@ -976,7 +973,7 @@ not apply.
   >>> saveAssignment(dashboardAtChild1, DummyPortlet('dummy for dashboard in context'))
 
   >>> view = getMultiAdapter((child1, TestRequest()), name='dashboard.html')
-  >>> print view().strip()
+  >>> print(view().strip())
   <html>
     <body>
       <div class="dashboard">
@@ -999,17 +996,16 @@ the renderer.
   >>> class IDataAware(IPortletDataProvider):
   ...   pass
 
-  >>> class DataAwarePortlet(Persistent, Contained):
-  ...     implements(IPortletAssignment, IDataAware)
+  >>> @implementer(IPortletAssignment, IDataAware)
+  ... class DataAwarePortlet(Persistent, Contained):
   ...
   ...     def __init__(self, available=True):
   ...         self.available = available
   ...     data = property(lambda self: self)
 
-  >>> class DataAwareRenderer(object):
-  ...     implements(IPortletRenderer)
-  ...     adapts(Interface, IBrowserRequest, IBrowserView,
-  ...             IPortletManager, IDataAware)
+  >>> @implementer(IPortletRenderer)
+  ... @adapter(Interface, IBrowserRequest, IBrowserView, IPortletManager, IDataAware)
+  ... class DataAwareRenderer(object):
   ...
   ...     def __init__(self, context, request, view, manager, data):
   ...         self.data = data
@@ -1033,7 +1029,7 @@ Let's assign this in the root folder.
 Let's verify the output
 
   >>> view = getMultiAdapter((rootFolder, TestRequest()), name='main.html')
-  >>> print view().strip()
+  >>> print(view().strip())
   <html>
       <body>
         <div class="left-column">
