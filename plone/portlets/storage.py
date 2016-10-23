@@ -1,17 +1,13 @@
-
-import logging
-
-from zope.interface import implementer
-
+from BTrees.OOBTree import OOBTree
+from plone.portlets.interfaces import IPortletAssignmentMapping
+from plone.portlets.interfaces import IPortletCategoryMapping
+from plone.portlets.interfaces import IPortletStorage
 from zope.container.btree import BTreeContainer
 from zope.container.contained import Contained
 from zope.container.ordered import OrderedContainer
-
-from plone.portlets.interfaces import IPortletStorage
-from plone.portlets.interfaces import IPortletCategoryMapping
-from plone.portlets.interfaces import IPortletAssignmentMapping
-
-from BTrees.OOBTree import OOBTree
+from zope.interface import implementer
+import logging
+import sys
 
 # XXX: We coerce all mapping keys (things like user and group ids)
 # to unicode, because the OOBTree that we store them in will fall over with
@@ -22,14 +18,21 @@ from BTrees.OOBTree import OOBTree
 
 LOG = logging.getLogger('portlets')
 
+if sys.version_info[0] > 2:
+    text_type = str
+    binary_type = bytes
+else:
+    text_type = unicode
+    binary_type = str
+
 
 def _coerce(key):
-    if isinstance(key, str):
+    if isinstance(key, binary_type):
         try:
-            key = unicode(key, encoding='utf-8')
+            key = text_type(key, encoding='utf-8')
         except UnicodeDecodeError:
             LOG.warn('Unable to convert %r to unicode' % key)
-            return unicode(key, 'utf-8', 'ignore')
+            return text_type(key, 'utf-8', 'ignore')
 
     return key
 

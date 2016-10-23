@@ -95,7 +95,7 @@ The second portlet type is applicable only to portlet managers providing IFoo1:
   ...   for_=[IFoo1])
 
   >>> portlets = left.getAddablePortletTypes()
-  >>> portlets.sort(lambda x,y: cmp(x.addview, y.addview))
+  >>> portlets.sort(key=lambda x: x.addview)
   >>> [portlet.addview for portlet in portlets]
   ['portlets.a', 'portlets.b']
 
@@ -112,12 +112,12 @@ The third portlet type is applicable only to portlet managers providing IFoo1 or
   ...   for_=[IFoo1, IFoo2])
 
   >>> portlets = left.getAddablePortletTypes()
-  >>> portlets.sort(lambda x,y: cmp(x.addview, y.addview))
+  >>> portlets.sort(key=lambda x: x.addview)
   >>> [portlet.addview for portlet in portlets]
   ['portlets.a', 'portlets.b', 'portlets.c']
 
   >>> portlets = right.getAddablePortletTypes()
-  >>> portlets.sort(lambda x,y: cmp(x.addview, y.addview))
+  >>> portlets.sort(key=lambda x: x.addview)
   >>> [portlet.addview for portlet in portlets]
   ['portlets.a', 'portlets.c']
 
