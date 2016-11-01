@@ -3,19 +3,7 @@ Changelog
 
 2.2.4 (unreleased)
 ------------------
-
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
 - Support Python 3. [davisagli]
-
-Bug fixes:
-
-- *add item here*
 
 
 2.2.3 (2016-08-09)
