@@ -3,6 +3,9 @@ Changelog
 
 2.2.4 (unreleased)
 ------------------
+
+New features:
+
 - Support Python 3. [davisagli]
 
 
