@@ -1,4 +1,3 @@
-
 # Annotation keys
 
 CONTEXT_ASSIGNMENT_KEY = 'plone.portlets.contextassignments'

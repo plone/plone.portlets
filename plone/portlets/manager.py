@@ -31,6 +31,7 @@ class PortletManagerRenderer(object):
     instance of this class, by doing an adapter lookup for (context, request,
     view, manager).
     """
+
     adapts(Interface, IBrowserRequest, IBrowserView, IPortletManager)
 
     template = None
@@ -38,7 +39,7 @@ class PortletManagerRenderer(object):
 
     def __init__(self, context, request, view, manager):
         self.__parent__ = view
-        self.manager = manager # part of interface
+        self.manager = manager  # part of interface
         self.context = context
         self.request = request
         self.__updated = False
@@ -59,8 +60,9 @@ class PortletManagerRenderer(object):
             except Exception as e:
                 logger.exception(
                     "Error while determining assignment availability of "
-                    "portlet (%r %r %r): %s" % (
-                    p['category'], p['key'], p['name'], str(e)))
+                    "portlet (%r %r %r): %s"
+                    % (p['category'], p['key'], p['name'], str(e))
+                )
         return filtered
 
     def portletsToShow(self):
@@ -90,7 +92,7 @@ class PortletManagerRenderer(object):
         except ConflictError:
             raise
         except Exception:
-            logger.exception('Error while rendering %r' % (self, ))
+            logger.exception('Error while rendering %r' % (self,))
             return self.error_message()
 
     # Note: By passing in a parameter that's different for each portlet
@@ -121,8 +123,9 @@ class PortletManagerRenderer(object):
                 isAvailable = False
                 logger.exception(
                     "Error while determining renderer availability of portlet "
-                    "(%r %r %r): %s" % (
-                    p['category'], p['key'], p['name'], str(e)))
+                    "(%r %r %r): %s"
+                    % (p['category'], p['key'], p['name'], str(e))
+                )
 
             info['available'] = isAvailable
             items.append(info)
@@ -133,8 +136,10 @@ class PortletManagerRenderer(object):
         """Helper method to get the correct IPortletRenderer for the given
         data object.
         """
-        return getMultiAdapter((self.context, self.request, self.__parent__,
-                                self.manager, data, ), IPortletRenderer)
+        return getMultiAdapter(
+            (self.context, self.request, self.__parent__, self.manager, data),
+            IPortletRenderer,
+        )
 
 
 @implementer(IPortletManager)
@@ -148,22 +153,25 @@ class PortletManager(PortletStorage):
     __name__ = __parent__ = None
 
     def __call__(self, context, request, view):
-        return getMultiAdapter((context, request, view, self),
-                               IPortletManagerRenderer)
+        return getMultiAdapter(
+            (context, request, view, self), IPortletManagerRenderer
+        )
 
     def getAddablePortletTypes(self):
         addable = []
         for p in getUtilitiesFor(IPortletType):
             # BBB - first condition, because starting with Plone 3.1
-            #every p[1].for_ should be a list
+            # every p[1].for_ should be a list
             if not isinstance(p[1].for_, list):
-                logger.warning("Deprecation Warning Portlet type %s is using "
+                logger.warning(
+                    "Deprecation Warning Portlet type %s is using "
                     "a deprecated format for storing interfaces of portlet "
                     "managers where it is addable. Its for_ attribute should "
                     "be a list of portlet manager interfaces, using "
                     "[zope.interface.Interface] for the portlet type to be "
                     "addable anywhere. The old format will be unsupported in "
-                    " Plone 4.0." % p[1].addview)
+                    " Plone 4.0." % p[1].addview
+                )
                 if p[1].for_ is None or p[1].for_.providedBy(self):
                     addable.append(p[1])
             elif [i for i in p[1].for_ if i.providedBy(self)]:

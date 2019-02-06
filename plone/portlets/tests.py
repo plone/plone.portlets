@@ -172,20 +172,26 @@ def test_portlet_metadata_availability():
 
 
 def test_suite():
-    return unittest.TestSuite((
-        doctest.DocFileSuite(
-            'README.txt',
-            setUp=configurationSetUp,
-            tearDown=configurationTearDown,
-            optionflags=optionflags),
-        doctest.DocFileSuite(
-            'uisupport.txt',
-            setUp=configurationSetUp,
-            tearDown=configurationTearDown,
-            optionflags=optionflags),
-        doctest.DocFileSuite(
-            'utils.txt',
-            setUp=configurationSetUp,
-            tearDown=configurationTearDown,
-            optionflags=optionflags),
-        doctest.DocTestSuite()))
+    return unittest.TestSuite(
+        (
+            doctest.DocFileSuite(
+                'README.txt',
+                setUp=configurationSetUp,
+                tearDown=configurationTearDown,
+                optionflags=optionflags,
+            ),
+            doctest.DocFileSuite(
+                'uisupport.txt',
+                setUp=configurationSetUp,
+                tearDown=configurationTearDown,
+                optionflags=optionflags,
+            ),
+            doctest.DocFileSuite(
+                'utils.txt',
+                setUp=configurationSetUp,
+                tearDown=configurationTearDown,
+                optionflags=optionflags,
+            ),
+            doctest.DocTestSuite(),
+        )
+    )

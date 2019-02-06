@@ -27,8 +27,9 @@ class IPortletContext(Interface):
     render portlets.
     """
 
-    uid = schema.TextLine(title=u"A unique id or path for this specific context",
-                          required=True)
+    uid = schema.TextLine(
+        title=u"A unique id or path for this specific context", required=True
+    )
 
     def getParent():
         """Get the portlet parent of the current context.
@@ -82,21 +83,20 @@ class IPortletType(Interface):
     providing IPortletType, so that UI can find them.
     """
 
-    title = schema.TextLine(
-        title = u'Title',
-        required = True)
+    title = schema.TextLine(title=u'Title', required=True)
 
-    description = schema.Text(
-        title = u'Description',
-        required = False)
+    description = schema.Text(title=u'Description', required=False)
 
     addview = schema.TextLine(
-        title = u'Add view',
-        description = u'The name of the add view for assignments for this portlet type',
-        required = True)
+        title=u'Add view',
+        description=u'The name of the add view for assignments for this portlet type',
+        required=True,
+    )
 
-    for_ = Attribute('An interface a portlet manager must have to allow this type of portlet. ' \
-                      'May be None if there are no restrictions.')
+    for_ = Attribute(
+        'An interface a portlet manager must have to allow this type of portlet. '
+        'May be None if there are no restrictions.'
+    )
 
 
 # Generic marker interface - a portlet may reference one of these
@@ -136,14 +136,18 @@ class IPortletAssignment(IContained, IAttributeAnnotatable):
     IPortletStorages.
     """
 
-    title = schema.Bool(title=u'Title',
-                        description=u'The title of this assignment as displayed to the user',
-                        required=True)
+    title = schema.Bool(
+        title=u'Title',
+        description=u'The title of this assignment as displayed to the user',
+        required=True,
+    )
 
-    available = schema.Bool(title=u'Available',
-                            description=u'Whether or not this portlet should be rendered',
-                            required=True,
-                            readonly=True)
+    available = schema.Bool(
+        title=u'Available',
+        description=u'Whether or not this portlet should be rendered',
+        required=True,
+        readonly=True,
+    )
 
     data = Attribute(u'Portlet data object')
 
@@ -163,18 +167,20 @@ class IPortletRenderer(IContentProvider):
     """
 
     __portlet_metadata__ = schema.Dict(
-            title=u"Metadata",
-            description=u"Information about the portlet set during portlet retrieval",
-            required=True,
-            readonly=True,
-            key_type=schema.ASCIILine(),
-            value_type=schema.TextLine(),
-        )
+        title=u"Metadata",
+        description=u"Information about the portlet set during portlet retrieval",
+        required=True,
+        readonly=True,
+        key_type=schema.ASCIILine(),
+        value_type=schema.TextLine(),
+    )
 
-    available = schema.Bool(title=u'Available',
-                            description=u'Whether or not this portlet shuld be rendered',
-                            required=True,
-                            readonly=True)
+    available = schema.Bool(
+        title=u'Available',
+        description=u'Whether or not this portlet shuld be rendered',
+        required=True,
+        readonly=True,
+    )
 
 
 # Discovery of portlets
@@ -208,6 +214,7 @@ class IPortletStorage(IContainer):
 
     Some common keys are found in plone.portlets.constants.
     """
+
     contains('plone.portlets.interfaces.IPortletCategoryMapping')
 
 
@@ -219,10 +226,13 @@ class IPortletCategoryMapping(IContainer, IContained):
     if this is the 'user' category, the keys could be user ids, each of
     which would be given a particular IPortletAssignmentMapping.
     """
+
     contains('plone.portlets.interfaces.IPortletAssignmentMapping')
 
 
-class IPortletAssignmentMapping(IOrderedContainer, IContainerNamesContainer, IContained):
+class IPortletAssignmentMapping(
+    IOrderedContainer, IContainerNamesContainer, IContained
+):
     """A storage for portlet assignments.
 
     An IPortletCategoryMapping manages one of these for each category of
@@ -231,10 +241,15 @@ class IPortletAssignmentMapping(IOrderedContainer, IContainerNamesContainer, ICo
     ILocalPortletAssignable and IPortletManager will be able to obtain the
     appropriate container.
     """
+
     contains('plone.portlets.interfaces.IPortletAssignment')
 
-    __manager__ = schema.TextLine(title=u"Name of the portlet manager this mapping belongs to")
-    __category__ = schema.TextLine(title=u'Name of the category this mapping belongs to')
+    __manager__ = schema.TextLine(
+        title=u"Name of the portlet manager this mapping belongs to"
+    )
+    __category__ = schema.TextLine(
+        title=u'Name of the category this mapping belongs to'
+    )
 
 
 class ILocalPortletAssignmentManager(Interface):
@@ -325,12 +340,15 @@ class IPortletManagerRenderer(IContentProvider):
 
         If not set, the renderers will simply be called one by one, and their
         output will be concatenated, separated by newlines.
-        """)
+        """
+    )
 
-    visible = schema.Bool(title=u'Visible',
-                          description=u'Whether or not this portlet manager (column) will be rendered at all',
-                          required=True,
-                          default=True)
+    visible = schema.Bool(
+        title=u'Visible',
+        description=u'Whether or not this portlet manager (column) will be rendered at all',
+        required=True,
+        default=True,
+    )
 
     def filter(portlets):
         """Return a list of portlets to display that is a subset of

@@ -8,8 +8,9 @@ setup(
     name='plone.portlets',
     version=version,
     description="An extension of zope.viewlet to support dynamic portlets",
-    long_description=(open("README.rst").read() + "\n" +
-                      open("CHANGES.rst").read()),
+    long_description=(
+        open("README.rst").read() + "\n" + open("CHANGES.rst").read()
+    ),
     classifiers=[
         "Environment :: Web Environment",
         "Framework :: Plone",
@@ -41,19 +42,19 @@ setup(
             'zope.configuration',
             'zope.location',
             'zope.security',
-        ],
+        ]
     ),
     install_requires=[
-      'setuptools',
-      'ZODB3',
-      'plone.memoize',
-      'zope.annotation',
-      'zope.component',
-      'zope.container',
-      'zope.contentprovider',
-      'zope.interface',
-      'zope.publisher',
-      'zope.schema',
-      'zope.site',
+        'setuptools',
+        'ZODB3',
+        'plone.memoize',
+        'zope.annotation',
+        'zope.component',
+        'zope.container',
+        'zope.contentprovider',
+        'zope.interface',
+        'zope.publisher',
+        'zope.schema',
+        'zope.site',
     ],
-    )
+)
