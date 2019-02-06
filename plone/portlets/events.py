@@ -1,16 +1,14 @@
-import zope.component
-
+from plone.portlets.interfaces import IPortletManager
+from plone.portlets.interfaces import IPortletManagerRenderer
 from zope.interface import Interface
-from zope.interface.interfaces import IUtilityRegistration
-from zope.interface.interfaces import IRegistrationEvent
 from zope.interface.interfaces import IRegistered
+from zope.interface.interfaces import IRegistrationEvent
 from zope.interface.interfaces import IUnregistered
-
+from zope.interface.interfaces import IUtilityRegistration
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.publisher.interfaces.browser import IBrowserView
 
-from plone.portlets.interfaces import IPortletManager
-from plone.portlets.interfaces import IPortletManagerRenderer
+import zope.component
 
 
 @zope.component.adapter(IUtilityRegistration, IRegistrationEvent)

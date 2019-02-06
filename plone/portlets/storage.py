@@ -6,8 +6,10 @@ from zope.container.btree import BTreeContainer
 from zope.container.contained import Contained
 from zope.container.ordered import OrderedContainer
 from zope.interface import implementer
+
 import logging
 import sys
+
 
 # XXX: We coerce all mapping keys (things like user and group ids)
 # to unicode, because the OOBTree that we store them in will fall over with

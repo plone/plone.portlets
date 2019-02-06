@@ -1,15 +1,14 @@
-from zope.interface import Interface, Attribute
 from zope import schema
-
 from zope.annotation.interfaces import IAttributeAnnotatable
-
+from zope.container.constraints import contains
 from zope.container.interfaces import IContained
 from zope.container.interfaces import IContainer
-from zope.container.interfaces import IOrderedContainer
 from zope.container.interfaces import IContainerNamesContainer
-
-from zope.container.constraints import contains
+from zope.container.interfaces import IOrderedContainer
 from zope.contentprovider.interfaces import IContentProvider
+from zope.interface import Attribute
+from zope.interface import Interface
+
 
 # Context - the application layer must provide these
 

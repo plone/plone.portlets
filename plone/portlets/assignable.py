@@ -1,24 +1,19 @@
+from BTrees.OOBTree import OOBTree
 from persistent.dict import PersistentDict
-
-from zope.interface import implementer
-from zope.interface import implementer
-from zope.component import adapter
-from zope.component import adapts
-from zope.component import queryAdapter
-from zope.annotation.interfaces import IAnnotations
-
-from plone.portlets.interfaces import IBlockingPortletManager
-from plone.portlets.interfaces import ILocalPortletAssignmentManager
-from plone.portlets.interfaces import IPortletAssignmentMapping
-from plone.portlets.interfaces import ILocalPortletAssignable
-from plone.portlets.interfaces import IPortletManager
-
-from plone.portlets.storage import PortletAssignmentMapping
 from plone.portlets.constants import CONTEXT_ASSIGNMENT_KEY
 from plone.portlets.constants import CONTEXT_BLACKLIST_STATUS_KEY
 from plone.portlets.constants import CONTEXT_CATEGORY
-
-from BTrees.OOBTree import OOBTree
+from plone.portlets.interfaces import IBlockingPortletManager
+from plone.portlets.interfaces import ILocalPortletAssignable
+from plone.portlets.interfaces import ILocalPortletAssignmentManager
+from plone.portlets.interfaces import IPortletAssignmentMapping
+from plone.portlets.interfaces import IPortletManager
+from plone.portlets.storage import PortletAssignmentMapping
+from zope.annotation.interfaces import IAnnotations
+from zope.component import adapter
+from zope.component import adapts
+from zope.component import queryAdapter
+from zope.interface import implementer
 
 
 @adapter(ILocalPortletAssignable, IPortletManager)

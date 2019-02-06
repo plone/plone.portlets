@@ -17,6 +17,8 @@ Bug fixes:
 - Fixed some deprecation warnings.
   [jensens]
 
+- Code style: black, isort
+  [jensens]
 
 
 2.3 (2016-11-01)

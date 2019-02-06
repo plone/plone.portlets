@@ -1,23 +1,23 @@
-import logging
-
 from plone.memoize.view import memoize
+from plone.portlets.interfaces import IPortletManager
+from plone.portlets.interfaces import IPortletManagerRenderer
+from plone.portlets.interfaces import IPortletRenderer
+from plone.portlets.interfaces import IPortletRetriever
+from plone.portlets.interfaces import IPortletType
+from plone.portlets.storage import PortletStorage
+from plone.portlets.utils import hashPortletInfo
+from ZODB.POSException import ConflictError
 from zope.component import adapts
 from zope.component import getMultiAdapter
 from zope.component import getUtilitiesFor
 from zope.contentprovider.interfaces import UpdateNotCalled
 from zope.interface import implementer
 from zope.interface import Interface
-from zope.publisher.interfaces.browser import IBrowserView
 from zope.publisher.interfaces.browser import IBrowserRequest
-from ZODB.POSException import ConflictError
+from zope.publisher.interfaces.browser import IBrowserView
 
-from plone.portlets.interfaces import IPortletRetriever
-from plone.portlets.interfaces import IPortletManager
-from plone.portlets.interfaces import IPortletManagerRenderer
-from plone.portlets.interfaces import IPortletRenderer
-from plone.portlets.interfaces import IPortletType
-from plone.portlets.storage import PortletStorage
-from plone.portlets.utils import hashPortletInfo
+import logging
+
 
 logger = logging.getLogger('portlets')
 

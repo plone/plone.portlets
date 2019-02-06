@@ -1,19 +1,18 @@
-from zope.interface import implementer, Interface
+from plone.portlets.constants import CONTEXT_ASSIGNMENT_KEY
+from plone.portlets.constants import CONTEXT_CATEGORY
+from plone.portlets.interfaces import ILocalPortletAssignable
+from plone.portlets.interfaces import ILocalPortletAssignmentManager
+from plone.portlets.interfaces import IPlacelessPortletManager
+from plone.portlets.interfaces import IPortletAssignmentSettings
+from plone.portlets.interfaces import IPortletContext
+from plone.portlets.interfaces import IPortletManager
+from plone.portlets.interfaces import IPortletRetriever
+from zope.annotation.interfaces import IAnnotations
 from zope.component import adapts
 from zope.component import getMultiAdapter
 from zope.component import queryAdapter
-from zope.annotation.interfaces import IAnnotations
-
-from plone.portlets.interfaces import IPortletContext
-from plone.portlets.interfaces import ILocalPortletAssignable
-from plone.portlets.interfaces import ILocalPortletAssignmentManager
-from plone.portlets.interfaces import IPortletManager
-from plone.portlets.interfaces import IPlacelessPortletManager
-from plone.portlets.interfaces import IPortletRetriever
-from plone.portlets.interfaces import IPortletAssignmentSettings
-
-from plone.portlets.constants import CONTEXT_ASSIGNMENT_KEY
-from plone.portlets.constants import CONTEXT_CATEGORY
+from zope.interface import implementer
+from zope.interface import Interface
 
 
 @implementer(IPortletRetriever)

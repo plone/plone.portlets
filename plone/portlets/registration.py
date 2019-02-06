@@ -1,7 +1,6 @@
-from zope.interface import implementer
 from persistent import Persistent
-
 from plone.portlets.interfaces import IPortletType
+from zope.interface import implementer
 
 
 @implementer(IPortletType)

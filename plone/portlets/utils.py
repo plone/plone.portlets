@@ -1,7 +1,8 @@
-from zope.component import getSiteManager
-from zope.interface import Interface
 from plone.portlets.interfaces import IPortletType
 from plone.portlets.registration import PortletType
+from zope.component import getSiteManager
+from zope.interface import Interface
+
 import binascii
 
 

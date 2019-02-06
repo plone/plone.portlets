@@ -1,10 +1,10 @@
-import doctest
-import unittest
-
-import plone.portlets
-
-from zope.component.testing import setUp, tearDown
+from zope.component.testing import setUp
+from zope.component.testing import tearDown
 from zope.configuration.xmlconfig import XMLConfig
+
+import doctest
+import plone.portlets
+import unittest
 
 
 optionflags = doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS
