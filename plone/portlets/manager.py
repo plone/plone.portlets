@@ -7,7 +7,7 @@ from plone.portlets.interfaces import IPortletType
 from plone.portlets.storage import PortletStorage
 from plone.portlets.utils import hashPortletInfo
 from ZODB.POSException import ConflictError
-from zope.component import adapts
+from zope.component import adapter
 from zope.component import getMultiAdapter
 from zope.component import getUtilitiesFor
 from zope.contentprovider.interfaces import UpdateNotCalled
@@ -23,7 +23,9 @@ logger = logging.getLogger('portlets')
 
 
 @implementer(IPortletManagerRenderer)
+@adapter(Interface, IBrowserRequest, IBrowserView, IPortletManager)
 class PortletManagerRenderer(object):
+
     """Default renderer for portlet managers.
 
     When the zope.contentprovider handler for the provider: expression looks up
@@ -31,8 +33,6 @@ class PortletManagerRenderer(object):
     instance of this class, by doing an adapter lookup for (context, request,
     view, manager).
     """
-
-    adapts(Interface, IBrowserRequest, IBrowserView, IPortletManager)
 
     template = None
     error_message = None

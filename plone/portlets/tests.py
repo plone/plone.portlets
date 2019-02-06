@@ -12,6 +12,7 @@ optionflags = doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS
 def configurationSetUp(test=None):
     setUp()
 
+    import zope.annotation
     import zope.browserpage
     import zope.component
     import zope.container
@@ -24,6 +25,7 @@ def configurationSetUp(test=None):
     XMLConfig('meta.zcml', zope.component)()
     XMLConfig('meta.zcml', zope.browserpage)()
 
+    XMLConfig('configure.zcml', zope.annotation)()
     XMLConfig('configure.zcml', zope.component)()
     XMLConfig('configure.zcml', zope.security)()
     XMLConfig('configure.zcml', zope.container)()
@@ -131,19 +133,6 @@ def test_portlet_metadata_availability():
 
     provideAdapter(DummyPortletRetriever)
 
-    # For instantiating a PortletManagerRenderer, we need a TestRequest
-
-    from zope.publisher.browser import TestRequest
-
-    # For our memoized views to work, we need to make the request annotatable
-
-    from zope.annotation.interfaces import IAttributeAnnotatable
-    from zope.annotation.attribute import AttributeAnnotations
-    from zope.interface import classImplements
-
-    classImplements(TestRequest, IAttributeAnnotatable)
-    provideAdapter(AttributeAnnotations)
-
     # We need a dummy context that implements Interface
 
     @implementer(Interface)
@@ -160,11 +149,20 @@ def test_portlet_metadata_availability():
 
     PortletManagerRenderer._dataToPortlet = _dataToPortlet
 
+    # prepare a memoizeable test request
+
+    from zope.publisher.browser import TestRequest
+    request = TestRequest()
+
+    from zope.interface import alsoProvides
+    from zope.annotation.interfaces import IAttributeAnnotatable
+    alsoProvides(request, IAttributeAnnotatable)
+
     # Check that a PortletManagerRenderer is capable of rendering our
     # dummy PortletRenderer
 
     renderer = PortletManagerRenderer(
-        DummyContext(), TestRequest(), None, DummyPortletManager()
+        DummyContext(), request, None, DummyPortletManager()
     )
     renderer.update()
 
