@@ -1,10 +1,10 @@
 import zope.component
 
 from zope.interface import Interface
-from zope.component.interfaces import IUtilityRegistration
-from zope.component.interfaces import IRegistrationEvent
-from zope.component.interfaces import IRegistered
-from zope.component.interfaces import IUnregistered
+from zope.interface.interfaces import IUtilityRegistration
+from zope.interface.interfaces import IRegistrationEvent
+from zope.interface.interfaces import IRegistered
+from zope.interface.interfaces import IUnregistered
 
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.publisher.interfaces.browser import IBrowserView

@@ -14,7 +14,9 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Fixed some deprecation warnings.
+  [jensens]
+
 
 
 2.3 (2016-11-01)
