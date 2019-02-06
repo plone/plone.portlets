@@ -3,7 +3,6 @@ from zope.component.testing import tearDown
 from zope.configuration.xmlconfig import XMLConfig
 
 import doctest
-import plone.portlets
 import unittest
 
 
@@ -18,6 +17,8 @@ def configurationSetUp(test):
     import zope.container
     import zope.contentprovider
     import zope.security
+    import plone.memoize
+    import plone.portlets
 
     XMLConfig('meta.zcml', zope.security)()
     XMLConfig('meta.zcml', zope.component)()
@@ -27,6 +28,7 @@ def configurationSetUp(test):
     XMLConfig('configure.zcml', zope.security)()
     XMLConfig('configure.zcml', zope.container)()
     XMLConfig('configure.zcml', zope.contentprovider)()
+    XMLConfig('configure.zcml', plone.memoize)()
 
     XMLConfig('configure.zcml', plone.portlets)()
 
