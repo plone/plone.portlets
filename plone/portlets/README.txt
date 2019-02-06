@@ -197,7 +197,7 @@ registrations on it.
   >>> ISite.providedBy(rootFolder)
   True
 
-  >>> from zope.site.hooks import setSite, setHooks
+  >>> from zope.component.hooks import setSite, setHooks
   >>> setSite(rootFolder)
   >>> setHooks()
 
@@ -227,7 +227,8 @@ We should now be able to get this via a provider: expression:
   >>> import os, tempfile
   >>> tempDir = tempfile.mkdtemp()
   >>> templateFileName = os.path.join(tempDir, 'template.pt')
-  >>> _ = open(templateFileName, 'w').write("""
+  >>> with open(templateFileName, 'w') as tpl:
+  ...     output = tpl.write("""
   ... <html>
   ...   <body>
   ...     <div class="left-column">
@@ -924,7 +925,8 @@ placeless behaviour.
   ...                    name='columns.dashboard')
 
   >>> dashboardFileName = os.path.join(tempDir, 'dashboard.pt')
-  >>> _ = open(dashboardFileName, 'w').write("""
+  >>> with open(dashboardFileName, 'w') as dash:
+  ...     output = dash.write("""
   ... <html>
   ...   <body>
   ...     <div class="dashboard">
@@ -933,6 +935,7 @@ placeless behaviour.
   ...   </body>
   ... </html>
   ... """)
+  <BLANKLINE>
 
   >>> @adapter(Interface, IBrowserRequest)
   ... class DashboardPage(BrowserPage):

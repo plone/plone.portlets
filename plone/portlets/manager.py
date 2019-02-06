@@ -1,29 +1,31 @@
-import logging
-
 from plone.memoize.view import memoize
-from zope.component import adapts
+from plone.portlets.interfaces import IPortletManager
+from plone.portlets.interfaces import IPortletManagerRenderer
+from plone.portlets.interfaces import IPortletRenderer
+from plone.portlets.interfaces import IPortletRetriever
+from plone.portlets.interfaces import IPortletType
+from plone.portlets.storage import PortletStorage
+from plone.portlets.utils import hashPortletInfo
+from ZODB.POSException import ConflictError
+from zope.component import adapter
 from zope.component import getMultiAdapter
 from zope.component import getUtilitiesFor
 from zope.contentprovider.interfaces import UpdateNotCalled
 from zope.interface import implementer
 from zope.interface import Interface
-from zope.publisher.interfaces.browser import IBrowserView
 from zope.publisher.interfaces.browser import IBrowserRequest
-from ZODB.POSException import ConflictError
+from zope.publisher.interfaces.browser import IBrowserView
 
-from plone.portlets.interfaces import IPortletRetriever
-from plone.portlets.interfaces import IPortletManager
-from plone.portlets.interfaces import IPortletManagerRenderer
-from plone.portlets.interfaces import IPortletRenderer
-from plone.portlets.interfaces import IPortletType
-from plone.portlets.storage import PortletStorage
-from plone.portlets.utils import hashPortletInfo
+import logging
+
 
 logger = logging.getLogger('portlets')
 
 
 @implementer(IPortletManagerRenderer)
+@adapter(Interface, IBrowserRequest, IBrowserView, IPortletManager)
 class PortletManagerRenderer(object):
+
     """Default renderer for portlet managers.
 
     When the zope.contentprovider handler for the provider: expression looks up
@@ -31,14 +33,13 @@ class PortletManagerRenderer(object):
     instance of this class, by doing an adapter lookup for (context, request,
     view, manager).
     """
-    adapts(Interface, IBrowserRequest, IBrowserView, IPortletManager)
 
     template = None
     error_message = None
 
     def __init__(self, context, request, view, manager):
         self.__parent__ = view
-        self.manager = manager # part of interface
+        self.manager = manager  # part of interface
         self.context = context
         self.request = request
         self.__updated = False
@@ -59,8 +60,9 @@ class PortletManagerRenderer(object):
             except Exception as e:
                 logger.exception(
                     "Error while determining assignment availability of "
-                    "portlet (%r %r %r): %s" % (
-                    p['category'], p['key'], p['name'], str(e)))
+                    "portlet (%r %r %r): %s"
+                    % (p['category'], p['key'], p['name'], str(e))
+                )
         return filtered
 
     def portletsToShow(self):
@@ -90,7 +92,7 @@ class PortletManagerRenderer(object):
         except ConflictError:
             raise
         except Exception:
-            logger.exception('Error while rendering %r' % (self, ))
+            logger.exception('Error while rendering %r' % (self,))
             return self.error_message()
 
     # Note: By passing in a parameter that's different for each portlet
@@ -121,8 +123,9 @@ class PortletManagerRenderer(object):
                 isAvailable = False
                 logger.exception(
                     "Error while determining renderer availability of portlet "
-                    "(%r %r %r): %s" % (
-                    p['category'], p['key'], p['name'], str(e)))
+                    "(%r %r %r): %s"
+                    % (p['category'], p['key'], p['name'], str(e))
+                )
 
             info['available'] = isAvailable
             items.append(info)
@@ -133,8 +136,10 @@ class PortletManagerRenderer(object):
         """Helper method to get the correct IPortletRenderer for the given
         data object.
         """
-        return getMultiAdapter((self.context, self.request, self.__parent__,
-                                self.manager, data, ), IPortletRenderer)
+        return getMultiAdapter(
+            (self.context, self.request, self.__parent__, self.manager, data),
+            IPortletRenderer,
+        )
 
 
 @implementer(IPortletManager)
@@ -148,22 +153,25 @@ class PortletManager(PortletStorage):
     __name__ = __parent__ = None
 
     def __call__(self, context, request, view):
-        return getMultiAdapter((context, request, view, self),
-                               IPortletManagerRenderer)
+        return getMultiAdapter(
+            (context, request, view, self), IPortletManagerRenderer
+        )
 
     def getAddablePortletTypes(self):
         addable = []
         for p in getUtilitiesFor(IPortletType):
             # BBB - first condition, because starting with Plone 3.1
-            #every p[1].for_ should be a list
+            # every p[1].for_ should be a list
             if not isinstance(p[1].for_, list):
-                logger.warning("Deprecation Warning Portlet type %s is using "
+                logger.warning(
+                    "Deprecation Warning Portlet type %s is using "
                     "a deprecated format for storing interfaces of portlet "
                     "managers where it is addable. Its for_ attribute should "
                     "be a list of portlet manager interfaces, using "
                     "[zope.interface.Interface] for the portlet type to be "
                     "addable anywhere. The old format will be unsupported in "
-                    " Plone 4.0." % p[1].addview)
+                    " Plone 4.0." % p[1].addview
+                )
                 if p[1].for_ is None or p[1].for_.providedBy(self):
                     addable.append(p[1])
             elif [i for i in p[1].for_ if i.providedBy(self)]:

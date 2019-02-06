@@ -1,19 +1,18 @@
-from zope.interface import implementer, Interface
+from plone.portlets.constants import CONTEXT_ASSIGNMENT_KEY
+from plone.portlets.constants import CONTEXT_CATEGORY
+from plone.portlets.interfaces import ILocalPortletAssignable
+from plone.portlets.interfaces import ILocalPortletAssignmentManager
+from plone.portlets.interfaces import IPlacelessPortletManager
+from plone.portlets.interfaces import IPortletAssignmentSettings
+from plone.portlets.interfaces import IPortletContext
+from plone.portlets.interfaces import IPortletManager
+from plone.portlets.interfaces import IPortletRetriever
+from zope.annotation.interfaces import IAnnotations
 from zope.component import adapts
 from zope.component import getMultiAdapter
 from zope.component import queryAdapter
-from zope.annotation.interfaces import IAnnotations
-
-from plone.portlets.interfaces import IPortletContext
-from plone.portlets.interfaces import ILocalPortletAssignable
-from plone.portlets.interfaces import ILocalPortletAssignmentManager
-from plone.portlets.interfaces import IPortletManager
-from plone.portlets.interfaces import IPlacelessPortletManager
-from plone.portlets.interfaces import IPortletRetriever
-from plone.portlets.interfaces import IPortletAssignmentSettings
-
-from plone.portlets.constants import CONTEXT_ASSIGNMENT_KEY
-from plone.portlets.constants import CONTEXT_CATEGORY
+from zope.interface import implementer
+from zope.interface import Interface
 
 
 @implementer(IPortletRetriever)
@@ -23,6 +22,7 @@ class PortletRetriever(object):
     This will examine the context and its parents for contextual portlets,
     provided they provide ILocalPortletAssignable.
     """
+
     adapts(Interface, IPortletManager)
 
     def __init__(self, context, storage):
@@ -95,9 +95,16 @@ class PortletRetriever(object):
                     if local is not None:
                         localManager = local.get(manager, None)
                         if localManager is not None:
-                            categories.extend([(CONTEXT_CATEGORY, currentpc.uid, a) for a in localManager.values()])
+                            categories.extend(
+                                [
+                                    (CONTEXT_CATEGORY, currentpc.uid, a)
+                                    for a in localManager.values()
+                                ]
+                            )
 
-                lpam = getMultiAdapter((assignable, self.storage), ILocalPortletAssignmentManager)
+                lpam = getMultiAdapter(
+                    (assignable, self.storage), ILocalPortletAssignmentManager
+                )
                 if lpam.getBlacklistStatus(CONTEXT_CATEGORY):
                     parentsBlocked = True
                 for cat, cat_status in blacklisted.items():
@@ -128,7 +135,7 @@ class PortletRetriever(object):
                 mapping = self.storage.get(category, None)
                 if mapping is not None:
                     for a in mapping.get(key, {}).values():
-                        categories.append((category, key, a, ))
+                        categories.append((category, key, a))
 
         assignments = []
         for category, key, assignment in categories:
@@ -139,11 +146,14 @@ class PortletRetriever(object):
             except TypeError:
                 # Portlet does not exist any longer
                 continue
-            assignments.append({'category': category,
-                                'key': key,
-                                'name': str(assignment.__name__),
-                                'assignment': assignment
-                                })
+            assignments.append(
+                {
+                    'category': category,
+                    'key': key,
+                    'name': str(assignment.__name__),
+                    'assignment': assignment,
+                }
+            )
         return assignments
 
 
@@ -153,6 +163,7 @@ class PlacelessPortletRetriever(PortletRetriever):
 
     This will aggregate user portlets, then group portlets.
     """
+
     adapts(Interface, IPlacelessPortletManager)
 
     def __init__(self, context, storage):
@@ -182,10 +193,13 @@ class PlacelessPortletRetriever(PortletRetriever):
                         if not settings.get('visible', True):
                             continue
 
-                    assignments.append({'category': category,
-                                        'key': key,
-                                        'name': assignment.__name__,
-                                        'assignment': assignment
-                                        })
+                    assignments.append(
+                        {
+                            'category': category,
+                            'key': key,
+                            'name': assignment.__name__,
+                            'assignment': assignment,
+                        }
+                    )
 
         return assignments

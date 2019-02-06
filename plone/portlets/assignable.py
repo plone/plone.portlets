@@ -1,24 +1,19 @@
+from BTrees.OOBTree import OOBTree
 from persistent.dict import PersistentDict
-
-from zope.interface import implementer
-from zope.interface import implementer
-from zope.component import adapter
-from zope.component import adapts
-from zope.component import queryAdapter
-from zope.annotation.interfaces import IAnnotations
-
-from plone.portlets.interfaces import IBlockingPortletManager
-from plone.portlets.interfaces import ILocalPortletAssignmentManager
-from plone.portlets.interfaces import IPortletAssignmentMapping
-from plone.portlets.interfaces import ILocalPortletAssignable
-from plone.portlets.interfaces import IPortletManager
-
-from plone.portlets.storage import PortletAssignmentMapping
 from plone.portlets.constants import CONTEXT_ASSIGNMENT_KEY
 from plone.portlets.constants import CONTEXT_BLACKLIST_STATUS_KEY
 from plone.portlets.constants import CONTEXT_CATEGORY
-
-from BTrees.OOBTree import OOBTree
+from plone.portlets.interfaces import IBlockingPortletManager
+from plone.portlets.interfaces import ILocalPortletAssignable
+from plone.portlets.interfaces import ILocalPortletAssignmentManager
+from plone.portlets.interfaces import IPortletAssignmentMapping
+from plone.portlets.interfaces import IPortletManager
+from plone.portlets.storage import PortletAssignmentMapping
+from zope.annotation.interfaces import IAnnotations
+from zope.component import adapter
+from zope.component import adapts
+from zope.component import queryAdapter
+from zope.interface import implementer
 
 
 @adapter(ILocalPortletAssignable, IPortletManager)
@@ -37,8 +32,9 @@ def localPortletAssignmentMappingAdapter(context, manager):
         local = annotations[CONTEXT_ASSIGNMENT_KEY] = OOBTree()
     portlets = local.get(manager.__name__, None)
     if portlets is None:
-        portlets = local[manager.__name__] = PortletAssignmentMapping(manager=manager.__name__,
-                                                                      category=CONTEXT_CATEGORY)
+        portlets = local[manager.__name__] = PortletAssignmentMapping(
+            manager=manager.__name__, category=CONTEXT_CATEGORY
+        )
     return portlets
 
 
@@ -47,6 +43,7 @@ class LocalPortletAssignmentManager(object):
     """Default implementation of ILocalPortletAssignmentManager which stores
     information in an annotation.
     """
+
     adapts(ILocalPortletAssignable, IPortletManager)
 
     def __init__(self, context, manager):
@@ -71,7 +68,9 @@ class LocalPortletAssignmentManager(object):
         local = annotations.get(CONTEXT_BLACKLIST_STATUS_KEY, None)
         if local is None:
             if create:
-                local = annotations[CONTEXT_BLACKLIST_STATUS_KEY] = PersistentDict()
+                local = annotations[
+                    CONTEXT_BLACKLIST_STATUS_KEY
+                ] = PersistentDict()
             else:
                 return None
         blacklist = local.get(self.manager.__name__, None)
@@ -87,10 +86,13 @@ class BlockingLocalPortletAssignmentManager(LocalPortletAssignmentManager):
     """Implementation of ILocalPortletAssignmentManager which by default blocks
     parent contextual portlets.
     """
+
     adapts(ILocalPortletAssignable, IBlockingPortletManager)
 
     def getBlacklistStatus(self, category):
-        value = super(BlockingLocalPortletAssignmentManager, self).getBlacklistStatus(category)
+        value = super(
+            BlockingLocalPortletAssignmentManager, self
+        ).getBlacklistStatus(category)
         if category is CONTEXT_CATEGORY and value is None:
             return True
         return value

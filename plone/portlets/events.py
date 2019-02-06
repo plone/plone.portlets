@@ -1,16 +1,14 @@
-import zope.component
-
+from plone.portlets.interfaces import IPortletManager
+from plone.portlets.interfaces import IPortletManagerRenderer
 from zope.interface import Interface
-from zope.component.interfaces import IUtilityRegistration
-from zope.component.interfaces import IRegistrationEvent
-from zope.component.interfaces import IRegistered
-from zope.component.interfaces import IUnregistered
-
+from zope.interface.interfaces import IRegistered
+from zope.interface.interfaces import IRegistrationEvent
+from zope.interface.interfaces import IUnregistered
+from zope.interface.interfaces import IUtilityRegistration
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.publisher.interfaces.browser import IBrowserView
 
-from plone.portlets.interfaces import IPortletManager
-from plone.portlets.interfaces import IPortletManagerRenderer
+import zope.component
 
 
 @zope.component.adapter(IUtilityRegistration, IRegistrationEvent)
@@ -18,9 +16,11 @@ def dispatchToComponent(registration, event):
     """When a utility is registered, dispatch to an event handler registered for
     the particular component registered, the registration and the event.
     """
-    handlers = zope.component.subscribers((registration.component, registration, event), None)
+    handlers = zope.component.subscribers(
+        (registration.component, registration, event), None
+    )
     for handler in handlers:
-        pass # getting them does the work
+        pass  # getting them does the work
 
 
 @zope.component.adapter(IPortletManager, IUtilityRegistration, IRegistered)
@@ -33,10 +33,12 @@ def registerPortletManagerRenderer(manager, registration, event):
     """
     manager.__name__ = registration.name
     registry = registration.registry
-    registry.registerAdapter(factory=manager,
-                             required=(Interface, IBrowserRequest, IBrowserView),
-                             provided=IPortletManagerRenderer,
-                             name=registration.name)
+    registry.registerAdapter(
+        factory=manager,
+        required=(Interface, IBrowserRequest, IBrowserView),
+        provided=IPortletManagerRenderer,
+        name=registration.name,
+    )
 
 
 @zope.component.adapter(IPortletManager, IUtilityRegistration, IUnregistered)
@@ -45,7 +47,9 @@ def unregisterPortletManagerRenderer(manager, registration, event):
     IPortletManagerRenderer.
     """
     registry = registration.registry
-    registry.unregisterAdapter(factory=manager,
-                               required=(Interface, IBrowserRequest, IBrowserView),
-                               provided=IPortletManagerRenderer,
-                               name=registration.name)
+    registry.unregisterAdapter(
+        factory=manager,
+        required=(Interface, IBrowserRequest, IBrowserView),
+        provided=IPortletManagerRenderer,
+        name=registration.name,
+    )

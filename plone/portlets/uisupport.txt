@@ -33,7 +33,7 @@ First, we must create a local site manager at a fictional root folder.
   >>> ISite.providedBy(rootFolder)
   True
 
-  >>> from zope.site.hooks import setSite, setHooks
+  >>> from zope.component.hooks import setSite, setHooks
   >>> setSite(rootFolder)
   >>> setHooks()
 

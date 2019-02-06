@@ -1,7 +1,8 @@
-from zope.component import getSiteManager
-from zope.interface import Interface
 from plone.portlets.interfaces import IPortletType
 from plone.portlets.registration import PortletType
+from zope.component import getSiteManager
+from zope.interface import Interface
+
 import binascii
 
 
@@ -65,5 +66,7 @@ def unhashPortletInfo(hash):
     """
     concat_txt = binascii.a2b_hex(hash).decode()
     manager, category, key, name = concat_txt.splitlines()
-    info = dict(manager=manager, category=category, key=key, name=name, hash=hash)
+    info = dict(
+        manager=manager, category=category, key=key, name=name, hash=hash
+    )
     return info
