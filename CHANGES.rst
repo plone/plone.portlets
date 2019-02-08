@@ -8,6 +8,16 @@ Changelog
 
 .. towncrier release notes start
 
+2.3.1 (2019-02-08)
+------------------
+
+Bug fixes:
+
+
+- Fixed some deprecation warnings. Code style: black, isort Fix tests, also do
+  not leave closed files. [jensens] (#4)
+
+
 2.3 (2016-11-01)
 ----------------
 

@@ -1,4 +1,0 @@
-Fixed some deprecation warnings.
-Code style: black, isort
-Fix tests, also do not leave closed files.
-[jensens]
