@@ -82,7 +82,7 @@ that user's groups.
 
   >>> from zope import schema
 
-  >>> from zope.container.interfaces import IContained
+  >>> from zope.location.interfaces import IContained
   >>> from zope.site.interfaces import IFolder
   >>> from zope.site.folder import rootFolder, Folder
 
