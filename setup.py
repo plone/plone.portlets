@@ -49,7 +49,7 @@ setup(
     ),
     install_requires=[
         'setuptools',
-        'ZODB3',
+        'ZODB',
         'plone.memoize',
         'zope.annotation',
         'zope.component',
