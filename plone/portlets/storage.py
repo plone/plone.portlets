@@ -8,33 +8,24 @@ from zope.container.ordered import OrderedContainer
 from zope.interface import implementer
 
 import logging
-import sys
 
-
-# XXX: We coerce all mapping keys (things like user and group ids)
-# to unicode, because the OOBTree that we store them in will fall over with
-# mixed encoded-str and unicode keys. It may be better to store byte strings
-# (and thus coerce the other way), especially to support things like Active
-# Directory where user ids are binary GUIDs. However, that's a problem for
-# another day, since it'll require more complex migration.
 
 LOG = logging.getLogger("portlets")
 
-if sys.version_info[0] > 2:
-    text_type = str
-    binary_type = bytes
-else:
-    text_type = unicode
-    binary_type = str
-
 
 def _coerce(key):
-    if isinstance(key, binary_type):
+    # XXX: We coerce all mapping keys (things like user and group ids)
+    # to unicode, because the OOBTree that we store them in will fall over with
+    # mixed encoded-str and unicode keys. It may be better to store byte strings
+    # (and thus coerce the other way), especially to support things like Active
+    # Directory where user ids are binary GUIDs. However, that's a problem for
+    # another day, since it'll require more complex migration.
+    if isinstance(key, bytes):
         try:
-            key = text_type(key, encoding="utf-8")
+            key = str(key, encoding="utf-8")
         except UnicodeDecodeError:
             LOG.warn("Unable to convert %r to unicode" % key)
-            return text_type(key, "utf-8", "ignore")
+            return str(key, "utf-8", "ignore")
 
     return key
 
