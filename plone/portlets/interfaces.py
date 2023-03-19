@@ -28,7 +28,7 @@ class IPortletContext(Interface):
     """
 
     uid = schema.TextLine(
-        title=u"A unique id or path for this specific context", required=True
+        title="A unique id or path for this specific context", required=True
     )
 
     def getParent():
@@ -83,13 +83,13 @@ class IPortletType(Interface):
     providing IPortletType, so that UI can find them.
     """
 
-    title = schema.TextLine(title=u'Title', required=True)
+    title = schema.TextLine(title='Title', required=True)
 
-    description = schema.Text(title=u'Description', required=False)
+    description = schema.Text(title='Description', required=False)
 
     addview = schema.TextLine(
-        title=u'Add view',
-        description=u'The name of the add view for assignments for this portlet type',
+        title='Add view',
+        description='The name of the add view for assignments for this portlet type',
         required=True,
     )
 
@@ -137,19 +137,19 @@ class IPortletAssignment(IContained, IAttributeAnnotatable):
     """
 
     title = schema.Bool(
-        title=u'Title',
-        description=u'The title of this assignment as displayed to the user',
+        title='Title',
+        description='The title of this assignment as displayed to the user',
         required=True,
     )
 
     available = schema.Bool(
-        title=u'Available',
-        description=u'Whether or not this portlet should be rendered',
+        title='Available',
+        description='Whether or not this portlet should be rendered',
         required=True,
         readonly=True,
     )
 
-    data = Attribute(u'Portlet data object')
+    data = Attribute('Portlet data object')
 
 
 # A content provider capable of rendering portlets - each type of portlet will
@@ -167,8 +167,8 @@ class IPortletRenderer(IContentProvider):
     """
 
     __portlet_metadata__ = schema.Dict(
-        title=u"Metadata",
-        description=u"Information about the portlet set during portlet retrieval",
+        title="Metadata",
+        description="Information about the portlet set during portlet retrieval",
         required=True,
         readonly=True,
         key_type=schema.ASCIILine(),
@@ -176,8 +176,8 @@ class IPortletRenderer(IContentProvider):
     )
 
     available = schema.Bool(
-        title=u'Available',
-        description=u'Whether or not this portlet shuld be rendered',
+        title='Available',
+        description='Whether or not this portlet shuld be rendered',
         required=True,
         readonly=True,
     )
@@ -245,10 +245,10 @@ class IPortletAssignmentMapping(
     contains('plone.portlets.interfaces.IPortletAssignment')
 
     __manager__ = schema.TextLine(
-        title=u"Name of the portlet manager this mapping belongs to"
+        title="Name of the portlet manager this mapping belongs to"
     )
     __category__ = schema.TextLine(
-        title=u'Name of the category this mapping belongs to'
+        title='Name of the category this mapping belongs to'
     )
 
 
@@ -344,8 +344,8 @@ class IPortletManagerRenderer(IContentProvider):
     )
 
     visible = schema.Bool(
-        title=u'Visible',
-        description=u'Whether or not this portlet manager (column) will be rendered at all',
+        title='Visible',
+        description='Whether or not this portlet manager (column) will be rendered at all',
         required=True,
         default=True,
     )

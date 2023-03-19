@@ -102,7 +102,7 @@ def test_portlet_metadata_availability():
             return getattr(self, '__portlet_metadata__', False)
 
         def render(self):
-            return u'dummy portlet renderer'
+            return 'dummy portlet renderer'
 
         def update(self):
             pass
@@ -112,7 +112,7 @@ def test_portlet_metadata_availability():
     # PortletRenderer as p['assignment'].data. For that, we need a class
     # where we can set an attribute 'data'
 
-    class Obj(object):
+    class Obj:
         pass
 
     from plone.portlets.constants import CONTEXT_CATEGORY
@@ -125,7 +125,7 @@ def test_portlet_metadata_availability():
         def getPortlets(self):
             p = dict()
             p['category'] = CONTEXT_CATEGORY
-            p['key'] = p['name'] = u'dummy'
+            p['key'] = p['name'] = 'dummy'
             p['assignment'] = obj = Obj()
             obj.data = DummyPortletRenderer()
             obj.available = True
@@ -136,7 +136,7 @@ def test_portlet_metadata_availability():
     # We need a dummy context that implements Interface
 
     @implementer(Interface)
-    class DummyContext(object):
+    class DummyContext:
         pass
 
     # We now test the PortletManagerRenderer. We override the _dataToPortlet

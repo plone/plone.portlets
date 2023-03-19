@@ -24,7 +24,7 @@ logger = logging.getLogger('portlets')
 
 @implementer(IPortletManagerRenderer)
 @adapter(Interface, IBrowserRequest, IBrowserView, IPortletManager)
-class PortletManagerRenderer(object):
+class PortletManagerRenderer:
 
     """Default renderer for portlet managers.
 
@@ -84,7 +84,7 @@ class PortletManagerRenderer(object):
         if self.template:
             return self.template(portlets=portlets)
         else:
-            return u'\n'.join([p['renderer'].render() for p in portlets])
+            return '\n'.join([p['renderer'].render() for p in portlets])
 
     def safe_render(self, portlet_renderer):
         try:
@@ -92,7 +92,7 @@ class PortletManagerRenderer(object):
         except ConflictError:
             raise
         except Exception:
-            logger.exception('Error while rendering %r' % (self,))
+            logger.exception(f'Error while rendering {self!r}')
             return self.error_message()
 
     # Note: By passing in a parameter that's different for each portlet

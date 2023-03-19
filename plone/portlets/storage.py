@@ -54,25 +54,25 @@ class PortletCategoryMapping(BTreeContainer, Contained):
     # The shole BTreeContainer/SampleContainer mess is a pain in the backside
 
     def __getitem__(self, key):
-        return super(PortletCategoryMapping, self).__getitem__(_coerce(key))
+        return super().__getitem__(_coerce(key))
 
     def get(self, key, default=None):
         '''See interface `IReadContainer`'''
-        return super(PortletCategoryMapping, self).get(_coerce(key), default)
+        return super().get(_coerce(key), default)
 
     def __contains__(self, key):
         '''See interface `IReadContainer`'''
-        return super(PortletCategoryMapping, self).__contains__(_coerce(key))
+        return super().__contains__(_coerce(key))
 
     has_key = __contains__
 
     def __setitem__(self, key, object):
         '''See interface `IWriteContainer`'''
-        super(PortletCategoryMapping, self).__setitem__(_coerce(key), object)
+        super().__setitem__(_coerce(key), object)
 
     def __delitem__(self, key):
         '''See interface `IWriteContainer`'''
-        super(PortletCategoryMapping, self).__delitem__(_coerce(key))
+        super().__delitem__(_coerce(key))
 
 
 @implementer(IPortletAssignmentMapping)
@@ -80,11 +80,11 @@ class PortletAssignmentMapping(OrderedContainer):
     """The default assignment mapping storage.
     """
 
-    __manager__ = u''
-    __category__ = u''
-    __name__ = u''
+    __manager__ = ''
+    __category__ = ''
+    __name__ = ''
 
-    def __init__(self, manager=u'', category=u'', name=u''):
+    def __init__(self, manager='', category='', name=''):
         # XXX: This depends on implementation detail in OrderedContainer,
         # but it uses a PersistentDict, which sucks :-/
         OrderedContainer.__init__(self)

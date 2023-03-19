@@ -53,7 +53,7 @@ def hashPortletInfo(info):
         if hasattr(v, 'decode'):
             v = v.decode('utf8')
         newinfo[k] = v
-    concat_txt = u'%(manager)s\n%(category)s\n%(key)s\n%(name)s' % newinfo
+    concat_txt = '%(manager)s\n%(category)s\n%(key)s\n%(name)s' % newinfo
     info['hash'] = binascii.b2a_hex(concat_txt.encode('utf8'))
     return info['hash']
 

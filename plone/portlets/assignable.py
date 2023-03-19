@@ -39,7 +39,7 @@ def localPortletAssignmentMappingAdapter(context, manager):
 
 
 @implementer(ILocalPortletAssignmentManager)
-class LocalPortletAssignmentManager(object):
+class LocalPortletAssignmentManager:
     """Default implementation of ILocalPortletAssignmentManager which stores
     information in an annotation.
     """
@@ -90,9 +90,7 @@ class BlockingLocalPortletAssignmentManager(LocalPortletAssignmentManager):
     adapts(ILocalPortletAssignable, IBlockingPortletManager)
 
     def getBlacklistStatus(self, category):
-        value = super(
-            BlockingLocalPortletAssignmentManager, self
-        ).getBlacklistStatus(category)
+        value = super().getBlacklistStatus(category)
         if category is CONTEXT_CATEGORY and value is None:
             return True
         return value

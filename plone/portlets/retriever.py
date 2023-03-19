@@ -16,7 +16,7 @@ from zope.interface import Interface
 
 
 @implementer(IPortletRetriever)
-class PortletRetriever(object):
+class PortletRetriever:
     """The default portlet retriever.
 
     This will examine the context and its parents for contextual portlets,
