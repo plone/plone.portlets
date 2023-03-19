@@ -41,7 +41,7 @@ setup(
     namespace_packages=["plone"],
     include_package_data=True,
     zip_safe=False,
-    python_requires=">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*",
+    python_requires=">=3.8",
     extras_require=dict(
         test=[
             "zope.browserpage",
