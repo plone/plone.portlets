@@ -12,14 +12,14 @@ optionflags = doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS
 def configurationSetUp(test=None):
     setUp()
 
+    import plone.memoize
+    import plone.portlets
     import zope.annotation
     import zope.browserpage
     import zope.component
     import zope.container
     import zope.contentprovider
     import zope.security
-    import plone.memoize
-    import plone.portlets
 
     XMLConfig('meta.zcml', zope.security)()
     XMLConfig('meta.zcml', zope.component)()
@@ -74,14 +74,12 @@ def test_portlet_metadata_availability():
     # the PortletManagerRenderer checks for the availability of
     # the PortletRenderers
 
+    # Define a dummy PortletManager
+    from plone.portlets.interfaces import IPortletManager
     from zope.component import adapter
     from zope.component import provideAdapter
     from zope.interface import implementer
     from zope.interface import Interface
-
-    # Define a dummy PortletManager
-
-    from plone.portlets.interfaces import IPortletManager
 
     class IDummyPortletManager(IPortletManager):
         "Dummy portlet manager"
@@ -154,8 +152,8 @@ def test_portlet_metadata_availability():
     from zope.publisher.browser import TestRequest
     request = TestRequest()
 
-    from zope.interface import alsoProvides
     from zope.annotation.interfaces import IAttributeAnnotatable
+    from zope.interface import alsoProvides
     alsoProvides(request, IAttributeAnnotatable)
 
     # Check that a PortletManagerRenderer is capable of rendering our

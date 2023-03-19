@@ -4,10 +4,10 @@ from zope.container.constraints import contains
 from zope.container.interfaces import IContainer
 from zope.container.interfaces import IContainerNamesContainer
 from zope.container.interfaces import IOrderedContainer
-from zope.location.interfaces import IContained
 from zope.contentprovider.interfaces import IContentProvider
 from zope.interface import Attribute
 from zope.interface import Interface
+from zope.location.interfaces import IContained
 
 
 # Context - the application layer must provide these
