@@ -51,9 +51,11 @@ setup(
         ]
     ),
     install_requires=[
+        "BTrees",
         "setuptools",
         "ZODB",
         "plone.memoize",
+        "persistent",
         "zope.annotation",
         "zope.component",
         "zope.container",
