@@ -2,15 +2,13 @@ from setuptools import find_packages
 from setuptools import setup
 
 
-version = '2.3.4.dev0'
+version = "2.3.4.dev0"
 
 setup(
-    name='plone.portlets',
+    name="plone.portlets",
     version=version,
     description="An extension of zope.viewlet to support dynamic portlets",
-    long_description=(
-        open("README.rst").read() + "\n" + open("CHANGES.rst").read()
-    ),
+    long_description=(open("README.rst").read() + "\n" + open("CHANGES.rst").read()),
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
@@ -34,35 +32,35 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
     ],
-    keywords='portlet viewlet',
-    author='Plone Foundation',
-    author_email='plone-developers@lists.sourceforge.net',
-    url='https://github.com/plone/plone.portlets',
-    license='GPL version 2',
+    keywords="portlet viewlet",
+    author="Plone Foundation",
+    author_email="plone-developers@lists.sourceforge.net",
+    url="https://github.com/plone/plone.portlets",
+    license="GPL version 2",
     packages=find_packages(),
-    namespace_packages=['plone'],
+    namespace_packages=["plone"],
     include_package_data=True,
     zip_safe=False,
-    python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*',
+    python_requires=">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*",
     extras_require=dict(
         test=[
-            'zope.browserpage',
-            'zope.configuration',
-            'zope.location',
-            'zope.security',
+            "zope.browserpage",
+            "zope.configuration",
+            "zope.location",
+            "zope.security",
         ]
     ),
     install_requires=[
-        'setuptools',
-        'ZODB',
-        'plone.memoize',
-        'zope.annotation',
-        'zope.component',
-        'zope.container',
-        'zope.contentprovider',
-        'zope.interface',
-        'zope.publisher',
-        'zope.schema',
-        'zope.site',
+        "setuptools",
+        "ZODB",
+        "plone.memoize",
+        "zope.annotation",
+        "zope.component",
+        "zope.container",
+        "zope.contentprovider",
+        "zope.interface",
+        "zope.publisher",
+        "zope.schema",
+        "zope.site",
     ],
 )

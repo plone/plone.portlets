@@ -68,9 +68,7 @@ class LocalPortletAssignmentManager:
         local = annotations.get(CONTEXT_BLACKLIST_STATUS_KEY, None)
         if local is None:
             if create:
-                local = annotations[
-                    CONTEXT_BLACKLIST_STATUS_KEY
-                ] = PersistentDict()
+                local = annotations[CONTEXT_BLACKLIST_STATUS_KEY] = PersistentDict()
             else:
                 return None
         blacklist = local.get(self.manager.__name__, None)

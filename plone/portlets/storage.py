@@ -18,7 +18,7 @@ import sys
 # Directory where user ids are binary GUIDs. However, that's a problem for
 # another day, since it'll require more complex migration.
 
-LOG = logging.getLogger('portlets')
+LOG = logging.getLogger("portlets")
 
 if sys.version_info[0] > 2:
     text_type = str
@@ -31,24 +31,22 @@ else:
 def _coerce(key):
     if isinstance(key, binary_type):
         try:
-            key = text_type(key, encoding='utf-8')
+            key = text_type(key, encoding="utf-8")
         except UnicodeDecodeError:
-            LOG.warn('Unable to convert %r to unicode' % key)
-            return text_type(key, 'utf-8', 'ignore')
+            LOG.warn("Unable to convert %r to unicode" % key)
+            return text_type(key, "utf-8", "ignore")
 
     return key
 
 
 @implementer(IPortletStorage)
 class PortletStorage(BTreeContainer):
-    """The default portlet storage.
-    """
+    """The default portlet storage."""
 
 
 @implementer(IPortletCategoryMapping)
 class PortletCategoryMapping(BTreeContainer, Contained):
-    """The default category/key mapping storage.
-    """
+    """The default category/key mapping storage."""
 
     # We need to hack some stuff to make sure keys are unicode.
     # The shole BTreeContainer/SampleContainer mess is a pain in the backside
@@ -57,34 +55,33 @@ class PortletCategoryMapping(BTreeContainer, Contained):
         return super().__getitem__(_coerce(key))
 
     def get(self, key, default=None):
-        '''See interface `IReadContainer`'''
+        """See interface `IReadContainer`"""
         return super().get(_coerce(key), default)
 
     def __contains__(self, key):
-        '''See interface `IReadContainer`'''
+        """See interface `IReadContainer`"""
         return super().__contains__(_coerce(key))
 
     has_key = __contains__
 
     def __setitem__(self, key, object):
-        '''See interface `IWriteContainer`'''
+        """See interface `IWriteContainer`"""
         super().__setitem__(_coerce(key), object)
 
     def __delitem__(self, key):
-        '''See interface `IWriteContainer`'''
+        """See interface `IWriteContainer`"""
         super().__delitem__(_coerce(key))
 
 
 @implementer(IPortletAssignmentMapping)
 class PortletAssignmentMapping(OrderedContainer):
-    """The default assignment mapping storage.
-    """
+    """The default assignment mapping storage."""
 
-    __manager__ = ''
-    __category__ = ''
-    __name__ = ''
+    __manager__ = ""
+    __category__ = ""
+    __name__ = ""
 
-    def __init__(self, manager='', category='', name=''):
+    def __init__(self, manager="", category="", name=""):
         # XXX: This depends on implementation detail in OrderedContainer,
         # but it uses a PersistentDict, which sucks :-/
         OrderedContainer.__init__(self)

@@ -141,17 +141,17 @@ class PortletRetriever:
         for category, key, assignment in categories:
             try:
                 settings = IPortletAssignmentSettings(assignment)
-                if not settings.get('visible', True):
+                if not settings.get("visible", True):
                     continue
             except TypeError:
                 # Portlet does not exist any longer
                 continue
             assignments.append(
                 {
-                    'category': category,
-                    'key': key,
-                    'name': str(assignment.__name__),
-                    'assignment': assignment,
+                    "category": category,
+                    "key": key,
+                    "name": str(assignment.__name__),
+                    "assignment": assignment,
                 }
             )
         return assignments
@@ -190,15 +190,15 @@ class PlacelessPortletRetriever(PortletRetriever):
                         # Portlet does not exist any longer
                         continue
                     else:
-                        if not settings.get('visible', True):
+                        if not settings.get("visible", True):
                             continue
 
                     assignments.append(
                         {
-                            'category': category,
-                            'key': key,
-                            'name': assignment.__name__,
-                            'assignment': assignment,
+                            "category": category,
+                            "key": key,
+                            "name": assignment.__name__,
+                            "assignment": assignment,
                         }
                     )
 

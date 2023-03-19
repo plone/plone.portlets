@@ -50,12 +50,12 @@ def hashPortletInfo(info):
     # Make sure all info values are decoded
     newinfo = {}
     for k, v in info.items():
-        if hasattr(v, 'decode'):
-            v = v.decode('utf8')
+        if hasattr(v, "decode"):
+            v = v.decode("utf8")
         newinfo[k] = v
-    concat_txt = '%(manager)s\n%(category)s\n%(key)s\n%(name)s' % newinfo
-    info['hash'] = binascii.b2a_hex(concat_txt.encode('utf8'))
-    return info['hash']
+    concat_txt = "%(manager)s\n%(category)s\n%(key)s\n%(name)s" % newinfo
+    info["hash"] = binascii.b2a_hex(concat_txt.encode("utf8"))
+    return info["hash"]
 
 
 def unhashPortletInfo(hash):
@@ -66,7 +66,5 @@ def unhashPortletInfo(hash):
     """
     concat_txt = binascii.a2b_hex(hash).decode()
     manager, category, key, name = concat_txt.splitlines()
-    info = dict(
-        manager=manager, category=category, key=key, name=name, hash=hash
-    )
+    info = dict(manager=manager, category=category, key=key, name=name, hash=hash)
     return info

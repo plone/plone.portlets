@@ -21,18 +21,18 @@ def configurationSetUp(test=None):
     import zope.contentprovider
     import zope.security
 
-    XMLConfig('meta.zcml', zope.security)()
-    XMLConfig('meta.zcml', zope.component)()
-    XMLConfig('meta.zcml', zope.browserpage)()
+    XMLConfig("meta.zcml", zope.security)()
+    XMLConfig("meta.zcml", zope.component)()
+    XMLConfig("meta.zcml", zope.browserpage)()
 
-    XMLConfig('configure.zcml', zope.annotation)()
-    XMLConfig('configure.zcml', zope.component)()
-    XMLConfig('configure.zcml', zope.security)()
-    XMLConfig('configure.zcml', zope.container)()
-    XMLConfig('configure.zcml', zope.contentprovider)()
-    XMLConfig('configure.zcml', plone.memoize)()
+    XMLConfig("configure.zcml", zope.annotation)()
+    XMLConfig("configure.zcml", zope.component)()
+    XMLConfig("configure.zcml", zope.security)()
+    XMLConfig("configure.zcml", zope.container)()
+    XMLConfig("configure.zcml", zope.contentprovider)()
+    XMLConfig("configure.zcml", plone.memoize)()
 
-    XMLConfig('configure.zcml', plone.portlets)()
+    XMLConfig("configure.zcml", plone.portlets)()
 
 
 def configurationTearDown(test=None):
@@ -97,10 +97,10 @@ def test_portlet_metadata_availability():
     class DummyPortletRenderer:
         @property
         def available(self):
-            return getattr(self, '__portlet_metadata__', False)
+            return getattr(self, "__portlet_metadata__", False)
 
         def render(self):
-            return 'dummy portlet renderer'
+            return "dummy portlet renderer"
 
         def update(self):
             pass
@@ -122,9 +122,9 @@ def test_portlet_metadata_availability():
     class DummyPortletRetriever(PortletRetriever):
         def getPortlets(self):
             p = dict()
-            p['category'] = CONTEXT_CATEGORY
-            p['key'] = p['name'] = 'dummy'
-            p['assignment'] = obj = Obj()
+            p["category"] = CONTEXT_CATEGORY
+            p["key"] = p["name"] = "dummy"
+            p["assignment"] = obj = Obj()
             obj.data = DummyPortletRenderer()
             obj.available = True
             return (p,)
@@ -150,10 +150,12 @@ def test_portlet_metadata_availability():
     # prepare a memoizeable test request
 
     from zope.publisher.browser import TestRequest
+
     request = TestRequest()
 
     from zope.annotation.interfaces import IAttributeAnnotatable
     from zope.interface import alsoProvides
+
     alsoProvides(request, IAttributeAnnotatable)
 
     # Check that a PortletManagerRenderer is capable of rendering our
@@ -171,19 +173,19 @@ def test_suite():
     return unittest.TestSuite(
         (
             doctest.DocFileSuite(
-                'README.txt',
+                "README.txt",
                 setUp=configurationSetUp,
                 tearDown=configurationTearDown,
                 optionflags=optionflags,
             ),
             doctest.DocFileSuite(
-                'uisupport.txt',
+                "uisupport.txt",
                 setUp=configurationSetUp,
                 tearDown=configurationTearDown,
                 optionflags=optionflags,
             ),
             doctest.DocFileSuite(
-                'utils.txt',
+                "utils.txt",
                 setUp=configurationSetUp,
                 tearDown=configurationTearDown,
                 optionflags=optionflags,

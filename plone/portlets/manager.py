@@ -19,7 +19,7 @@ from zope.publisher.interfaces.browser import IBrowserView
 import logging
 
 
-logger = logging.getLogger('portlets')
+logger = logging.getLogger("portlets")
 
 
 @implementer(IPortletManagerRenderer)
@@ -53,7 +53,7 @@ class PortletManagerRenderer:
         filtered = []
         for p in portlets:
             try:
-                if p['assignment'].available:
+                if p["assignment"].available:
                     filtered.append(p)
             except ConflictError:
                 raise
@@ -61,12 +61,12 @@ class PortletManagerRenderer:
                 logger.exception(
                     "Error while determining assignment availability of "
                     "portlet (%r %r %r): %s"
-                    % (p['category'], p['key'], p['name'], str(e))
+                    % (p["category"], p["key"], p["name"], str(e))
                 )
         return filtered
 
     def portletsToShow(self):
-        return [p for p in self.allPortlets() if p['available']]
+        return [p for p in self.allPortlets() if p["available"]]
 
     def allPortlets(self):
         return self._lazyLoadPortlets(self.manager)
@@ -74,7 +74,7 @@ class PortletManagerRenderer:
     def update(self):
         self.__updated = True
         for p in self.portletsToShow():
-            p['renderer'].update()
+            p["renderer"].update()
 
     def render(self):
         if not self.__updated:
@@ -84,7 +84,7 @@ class PortletManagerRenderer:
         if self.template:
             return self.template(portlets=portlets)
         else:
-            return '\n'.join([p['renderer'].render() for p in portlets])
+            return "\n".join([p["renderer"].render() for p in portlets])
 
     def safe_render(self, portlet_renderer):
         try:
@@ -92,7 +92,7 @@ class PortletManagerRenderer:
         except ConflictError:
             raise
         except Exception:
-            logger.exception(f'Error while rendering {self!r}')
+            logger.exception(f"Error while rendering {self!r}")
             return self.error_message()
 
     # Note: By passing in a parameter that's different for each portlet
@@ -107,14 +107,14 @@ class PortletManagerRenderer:
         retriever = getMultiAdapter((self.context, manager), IPortletRetriever)
         items = []
         for p in self.filter(retriever.getPortlets()):
-            renderer = self._dataToPortlet(p['assignment'].data)
+            renderer = self._dataToPortlet(p["assignment"].data)
             info = p.copy()
-            info['manager'] = self.manager.__name__
-            info['renderer'] = renderer
+            info["manager"] = self.manager.__name__
+            info["renderer"] = renderer
             hashPortletInfo(info)
             # Record metadata on the renderer
             renderer.__portlet_metadata__ = info.copy()
-            del renderer.__portlet_metadata__['renderer']
+            del renderer.__portlet_metadata__["renderer"]
             try:
                 isAvailable = renderer.available
             except ConflictError:
@@ -123,11 +123,10 @@ class PortletManagerRenderer:
                 isAvailable = False
                 logger.exception(
                     "Error while determining renderer availability of portlet "
-                    "(%r %r %r): %s"
-                    % (p['category'], p['key'], p['name'], str(e))
+                    "(%r %r %r): %s" % (p["category"], p["key"], p["name"], str(e))
                 )
 
-            info['available'] = isAvailable
+            info["available"] = isAvailable
             items.append(info)
 
         return items
@@ -153,9 +152,7 @@ class PortletManager(PortletStorage):
     __name__ = __parent__ = None
 
     def __call__(self, context, request, view):
-        return getMultiAdapter(
-            (context, request, view, self), IPortletManagerRenderer
-        )
+        return getMultiAdapter((context, request, view, self), IPortletManagerRenderer)
 
     def getAddablePortletTypes(self):
         addable = []

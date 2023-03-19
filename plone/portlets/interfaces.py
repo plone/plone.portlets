@@ -83,19 +83,19 @@ class IPortletType(Interface):
     providing IPortletType, so that UI can find them.
     """
 
-    title = schema.TextLine(title='Title', required=True)
+    title = schema.TextLine(title="Title", required=True)
 
-    description = schema.Text(title='Description', required=False)
+    description = schema.Text(title="Description", required=False)
 
     addview = schema.TextLine(
-        title='Add view',
-        description='The name of the add view for assignments for this portlet type',
+        title="Add view",
+        description="The name of the add view for assignments for this portlet type",
         required=True,
     )
 
     for_ = Attribute(
-        'An interface a portlet manager must have to allow this type of portlet. '
-        'May be None if there are no restrictions.'
+        "An interface a portlet manager must have to allow this type of portlet. "
+        "May be None if there are no restrictions."
     )
 
 
@@ -137,19 +137,19 @@ class IPortletAssignment(IContained, IAttributeAnnotatable):
     """
 
     title = schema.Bool(
-        title='Title',
-        description='The title of this assignment as displayed to the user',
+        title="Title",
+        description="The title of this assignment as displayed to the user",
         required=True,
     )
 
     available = schema.Bool(
-        title='Available',
-        description='Whether or not this portlet should be rendered',
+        title="Available",
+        description="Whether or not this portlet should be rendered",
         required=True,
         readonly=True,
     )
 
-    data = Attribute('Portlet data object')
+    data = Attribute("Portlet data object")
 
 
 # A content provider capable of rendering portlets - each type of portlet will
@@ -176,8 +176,8 @@ class IPortletRenderer(IContentProvider):
     )
 
     available = schema.Bool(
-        title='Available',
-        description='Whether or not this portlet shuld be rendered',
+        title="Available",
+        description="Whether or not this portlet shuld be rendered",
         required=True,
         readonly=True,
     )
@@ -215,7 +215,7 @@ class IPortletStorage(IContainer):
     Some common keys are found in plone.portlets.constants.
     """
 
-    contains('plone.portlets.interfaces.IPortletCategoryMapping')
+    contains("plone.portlets.interfaces.IPortletCategoryMapping")
 
 
 class IPortletCategoryMapping(IContainer, IContained):
@@ -227,7 +227,7 @@ class IPortletCategoryMapping(IContainer, IContained):
     which would be given a particular IPortletAssignmentMapping.
     """
 
-    contains('plone.portlets.interfaces.IPortletAssignmentMapping')
+    contains("plone.portlets.interfaces.IPortletAssignmentMapping")
 
 
 class IPortletAssignmentMapping(
@@ -242,14 +242,12 @@ class IPortletAssignmentMapping(
     appropriate container.
     """
 
-    contains('plone.portlets.interfaces.IPortletAssignment')
+    contains("plone.portlets.interfaces.IPortletAssignment")
 
     __manager__ = schema.TextLine(
         title="Name of the portlet manager this mapping belongs to"
     )
-    __category__ = schema.TextLine(
-        title='Name of the category this mapping belongs to'
-    )
+    __category__ = schema.TextLine(title="Name of the category this mapping belongs to")
 
 
 class ILocalPortletAssignmentManager(Interface):
@@ -329,8 +327,7 @@ class IPlacelessPortletManager(IPortletManager):
 
 
 class IPortletManagerRenderer(IContentProvider):
-    """A content provider for rendering a portlet manager.
-    """
+    """A content provider for rendering a portlet manager."""
 
     template = Attribute(
         """A page template object to render the manager with.
@@ -344,8 +341,8 @@ class IPortletManagerRenderer(IContentProvider):
     )
 
     visible = schema.Bool(
-        title='Visible',
-        description='Whether or not this portlet manager (column) will be rendered at all',
+        title="Visible",
+        description="Whether or not this portlet manager (column) will be rendered at all",
         required=True,
         default=True,
     )
@@ -372,7 +369,7 @@ class IPortletManagerRenderer(IContentProvider):
 
 
 class IPortletAssignmentSettings(Interface):
-    """ Adapts IPortletAssignment to return additional settings for a portlet assignment.
+    """Adapts IPortletAssignment to return additional settings for a portlet assignment.
 
     Implementations of this interface will typically be stored in an annotation
     of the assignment.
