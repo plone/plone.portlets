@@ -43,7 +43,7 @@ class IPortletContext(Interface):
     def globalPortletCategories(placeless=False):
         """Get global portlet key-value pairs, in order.
 
-        When rendered, a portlet manger (column) will be filled first by
+        When rendered, a portlet manager (column) will be filled first by
         contextual portlets (if the context and/or its parents provide
         ILocalPortletAssignable), and then by global portlets. Global portlet
         assignments may include portlets per user, per group, or per content
@@ -177,7 +177,7 @@ class IPortletRenderer(IContentProvider):
 
     available = schema.Bool(
         title="Available",
-        description="Whether or not this portlet shuld be rendered",
+        description="Whether or not this portlet should be rendered",
         required=True,
         readonly=True,
     )
@@ -203,7 +203,7 @@ class IPortletRetriever(Interface):
         """
 
 
-# Portlet managment
+# Portlet management
 
 
 class IPortletStorage(IContainer):

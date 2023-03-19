@@ -106,7 +106,7 @@ def test_portlet_metadata_availability():
             pass
 
     # Define a dummy portlet retriever that adapts our dummy portlet manager
-    # and returns in its getPortlets a mock dictinary with a dummy
+    # and returns in its getPortlets a mock dictionary with a dummy
     # PortletRenderer as p['assignment'].data. For that, we need a class
     # where we can set an attribute 'data'
 

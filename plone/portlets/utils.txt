@@ -3,7 +3,7 @@ Portlet utils
 =============
 
 The portlets need a hash that can play as an id in the html
-page. For this, a pair of symetric hash and unhash functions
+page. For this, a pair of symmetric hash and unhash functions
 is provided.
 
   >>> from plone.portlets.utils import hashPortletInfo, unhashPortletInfo
