@@ -1,0 +1,3 @@
+Drop support for Plone 5.2 and Python 2.
+Only Plone 6.0 on Python 3.8+ is supported.
+[plone devs]

@@ -10,8 +10,8 @@ class PortletType(Persistent):
     This is persistent so that it can be stored as a local utility.
     """
 
-    title = u''
-    description = u''
-    addview = u''
+    title = ""
+    description = ""
+    addview = ""
     editview = None
     for_ = None

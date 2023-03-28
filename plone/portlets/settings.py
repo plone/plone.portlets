@@ -34,8 +34,6 @@ def portletAssignmentSettingsFactory(context):
     settings = annotations.get(ASSIGNMENT_SETTINGS_KEY, None)
 
     if settings is None:
-        settings = annotations[
-            ASSIGNMENT_SETTINGS_KEY
-        ] = PortletAssignmentSettings()
+        settings = annotations[ASSIGNMENT_SETTINGS_KEY] = PortletAssignmentSettings()
 
     return settings

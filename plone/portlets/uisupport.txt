@@ -16,9 +16,7 @@ manager must have in order for the portlet to be addable to it.
 
 First, we must create a local site manager at a fictional root folder.
 
-  >>> from zope.interface import implements, Interface, directlyProvides
-  >>> from zope.component import adapts, provideAdapter
-
+  >>> from zope.interface import directlyProvides
   >>> from zope.site.folder import rootFolder, Folder
   >>> rootFolder = rootFolder()
 

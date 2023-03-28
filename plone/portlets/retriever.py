@@ -16,7 +16,7 @@ from zope.interface import Interface
 
 
 @implementer(IPortletRetriever)
-class PortletRetriever(object):
+class PortletRetriever:
     """The default portlet retriever.
 
     This will examine the context and its parents for contextual portlets,
@@ -141,17 +141,17 @@ class PortletRetriever(object):
         for category, key, assignment in categories:
             try:
                 settings = IPortletAssignmentSettings(assignment)
-                if not settings.get('visible', True):
+                if not settings.get("visible", True):
                     continue
             except TypeError:
                 # Portlet does not exist any longer
                 continue
             assignments.append(
                 {
-                    'category': category,
-                    'key': key,
-                    'name': str(assignment.__name__),
-                    'assignment': assignment,
+                    "category": category,
+                    "key": key,
+                    "name": str(assignment.__name__),
+                    "assignment": assignment,
                 }
             )
         return assignments
@@ -190,15 +190,15 @@ class PlacelessPortletRetriever(PortletRetriever):
                         # Portlet does not exist any longer
                         continue
                     else:
-                        if not settings.get('visible', True):
+                        if not settings.get("visible", True):
                             continue
 
                     assignments.append(
                         {
-                            'category': category,
-                            'key': key,
-                            'name': assignment.__name__,
-                            'assignment': assignment,
+                            "category": category,
+                            "key": key,
+                            "name": assignment.__name__,
+                            "assignment": assignment,
                         }
                     )
 

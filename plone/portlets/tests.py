@@ -12,27 +12,27 @@ optionflags = doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS
 def configurationSetUp(test=None):
     setUp()
 
+    import plone.memoize
+    import plone.portlets
     import zope.annotation
     import zope.browserpage
     import zope.component
     import zope.container
     import zope.contentprovider
     import zope.security
-    import plone.memoize
-    import plone.portlets
 
-    XMLConfig('meta.zcml', zope.security)()
-    XMLConfig('meta.zcml', zope.component)()
-    XMLConfig('meta.zcml', zope.browserpage)()
+    XMLConfig("meta.zcml", zope.security)()
+    XMLConfig("meta.zcml", zope.component)()
+    XMLConfig("meta.zcml", zope.browserpage)()
 
-    XMLConfig('configure.zcml', zope.annotation)()
-    XMLConfig('configure.zcml', zope.component)()
-    XMLConfig('configure.zcml', zope.security)()
-    XMLConfig('configure.zcml', zope.container)()
-    XMLConfig('configure.zcml', zope.contentprovider)()
-    XMLConfig('configure.zcml', plone.memoize)()
+    XMLConfig("configure.zcml", zope.annotation)()
+    XMLConfig("configure.zcml", zope.component)()
+    XMLConfig("configure.zcml", zope.security)()
+    XMLConfig("configure.zcml", zope.container)()
+    XMLConfig("configure.zcml", zope.contentprovider)()
+    XMLConfig("configure.zcml", plone.memoize)()
 
-    XMLConfig('configure.zcml', plone.portlets)()
+    XMLConfig("configure.zcml", plone.portlets)()
 
 
 def configurationTearDown(test=None):
@@ -74,14 +74,12 @@ def test_portlet_metadata_availability():
     # the PortletManagerRenderer checks for the availability of
     # the PortletRenderers
 
+    # Define a dummy PortletManager
+    from plone.portlets.interfaces import IPortletManager
     from zope.component import adapter
     from zope.component import provideAdapter
     from zope.interface import implementer
     from zope.interface import Interface
-
-    # Define a dummy PortletManager
-
-    from plone.portlets.interfaces import IPortletManager
 
     class IDummyPortletManager(IPortletManager):
         "Dummy portlet manager"
@@ -99,20 +97,20 @@ def test_portlet_metadata_availability():
     class DummyPortletRenderer:
         @property
         def available(self):
-            return getattr(self, '__portlet_metadata__', False)
+            return getattr(self, "__portlet_metadata__", False)
 
         def render(self):
-            return u'dummy portlet renderer'
+            return "dummy portlet renderer"
 
         def update(self):
             pass
 
     # Define a dummy portlet retriever that adapts our dummy portlet manager
-    # and returns in its getPortlets a mock dictinary with a dummy
+    # and returns in its getPortlets a mock dictionary with a dummy
     # PortletRenderer as p['assignment'].data. For that, we need a class
     # where we can set an attribute 'data'
 
-    class Obj(object):
+    class Obj:
         pass
 
     from plone.portlets.constants import CONTEXT_CATEGORY
@@ -124,9 +122,9 @@ def test_portlet_metadata_availability():
     class DummyPortletRetriever(PortletRetriever):
         def getPortlets(self):
             p = dict()
-            p['category'] = CONTEXT_CATEGORY
-            p['key'] = p['name'] = u'dummy'
-            p['assignment'] = obj = Obj()
+            p["category"] = CONTEXT_CATEGORY
+            p["key"] = p["name"] = "dummy"
+            p["assignment"] = obj = Obj()
             obj.data = DummyPortletRenderer()
             obj.available = True
             return (p,)
@@ -136,7 +134,7 @@ def test_portlet_metadata_availability():
     # We need a dummy context that implements Interface
 
     @implementer(Interface)
-    class DummyContext(object):
+    class DummyContext:
         pass
 
     # We now test the PortletManagerRenderer. We override the _dataToPortlet
@@ -152,10 +150,12 @@ def test_portlet_metadata_availability():
     # prepare a memoizeable test request
 
     from zope.publisher.browser import TestRequest
+
     request = TestRequest()
 
-    from zope.interface import alsoProvides
     from zope.annotation.interfaces import IAttributeAnnotatable
+    from zope.interface import alsoProvides
+
     alsoProvides(request, IAttributeAnnotatable)
 
     # Check that a PortletManagerRenderer is capable of rendering our
@@ -173,19 +173,19 @@ def test_suite():
     return unittest.TestSuite(
         (
             doctest.DocFileSuite(
-                'README.txt',
+                "README.txt",
                 setUp=configurationSetUp,
                 tearDown=configurationTearDown,
                 optionflags=optionflags,
             ),
             doctest.DocFileSuite(
-                'uisupport.txt',
+                "uisupport.txt",
                 setUp=configurationSetUp,
                 tearDown=configurationTearDown,
                 optionflags=optionflags,
             ),
             doctest.DocFileSuite(
-                'utils.txt',
+                "utils.txt",
                 setUp=configurationSetUp,
                 tearDown=configurationTearDown,
                 optionflags=optionflags,

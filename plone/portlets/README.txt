@@ -897,7 +897,7 @@ And are hidden in the view.
 Using a different retrieval algorithm
 -------------------------------------
 
-The examples above show the default portlet retrival algorithm, which finds
+The examples above show the default portlet retrieval algorithm, which finds
 portlets for children before those for parents before those for users
 before those for groups. It is relatively easy to plug in different composition
 algorithm, however.

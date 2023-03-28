@@ -39,7 +39,7 @@ def localPortletAssignmentMappingAdapter(context, manager):
 
 
 @implementer(ILocalPortletAssignmentManager)
-class LocalPortletAssignmentManager(object):
+class LocalPortletAssignmentManager:
     """Default implementation of ILocalPortletAssignmentManager which stores
     information in an annotation.
     """
@@ -68,9 +68,7 @@ class LocalPortletAssignmentManager(object):
         local = annotations.get(CONTEXT_BLACKLIST_STATUS_KEY, None)
         if local is None:
             if create:
-                local = annotations[
-                    CONTEXT_BLACKLIST_STATUS_KEY
-                ] = PersistentDict()
+                local = annotations[CONTEXT_BLACKLIST_STATUS_KEY] = PersistentDict()
             else:
                 return None
         blacklist = local.get(self.manager.__name__, None)
@@ -90,9 +88,7 @@ class BlockingLocalPortletAssignmentManager(LocalPortletAssignmentManager):
     adapts(ILocalPortletAssignable, IBlockingPortletManager)
 
     def getBlacklistStatus(self, category):
-        value = super(
-            BlockingLocalPortletAssignmentManager, self
-        ).getBlacklistStatus(category)
+        value = super().getBlacklistStatus(category)
         if category is CONTEXT_CATEGORY and value is None:
             return True
         return value
