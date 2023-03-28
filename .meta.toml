@@ -2,7 +2,7 @@
 # https://github.com/plone/meta/tree/master/config/default
 [meta]
 template = "default"
-commit-id = "80cf330f"
+commit-id = "e380661b"
 
 [dependencies]
 ignores = "['zope.testing']"
