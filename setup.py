@@ -48,6 +48,7 @@ setup(
             "zope.configuration",
             "zope.location",
             "zope.security",
+            'zope.testing',
         ]
     ),
     install_requires=[

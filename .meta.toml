@@ -3,3 +3,6 @@
 [meta]
 template = "default"
 commit-id = "80cf330f"
+
+[dependencies]
+ignores = "['zope.testing']"
