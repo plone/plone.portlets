@@ -8,6 +8,24 @@ Changelog
 
 .. towncrier release notes start
 
+3.0.0 (2023-04-06)
+------------------
+
+Breaking changes:
+
+
+- Drop support for Plone 5.2 and Python 2.
+  Only Plone 6.0 on Python 3.8+ is supported.
+  [plone devs] (#9)
+
+
+Internal:
+
+
+- Update configuration files.
+  [plone devs] (80cf330f)
+
+
 2.3.3 (2023-03-14)
 ------------------
 
