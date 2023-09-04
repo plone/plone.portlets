@@ -4,3 +4,6 @@
 [meta]
 template = "default"
 commit-id = "21759c8c"
+
+[pyproject]
+dependencies_ignores = "['zope.testing']"
