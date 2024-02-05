@@ -25,7 +25,6 @@ logger = logging.getLogger("portlets")
 @implementer(IPortletManagerRenderer)
 @adapter(Interface, IBrowserRequest, IBrowserView, IPortletManager)
 class PortletManagerRenderer:
-
     """Default renderer for portlet managers.
 
     When the zope.contentprovider handler for the provider: expression looks up
