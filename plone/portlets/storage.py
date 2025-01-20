@@ -74,7 +74,7 @@ class PortletAssignmentMapping(OrderedContainer):
 
     def __init__(self, manager="", category="", name=""):
         # XXX: This depends on implementation detail in OrderedContainer,
-        # but it uses a PersistentDict, which sucks :-/
+        # but it uses a PersistentMapping, which sucks :-/
         OrderedContainer.__init__(self)
         self._data = OOBTree()
 

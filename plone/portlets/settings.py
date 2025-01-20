@@ -1,4 +1,4 @@
-from persistent.dict import PersistentDict
+from persistent.mapping import PersistentMapping
 from plone.portlets.constants import ASSIGNMENT_SETTINGS_KEY
 from plone.portlets.interfaces import IPortletAssignment
 from plone.portlets.interfaces import IPortletAssignmentSettings
@@ -12,7 +12,7 @@ from zope.interface import implementer
 @implementer(IPortletAssignmentSettings)
 class PortletAssignmentSettings(Contained):
     def __init__(self):
-        self.data = PersistentDict()
+        self.data = PersistentMapping()
 
     def __setitem__(self, name, value):
         self.data[name] = value

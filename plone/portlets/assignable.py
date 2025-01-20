@@ -1,5 +1,5 @@
 from BTrees.OOBTree import OOBTree
-from persistent.dict import PersistentDict
+from persistent.mapping import PersistentMapping
 from plone.portlets.constants import CONTEXT_ASSIGNMENT_KEY
 from plone.portlets.constants import CONTEXT_BLACKLIST_STATUS_KEY
 from plone.portlets.constants import CONTEXT_CATEGORY
@@ -68,13 +68,13 @@ class LocalPortletAssignmentManager:
         local = annotations.get(CONTEXT_BLACKLIST_STATUS_KEY, None)
         if local is None:
             if create:
-                local = annotations[CONTEXT_BLACKLIST_STATUS_KEY] = PersistentDict()
+                local = annotations[CONTEXT_BLACKLIST_STATUS_KEY] = PersistentMapping()
             else:
                 return None
         blacklist = local.get(self.manager.__name__, None)
         if blacklist is None:
             if create:
-                blacklist = local[self.manager.__name__] = PersistentDict()
+                blacklist = local[self.manager.__name__] = PersistentMapping()
             else:
                 return None
         return blacklist
