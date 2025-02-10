@@ -1,9 +1,9 @@
 # Generated from:
-# https://github.com/plone/meta/tree/master/config/default
+# https://github.com/plone/meta/tree/main/src/plone/meta/default
 # See the inline comments on how to expand/tweak this configuration file
 [meta]
 template = "default"
-commit-id = "21759c8c"
+commit-id = "77c1c7d7"
 
 [pyproject]
 dependencies_ignores = "['zope.testing']"
