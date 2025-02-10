@@ -48,6 +48,7 @@ setup(
             "zope.configuration",
             "zope.location",
             "zope.security",
+            "zope.site",
             "zope.testing",
         ]
     ),
@@ -62,8 +63,8 @@ setup(
         "zope.container",
         "zope.contentprovider",
         "zope.interface",
+        "zope.location",
         "zope.publisher",
         "zope.schema",
-        "zope.site",
     ],
 )
