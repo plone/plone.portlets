@@ -49,7 +49,6 @@ setup(
     ),
     install_requires=[
         "BTrees",
-        "setuptools",
         "ZODB",
         "plone.memoize",
         "persistent",
