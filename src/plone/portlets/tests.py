@@ -5,7 +5,6 @@ from zope.configuration.xmlconfig import XMLConfig
 import doctest
 import unittest
 
-
 optionflags = doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS
 
 
