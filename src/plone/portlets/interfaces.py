@@ -9,7 +9,6 @@ from zope.interface import Attribute
 from zope.interface import Interface
 from zope.location.interfaces import IContained
 
-
 # Context - the application layer must provide these
 
 
@@ -329,16 +328,14 @@ class IPlacelessPortletManager(IPortletManager):
 class IPortletManagerRenderer(IContentProvider):
     """A content provider for rendering a portlet manager."""
 
-    template = Attribute(
-        """A page template object to render the manager with.
+    template = Attribute("""A page template object to render the manager with.
 
         If given, this will be passed an option 'portlets' that is a list of
         the IPortletRenderer objects to render.
 
         If not set, the renderers will simply be called one by one, and their
         output will be concatenated, separated by newlines.
-        """
-    )
+        """)
 
     visible = schema.Bool(
         title="Visible",
