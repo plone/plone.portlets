@@ -9,7 +9,6 @@ from zope.interface import Attribute
 from zope.interface import Interface
 from zope.location.interfaces import IContained
 
-
 # Context - the application layer must provide these
 
 

@@ -18,7 +18,6 @@ from zope.publisher.interfaces.browser import IBrowserView
 
 import logging
 
-
 logger = logging.getLogger("portlets")
 
 
