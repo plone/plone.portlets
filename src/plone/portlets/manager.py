@@ -9,8 +9,8 @@ from plone.portlets.utils import hashPortletInfo
 from ZODB.POSException import ConflictError
 from zope.component import adapter
 from zope.component import getMultiAdapter
-from zope.component import queryMultiAdapter
 from zope.component import getUtilitiesFor
+from zope.component import queryMultiAdapter
 from zope.contentprovider.interfaces import UpdateNotCalled
 from zope.interface import implementer
 from zope.interface import Interface
