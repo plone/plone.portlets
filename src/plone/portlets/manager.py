@@ -9,6 +9,7 @@ from plone.portlets.utils import hashPortletInfo
 from ZODB.POSException import ConflictError
 from zope.component import adapter
 from zope.component import getMultiAdapter
+from zope.component import queryMultiAdapter
 from zope.component import getUtilitiesFor
 from zope.contentprovider.interfaces import UpdateNotCalled
 from zope.interface import implementer
@@ -106,6 +107,14 @@ class PortletManagerRenderer:
         items = []
         for p in self.filter(retriever.getPortlets()):
             renderer = self._dataToPortlet(p["assignment"].data)
+            if renderer is None:
+                logger.warning(
+                    "No renderer found for portlet (%r %r %r), skipping.",
+                    p["category"],
+                    p["key"],
+                    p["name"],
+                )
+                continue
             info = p.copy()
             info["manager"] = self.manager.__name__
             info["renderer"] = renderer
@@ -133,7 +142,7 @@ class PortletManagerRenderer:
         """Helper method to get the correct IPortletRenderer for the given
         data object.
         """
-        return getMultiAdapter(
+        return queryMultiAdapter(
             (self.context, self.request, self.__parent__, self.manager, data),
             IPortletRenderer,
         )
