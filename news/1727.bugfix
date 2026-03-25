@@ -1,2 +1,0 @@
-Use ``queryMultiAdapter`` instead of ``getMultiAdapter`` in ``_dataToPortlet`` so a missing portlet renderer (e.g., after uninstalling an add-on) no longer crashes the page.
-@jensens

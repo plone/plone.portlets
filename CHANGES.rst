@@ -8,6 +8,23 @@ Changelog
 
 .. towncrier release notes start
 
+4.0.0a2 (2026-03-25)
+--------------------
+
+Bug fixes:
+
+
+- Use ``queryMultiAdapter`` instead of ``getMultiAdapter`` in ``_dataToPortlet`` so a missing portlet renderer (e.g., after uninstalling an add-on) no longer crashes the page.
+  @jensens (#1727)
+
+
+Internal:
+
+
+- Update configuration files.
+  [plone devs]
+
+
 4.0.0a1 (2025-11-19)
 --------------------
 
