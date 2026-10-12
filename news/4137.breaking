@@ -1,0 +1,5 @@
+Merge ``plone.app.portlets``, ``plone.portlet.collection`` and ``plone.portlet.static`` into this distribution, with their complete git history.
+Import paths do not change.
+The three former distributions are continued as empty packages that depend on ``plone.portlets``.
+See `PLIP 4137 <https://github.com/plone/Products.CMFPlone/issues/4137>`_.
+@jensens
