@@ -10,13 +10,13 @@ requires = ["setuptools>=68.2,<83", "wheel"]
 
 [project]
 name = "plone.portlets"
-version = "4.0.1.dev0"
-description = "An extension of zope.viewlet to support dynamic portlets"
+version = "5.0.0a1.dev0"
+description = "Portlet infrastructure, the Plone portlet user interface and the standard portlets of Plone"
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 3 - Alpha",
     "Environment :: Web Environment",
     "Framework :: Plone",
-    "Framework :: Plone :: 6.2",
+    "Framework :: Plone :: 6.3",
     "Framework :: Plone :: Core",
     "Framework :: Zope :: 5",
     "Operating System :: OS Independent",
@@ -38,10 +38,34 @@ maintainers = [
 ]
 dependencies = [
     "BTrees",
-    "ZODB",
+    "ExtensionClass",
+    "feedparser",
+    "five.customerize",
     "persistent",
+    "plone.app.i18n",
+    "plone.app.layout",
+    "plone.app.querystring",
+    "plone.app.textfield",
+    "plone.app.uuid",
+    "plone.app.vocabularies",
+    "plone.app.z3cform",
+    "plone.autoform",
+    "plone.base",
+    "plone.i18n",
     "plone.memoize",
+    "plone.protect",
+    "plone.registry",
+    "Products.GenericSetup",
+    "Products.MimetypesRegistry",
+    "Products.PluggableAuthService",
+    "Products.PythonScripts",
+    "Products.statusmessages",
+    "requests",
+    "z3c.form",
+    "ZODB",
+    "Zope",
     "zope.annotation",
+    "zope.browser",
     "zope.component",
     "zope.container",
     "zope.contentprovider",
@@ -50,13 +74,20 @@ dependencies = [
     "zope.publisher",
     "zope.schema",
 ]
-keywords = ["portlet", "viewlet"]
+keywords = ["plone", "portlet", "viewlet"]
 
 [project.optional-dependencies]
 test = [
+    "five.intid",
+    "lxml",
+    "plone.app.contenttypes[test]",
+    "plone.app.testing",
+    "plone.namedfile",
+    "plone.testing",
+    "plone.z3cform",
     "zope.browserpage",
     "zope.configuration",
-    "zope.location",
+    "zope.intid",
     "zope.security",
     "zope.site",
     "zope.testing",

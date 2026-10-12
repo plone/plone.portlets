@@ -3,10 +3,15 @@
 # See the inline comments on how to expand/tweak this configuration file
 [meta]
 template = "default"
-commit-id = "2.8.0"
+commit-id = "2.9.0"
 
 [tox]
-test_matrix = {"6.2" = ["*"]}
+test_matrix = {"6.3" = ["*"]}
+# One test and coverage run over all four packages in src/plone/.
+package_name = "plone"
 
 [pyproject]
-dependencies_ignores = "['zope.testing']"
+dependencies_ignores = "['zope.testing', 'Products.CMFPlone', 'plone.app.event', 'plone.app.vocabularies']"
+dependencies_mappings = [
+    "ExtensionClass = ['ComputedAttribute']",
+    ]
