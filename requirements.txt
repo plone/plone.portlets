@@ -1,0 +1,2 @@
+# Input for mxdev, see mx.ini (transition for PLIP 4137).
+-c https://dist.plone.org/release/6.3-dev/constraints.txt
