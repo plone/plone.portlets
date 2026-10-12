@@ -20,6 +20,10 @@ test_deps_additional = """
 """
 
 [pyproject]
+# requirements.txt is only the mxdev input of the PLIP 4137 transition, see mx.ini.
+check_manifest_ignores = """
+    "requirements.txt",
+"""
 # plone.app.portlets and plone.portlet.* are part of this distribution.
 dependencies_ignores = "['zope.testing', 'Products.CMFPlone', 'plone.app.event', 'plone.app.vocabularies', 'plone.app.portlets', 'plone.portlet.collection', 'plone.portlet.static']"
 dependencies_mappings = [

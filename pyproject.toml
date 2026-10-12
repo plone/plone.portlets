@@ -245,6 +245,7 @@ ignore = [
     "dependabot.yml",
     "mx.ini",
     "tox.ini",
+    "requirements.txt",
 
 ]
 
