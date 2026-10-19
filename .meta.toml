@@ -3,21 +3,12 @@
 # See the inline comments on how to expand/tweak this configuration file
 [meta]
 template = "default"
-commit-id = "2.9.1.dev0"
+commit-id = "2.11.2.dev0"
 
 [tox]
 test_matrix = {"6.3" = ["*"]}
 # One test and coverage run over all four packages in src/plone/.
 package_name = "plone"
-# Transition for PLIP 4137, see mx.ini.
-use_mxdev = true
-# mxdev already installs the package (main-package); the frozen deps
-# would contain it as unnamed requirement, which uv rejects as constraint.
-# A string, because plone.meta turns a boolean false into true.
-constrain_package_deps = "false"
-test_deps_additional = """
-    -rrequirements-mxdev.txt
-"""
 
 [pyproject]
 # requirements.txt is only the mxdev input of the PLIP 4137 transition, see mx.ini.
