@@ -58,7 +58,7 @@ class PortletCssClassAdapter:
 
 class TestSchemaExtender(PortletsTestCase):
     def test_addform_fields(self):
-        schema_field_names = [k for k in field.Fields(news.INewsPortlet).keys()]
+        schema_field_names = [*field.Fields(news.INewsPortlet).keys()]
 
         # We use the news portlet as a random example of a portlet
         portlet = getUtility(IPortletType, name="portlets.News")
@@ -66,7 +66,7 @@ class TestSchemaExtender(PortletsTestCase):
         mapping = self.portal.restrictedTraverse("++contextportlets++plone.leftcolumn")
         addview = mapping.restrictedTraverse("+/" + portlet.addview)
         addview.update()
-        addview_field_names = [k for k in addview.fields.keys()]
+        addview_field_names = [*addview.fields.keys()]
 
         # Our addview schema before we register our extender:
         self.assertEqual(addview_field_names, schema_field_names)
@@ -84,7 +84,7 @@ class TestSchemaExtender(PortletsTestCase):
         mapping = self.portal.restrictedTraverse("++contextportlets++plone.leftcolumn")
         addview = mapping.restrictedTraverse("+/" + portlet.addview)
         addview.update()
-        addview_field_names = [k for k in addview.fields.keys()]
+        addview_field_names = [*addview.fields.keys()]
 
         gsm.unregisterAdapter(
             PortletCssClassFormExtender,
@@ -148,14 +148,14 @@ class TestSchemaExtender(PortletsTestCase):
         self.assertEqual(settings.get("css_class"), "my-class")
 
     def test_editform_fields(self):
-        schema_field_names = [k for k in field.Fields(news.INewsPortlet).keys()]
+        schema_field_names = [*field.Fields(news.INewsPortlet).keys()]
 
         mapping = PortletAssignmentMapping()
         request = self.folder.REQUEST
         mapping["foo"] = news.Assignment(count=5)
         editview = getMultiAdapter((mapping["foo"], request), name="edit")
         editview.update()
-        editview_field_names = [k for k in editview.fields.keys()]
+        editview_field_names = [*editview.fields.keys()]
 
         # Our editview schema before we register our extender:
         self.assertEqual(editview_field_names, schema_field_names)
@@ -175,7 +175,7 @@ class TestSchemaExtender(PortletsTestCase):
         mapping["foo"] = news.Assignment(count=5)
         editview = getMultiAdapter((mapping["foo"], request), name="edit")
         editview.update()
-        editview_field_names = [k for k in editview.fields.keys()]
+        editview_field_names = [*editview.fields.keys()]
 
         gsm.unregisterAdapter(
             PortletCssClassFormExtender,
