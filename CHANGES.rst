@@ -8,6 +8,26 @@ Changelog
 
 .. towncrier release notes start
 
+5.0.0a1 (2026-10-19)
+--------------------
+
+Breaking changes:
+
+
+- Merge ``plone.app.portlets``, ``plone.portlet.collection`` and ``plone.portlet.static`` into this distribution, with their complete git history.
+  Import paths do not change.
+  The three former distributions are continued as empty packages that depend on ``plone.portlets``.
+  See `PLIP 4137 <https://github.com/plone/Products.CMFPlone/issues/4137>`_.
+  @jensens (#4137)
+
+
+Internal:
+
+
+- Move package metadata from ``setup.py`` to ``pyproject.toml``.
+  [plone devs]
+
+
 The changelog starts fresh with version 5.0.0, when ``plone.app.portlets``,
 ``plone.portlet.collection`` and ``plone.portlet.static`` were merged into this
 distribution.
