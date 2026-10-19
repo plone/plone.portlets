@@ -3,10 +3,41 @@
 # See the inline comments on how to expand/tweak this configuration file
 [meta]
 template = "default"
-commit-id = "2.8.0"
+commit-id = "2.9.1.dev0"
 
 [tox]
-test_matrix = {"6.2" = ["*"]}
+test_matrix = {"6.3" = ["*"]}
+# One test and coverage run over all four packages in src/plone/.
+package_name = "plone"
+# Transition for PLIP 4137, see mx.ini.
+use_mxdev = true
+# mxdev already installs the package (main-package); the frozen deps
+# would contain it as unnamed requirement, which uv rejects as constraint.
+# A string, because plone.meta turns a boolean false into true.
+constrain_package_deps = "false"
+test_deps_additional = """
+    -rrequirements-mxdev.txt
+"""
 
 [pyproject]
-dependencies_ignores = "['zope.testing']"
+# requirements.txt is only the mxdev input of the PLIP 4137 transition, see mx.ini.
+check_manifest_ignores = """
+    "requirements.txt",
+"""
+# plone.app.portlets and plone.portlet.* are part of this distribution.
+dependencies_ignores = "['zope.testing', 'Products.CMFPlone', 'plone.app.event', 'plone.app.vocabularies', 'plone.app.portlets', 'plone.portlet.collection', 'plone.portlet.static']"
+dependencies_mappings = [
+    "ExtensionClass = ['ComputedAttribute']",
+    ]
+
+[github]
+# The merged distribution has known dependency cycles (plone.app.layout,
+# plone.app.dexterity, plone.app.contentmenu, five.customerize all depend on
+# plone.portlets).  They are resolved in step 2 of PLIP 4137; re-enable the
+# "circular" job then.
+jobs = [
+    "qa",
+    "coverage",
+    "dependencies",
+    "release_ready",
+    ]
