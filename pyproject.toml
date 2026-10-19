@@ -10,7 +10,7 @@ requires = ["setuptools>=68.2,<83", "wheel"]
 
 [project]
 name = "plone.portlets"
-version = "5.0.0a1"
+version = "5.0.0a2.dev0"
 description = "Portlet infrastructure, the Plone portlet user interface and the standard portlets of Plone"
 classifiers = [
     "Development Status :: 3 - Alpha",
